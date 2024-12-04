@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Login - Tennis ERP</title>
+        <style>
+            /* Estilos básicos para el diseño */
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f8ff;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .login-container {
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 40px;
+                width: 300px;
+                text-align: center;
+            }
+
+            h2 {
+                color: #007bff;
+                margin-bottom: 30px;
+            }
+
+            input {
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+
+            input[type="submit"] {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            input[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+
+            .forgot-password {
+                font-size: 14px;
+                color: #007bff;
+                text-decoration: none;
+            }
+
+            .forgot-password:hover {
+                text-decoration: underline;
+            }
+
+            .signup-link {
+                font-size: 14px;
+                margin-top: 20px;
+            }
+
+            .signup-link a {
+                color: #007bff;
+                text-decoration: none;
+            }
+
+            .signup-link a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="login-container">
+            <h2>Iniciar Sesión</h2>
+            <form th:action="@{/login}" method="post">
+                <input type="text" name="username" placeholder="Nombre de usuario" required="required" />
+                <input type="password" name="password" placeholder="Contraseña" required="required" />
+                <input type="submit" value="Iniciar Sesión" />
+            </form>
+
+            <div class="signup-link">
+                <p>¿No tienes cuenta? <a href="/signup">Regístrate</a></p>
+            </div>
+        </div>
+
+    </body>
+</html>
