@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #E3F2FD; /* Azul claro */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen">
+    <!-- Contenedor principal -->
+    <div class="bg-white rounded-lg shadow-2xl p-8 w-[90%] max-w-md text-center">
+        <!-- Imagen superior -->
+        <div class="mb-6 flex justify-center">
+            <img th:src="@{/images/escudo.png}" alt="Escudo" class="w-24 h-24 object-contain"> <!-- Tamaño reducido -->
+        </div>
+
+        <!-- Título -->
+        <h1 class="text-2xl font-extrabold text-blue-600 mb-8">Menú Principal</h1>
+
+        <!-- Botones de navegación -->
+        <div class="grid grid-cols-2 gap-4">
+            <a href="#" class="block py-3 px-5 bg-blue-500 text-white font-semibold rounded-lg text-sm shadow hover:bg-blue-600 hover:shadow-lg transition-all">Calendario</a>
+            <a href="#" class="block py-3 px-5 bg-blue-500 text-white font-semibold rounded-lg text-sm shadow hover:bg-blue-600 hover:shadow-lg transition-all">Horario</a>
+            <a href="#" class="block py-3 px-5 bg-blue-500 text-white font-semibold rounded-lg text-sm shadow hover:bg-blue-600 hover:shadow-lg transition-all">Convocatoria</a>
+            <a href="#" class="block py-3 px-5 bg-blue-500 text-white font-semibold rounded-lg text-sm shadow hover:bg-blue-600 hover:shadow-lg transition-all">Resultados</a>
+            <a href="#" class="block py-3 px-5 bg-blue-500 text-white font-semibold rounded-lg text-sm shadow hover:bg-blue-600 hover:shadow-lg transition-all">Botón 5</a>
+            <a href="#" class="block py-3 px-5 bg-blue-500 text-white font-semibold rounded-lg text-sm shadow hover:bg-blue-600 hover:shadow-lg transition-all">Botón 6</a>
+        </div>
+    </div>
+</body>
+</html>
