@@ -20,9 +20,4 @@ public class LoginController {
         }
         return "login"; // Retorna la vista login.html
     }
-
-    @GetMapping("/menu")
-    public String menu() {
-        return "menu"; // Retorna la vista login.html
-    }
 }
