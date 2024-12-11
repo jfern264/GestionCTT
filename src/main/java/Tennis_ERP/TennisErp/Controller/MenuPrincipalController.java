@@ -20,6 +20,4 @@ public class MenuPrincipalController {
     public String menu_principal() {
         return "Menu_principal";  // Retorna el nombre de la vista (Menu_principal.html)
     }
-    
-    
 }

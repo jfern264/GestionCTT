@@ -19,6 +19,7 @@
     </properties>
 
     <dependencies>
+      
         <!-- tremendo de BCrypt -->
         <dependency>
             <groupId>org.mindrot</groupId>

@@ -36,11 +36,11 @@ public class SecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 authorize -> authorize.requestMatchers("/").hasAnyAuthority("Admin", "Trabajador", "Usuario")
-                        .requestMatchers("/Menu_principal/**").hasAnyAuthority("Admin", "Trabajador", "Usuario")
+                        .requestMatchers("/menu_principal/**").hasAnyAuthority("Admin", "Trabajador", "Usuario")
                         .anyRequest().authenticated())
                 .formLogin(form -> form //Objeto que representa el formulari de login personalitzat que utilitzarem
                 .loginPage("/login") //Pàgina on es troba el formulari per fer login personalitzat
-                .defaultSuccessUrl("/Menu_principal", true)
+                .defaultSuccessUrl("/menu_principal", true)
                 .permitAll() //Permet accedir a tothom
                 );
 
