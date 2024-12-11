@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Calendario</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                background-color: #E3F2FD; /* Azul claro */
+            }
+        </style>
+    </head>
+    <body class="flex items-center justify-center h-screen">
+        <!-- Contenedor principal -->
+        <div class="bg-white rounded-xl shadow-lg p-6 w-[95%] max-w-4xl">
+            <!-- Título -->
+            <h1 class="text-2xl font-extrabold text-blue-600 text-center mb-8">Calendario</h1>
+
+            <!-- Selección de mes y año -->
+            <div class="flex justify-between items-center mb-6">
+                <button class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onclick="cambiarMes(-1)">Anterior</button>
+                <h2 id="mes-actual" class="text-xl font-bold text-blue-500"></h2>
+                <button class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onclick="cambiarMes(1)">Siguiente</button>
+            </div>
+
+            <!-- Tabla del calendario -->
+            <table class="table-auto w-full text-center border-collapse">
+                <thead>
+                    <tr class="bg-blue-200">
+                        <th>Lunes</th>
+                        <th>Martes</th>
+                        <th>Miércoles</th>
+                        <th>Jueves</th>
+                        <th>Viernes</th>
+                        <th>Sábado</th>
+                        <th>Domingo</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-calendario">
+                    <!-- Las filas del calendario se generarán dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+
+            <!-- Lista de eventos -->
+            <div class="mt-6">
+                <h2 class="text-xl font-bold text-blue-500 mb-4">Eventos</h2>
+                <ul id="lista-eventos">
+                    <!-- Los eventos se renderizarán dinámicamente desde JavaScript -->
+                </ul>
+            </div>
+
+            <!-- Formulario para agregar un evento -->
+            <div class="mt-6">
+                <h2 class="text-xl font-bold text-blue-500 mb-4">Agregar Evento</h2>
+                <form onsubmit="event.preventDefault(); agregarEvento();" class="space-y-4">
+                    <div>
+                        <label for="fecha" class="block text-left font-semibold">Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" required class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <div>
+                        <label for="descripcion" class="block text-left font-semibold">Descripción:</label>
+                        <input type="text" id="descripcion" name="descripcion" placeholder="Descripción del evento" required class="border rounded px-3 py-2 w-full">
+                    </div>
+                    <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">Agregar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Ventana Modal para mostrar detalles del evento -->
+        <div id="modal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+            <div class="bg-white rounded-lg p-6 w-[300px]">
+                <h2 class="text-xl font-bold text-blue-600 mb-4">Detalles del Evento</h2>
+                <p id="modal-fecha" class="mb-2"></p>
+                <p id="modal-descripcion"></p>
+                <button onclick="cerrarModal()" class="bg-blue-500 text-white py-1 px-2 rounded mt-4 hover:bg-blue-600">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- Script para manejar el calendario dinámico -->
+        <script>
+            const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            let fechaActual = new Date();
+
+            // Cargar eventos desde almacenamiento local
+            let eventos = JSON.parse(localStorage.getItem('calendarioEventos')) || [];
+
+            function renderizarCalendario() {
+                const mes = fechaActual.getMonth();
+                const anio = fechaActual.getFullYear();
+
+                // Actualiza el título del mes
+                document.getElementById("mes-actual").textContent = `${meses[mes]} ${anio}`;
+
+                // Obtener el primer día y la cantidad de días del mes
+                const primerDia = new Date(anio, mes, 1).getDay();
+                const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+
+                // Limpiar la tabla del calendario
+                const tabla = document.getElementById("tabla-calendario");
+                tabla.innerHTML = "";
+
+                // Rellenar días vacíos al inicio
+                let fila = document.createElement("tr");
+                for (let i = 1; i < (primerDia === 0 ? 7 : primerDia); i++) {
+                    const celda = document.createElement("td");
+                    fila.appendChild(celda);
+                }
+
+                // Rellenar los días del mes
+                for (let dia = 1; dia <= diasEnMes; dia++) {
+                    if (fila.children.length === 7) {
+                        tabla.appendChild(fila);
+                        fila = document.createElement("tr");
+                    }
+
+                    const celda = document.createElement("td");
+                    celda.textContent = dia;
+                    celda.classList.add("border", "p-2", "hover:bg-blue-100");
+
+                    // Verificar si el día tiene eventos
+                    const eventosDelDia = eventos.filter(evento => {
+                        const fechaEvento = new Date(evento.date);
+                        return (
+                            fechaEvento.getDate() === dia &&
+                            fechaEvento.getMonth() === mes &&
+                            fechaEvento.getFullYear() === anio
+                        );
+                    });
+
+                    if (eventosDelDia.length > 0) {
+                        celda.classList.add("bg-blue-200", "cursor-pointer");
+                        // Mostrar solo la primera palabra del evento en el calendario
+                        const primeraPalabra = eventosDelDia[0].description.split(" ")[0];
+                        celda.innerHTML = `<span>${dia}</span><ul class="hidden">${eventosDelDia.map(evento => `<li>${evento.date}: ${primeraPalabra}</li>`).join("\n")}</ul>`;
+                        celda.addEventListener("click", () => mostrarDetallesEvento(eventosDelDia));
+                    }
+
+                    fila.appendChild(celda);
+                }
+
+                // Rellenar días vacíos al final
+                while (fila.children.length < 7) {
+                    const celda = document.createElement("td");
+                    fila.appendChild(celda);
+                }
+                tabla.appendChild(fila);
+            }
+
+            function mostrarDetallesEvento(eventosDelDia) {
+                // Asigna la fecha y descripción al modal
+                document.getElementById("modal-fecha").textContent = eventosDelDia[0].date;
+                document.getElementById("modal-descripcion").textContent = eventosDelDia[0].description;
+
+                // Muestra el modal
+                document.getElementById("modal").classList.remove("hidden");
+            }
+
+            function cerrarModal() {
+                // Oculta el modal
+                document.getElementById("modal").classList.add("hidden");
+            }
+
+            function cambiarMes(incremento) {
+                fechaActual.setMonth(fechaActual.getMonth() + incremento);
+                renderizarCalendario();
+            }
+
+            function agregarEvento() {
+                const fecha = document.getElementById("fecha").value;
+                const descripcion = document.getElementById("descripcion").value;
+
+                if (fecha && descripcion) {
+                    // Crear el nuevo evento
+                    const nuevoEvento = {
+                        date: fecha,
+                        description: descripcion
+                    };
+                    eventos.push(nuevoEvento);
+
+                    // Guardar los eventos en el almacenamiento local
+                    localStorage.setItem('calendarioEventos', JSON.stringify(eventos));
+
+                    // Renderizar el calendario nuevamente
+                    renderizarCalendario();
+            
+                    // Limpiar el formulario
+                    document.getElementById("fecha").value = '';
+                    document.getElementById("descripcion").value = '';
+                }
+            }
+
+            // Inicializa el calendario al cargar la página
+            renderizarCalendario();
+        </script>
+    </body>
+</html>
