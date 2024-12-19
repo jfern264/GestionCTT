@@ -14,7 +14,7 @@ import java.util.List;
 @Controller
 public class CalendarioController {
 
-    // List to store events (for simplicity, replace with a database in production)
+    // Lista para almacenar eventos (reemplazar con una base de datos en producción)
     private List<Event> events = new ArrayList<>();
 
     @GetMapping("/calendario")
@@ -22,22 +22,46 @@ public class CalendarioController {
         // Obtener la fecha actual
         LocalDate currentDate = LocalDate.now();
 
-        // Pasar el año, mes y eventos al modelo
+        // Crear el calendario del mes
+        List<List<Integer>> calendario = new ArrayList<>();
+        LocalDate firstDayOfMonth = currentDate.withDayOfMonth(1);
+        int firstDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue(); // 1 = Monday, 7 = Sunday
+        int lastDayOfMonth = currentDate.lengthOfMonth();
+
+        // Rellenar el calendario con los días
+        List<Integer> week = new ArrayList<>();
+        for (int i = 1; i < firstDayOfWeek; i++) {
+            week.add(0); // Espacios vacíos hasta el primer día del mes
+        }
+
+        for (int i = 1; i <= lastDayOfMonth; i++) {
+            week.add(i);
+            if (week.size() == 7) {
+                calendario.add(new ArrayList<>(week));
+                week.clear();
+            }
+        }
+
+        if (!week.isEmpty()) {
+            calendario.add(new ArrayList<>(week)); // Añadir la última semana si es incompleta
+        }
+
+        // Pasar los datos al modelo
         model.addAttribute("currentYear", currentDate.getYear());
         model.addAttribute("currentMonth", currentDate.getMonthValue());
         model.addAttribute("events", events);
+        model.addAttribute("calendario", calendario);
 
         return "calendario"; // Nombre de la vista HTML
     }
 
     @PostMapping("/calendario")
-    public String agregarEvento(@RequestParam("fecha") String fecha, @RequestParam("descripcion") String descripcion) {
+    public String agregarEvento(@RequestParam("fecha") String fecha, @RequestParam("titulo") String titulo, @RequestParam("descripcion") String descripcion) {
         // Crear el nuevo evento
-        Event nuevoEvento = new Event(fecha, descripcion);
+        Event nuevoEvento = new Event(fecha, titulo, descripcion);
         events.add(nuevoEvento);
 
-        // Guardar el nuevo estado de eventos (puedes hacerlo en una base de datos en lugar de memoria)
-        // Aquí no se hace persistencia, solo muestra cómo se agrega el evento.
-        return "redirect:/calendario"; // Redirige para refrescar la página con el nuevo evento
+        // Redirigir para refrescar la página con el nuevo evento
+        return "redirect:/calendario"; // Redirige a la página de calendario
     }
 }
