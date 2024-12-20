@@ -56,9 +56,9 @@ public class CalendarioController {
     }
 
     @PostMapping("/calendario")
-    public String agregarEvento(@RequestParam("fecha") String fecha, @RequestParam("titulo") String titulo, @RequestParam("descripcion") String descripcion) {
+    public String agregarEvento(@RequestParam("fecha") String fecha, @RequestParam("hora") String hora, @RequestParam("titulo") String titulo, @RequestParam("descripcion") String descripcion) {
         // Crear el nuevo evento
-        Event nuevoEvento = new Event(fecha, titulo, descripcion);
+        Event nuevoEvento = new Event(fecha, hora, titulo, descripcion);
         events.add(nuevoEvento);
 
         // Redirigir para refrescar la página con el nuevo evento

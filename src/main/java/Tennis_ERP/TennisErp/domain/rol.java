@@ -16,9 +16,4 @@ public class rol {
     public String getRol() {
         return rol;
     }
-
-    // También puedes agregar un setter si lo necesitas
-    public void setRol(String rol) {
-        this.rol = rol;
-    }
 }

@@ -3,74 +3,109 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Calendario</title>
+        <title>Calendario Mejorado</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
             body {
-                background-color: #E3F2FD; /* Azul claro */
-                margin: 0; /* Elimina márgenes */
+                background-color: #F3F4F6; /* Gris claro para un fondo neutro */
+                font-family: 'Arial', sans-serif;
+                margin: 0;
             }
             table {
-                height: calc(100vh - 150px); /* Altura completa menos espacio del título y controles */
-                table-layout: fixed; /* Asegura que todas las celdas tengan el mismo ancho */
+                height: calc(100vh - 200px);
+                table-layout: fixed;
             }
             td, th {
-                width: 14.28%; /* Ajusta celdas para que ocupen todo el ancho */
+                width: 14.28%;
+                text-align: center;
+                vertical-align: top;
+            }
+            td {
+                transition: all 0.3s ease;
+            }
+            td:hover {
+                transform: scale(1.05); /* Animación de zoom */
+            }
+            /* Colores según cantidad de eventos */
+            .evento-1 {
+                background-color: #BFDBFE; /* Azul claro */
+            }
+            .evento-2 {
+                background-color: #BBF7D0; /* Verde claro */
+            }
+            .evento-3 {
+                background-color: #FECACA; /* Rojo claro */
             }
         </style>
     </head>
     <body class="flex flex-col">
         <!-- Título -->
-        <h1 class="text-3xl font-extrabold text-blue-600 text-center my-4">Calendario</h1>
+        <header class="bg-blue-600 text-white py-4 text-center shadow-md">
+            <h1 class="text-4xl font-extrabold">Calendario</h1>
+            <button onclick="volverAlMenu()" class="bg-blue-500 text-white py-2 px-4 rounded mt-2 hover:bg-blue-600">Volver al Menú Principal</button>
+        </header>
 
         <!-- Controles de navegación -->
-        <div class="flex justify-between items-center px-4 mb-4">
+        <div class="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
             <button class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onclick="cambiarMes(-1)">Anterior</button>
-            <h2 id="mes-actual" class="text-2xl font-bold text-blue-500"></h2>
+            <h2 id="mes-actual" class="text-2xl font-bold text-blue-600"></h2>
             <button class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onclick="cambiarMes(1)">Siguiente</button>
         </div>
 
         <!-- Tabla del calendario -->
-        <table class="table-auto w-full text-center border-collapse">
-            <thead>
-                <tr class="bg-blue-200">
-                    <th>Lunes</th>
-                    <th>Martes</th>
-                    <th>Miércoles</th>
-                    <th>Jueves</th>
-                    <th>Viernes</th>
-                    <th>Sábado</th>
-                    <th>Domingo</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-calendario">
-                <!-- Las filas del calendario se generarán dinámicamente con JavaScript -->
-            </tbody>
-        </table>
+        <main class="flex-grow bg-gray-100 px-4 py-6">
+            <table class="table-auto w-full text-gray-800 border-separate border-spacing-2">
+                <thead>
+                    <tr class="bg-blue-100 text-blue-600">
+                        <th class="py-2 rounded">Lunes</th>
+                        <th class="py-2 rounded">Martes</th>
+                        <th class="py-2 rounded">Miércoles</th>
+                        <th class="py-2 rounded">Jueves</th>
+                        <th class="py-2 rounded">Viernes</th>
+                        <th class="py-2 rounded">Sábado</th>
+                        <th class="py-2 rounded">Domingo</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-calendario" class="bg-white shadow-md">
+                    <!-- Generación dinámica de celdas -->
+                </tbody>
+            </table>
+        </main>
 
         <!-- Formulario para agregar un evento -->
-        <div class="bg-white px-4 py-4">
+        <section class="bg-white px-6 py-6 shadow-md mt-4">
             <h2 class="text-xl font-bold text-blue-500 mb-4">Agregar Evento</h2>
             <form onsubmit="event.preventDefault(); agregarEvento();" class="space-y-4">
                 <div>
                     <label for="fecha" class="block text-left font-semibold">Fecha:</label>
-                    <input type="date" id="fecha" name="fecha" required class="border rounded px-3 py-2 w-full">
+                    <input type="date" id="fecha" name="fecha" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
+                </div>
+
+                <div>
+                    <label for="hora" class="block text-left font-semibold">Hora:</label>
+                    <input type="time" id="hora" name="hora" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label for="titulo" class="block text-left font-semibold">Título:</label>
+                    <input type="text" id="titulo" name="titulo" placeholder="Título del evento" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
                 </div>
                 <div>
                     <label for="descripcion" class="block text-left font-semibold">Descripción:</label>
-                    <input type="text" id="descripcion" name="descripcion" placeholder="Descripción del evento" required class="border rounded px-3 py-2 w-full">
+                    <input type="text" id="descripcion" name="descripcion" placeholder="Descripción del evento" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
                 </div>
                 <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">Agregar</button>
             </form>
-        </div>
+        </section>
 
         <!-- Ventana Modal para mostrar detalles del evento -->
         <div id="modal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
-            <div class="bg-white rounded-lg p-6 w-[300px]">
-                <h2 class="text-xl font-bold text-blue-600 mb-4">Detalles del Evento</h2>
+            <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+                <h2 id="modal-titulo" class="text-xl font-bold text-blue-600 mb-4"></h2>
                 <p id="modal-fecha" class="mb-2"></p>
-                <p id="modal-descripcion"></p>
-                <button onclick="cerrarModal()" class="bg-blue-500 text-white py-1 px-2 rounded mt-4 hover:bg-blue-600">Cerrar</button>
+                <p id="modal-hora" class="mb-2"></p> <!-- Nueva línea para la hora -->
+                <div id="modal-descripcion" class="text-gray-700"></div>
+                <button onclick="cerrarModal()" class="bg-blue-500 text-white py-2 px-4 rounded mt-4 hover:bg-blue-600">Cerrar</button>
+                <button id="eliminar-evento" class="bg-red-500 text-white py-2 px-4 rounded mt-4 hover:bg-red-600">Eliminar</button>
             </div>
         </div>
 
@@ -78,7 +113,6 @@
         <script>
             const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
             let fechaActual = new Date();
-
             let eventos = JSON.parse(localStorage.getItem('calendarioEventos')) || [];
 
             function renderizarCalendario() {
@@ -106,25 +140,29 @@
                     }
 
                     const celda = document.createElement("td");
-                    celda.textContent = dia;
-                    celda.classList.add("border", "p-2", "hover:bg-blue-100");
+                    celda.classList.add("border", "p-2", "rounded-lg");
 
                     const eventosDelDia = eventos.filter(evento => {
                         const fechaEvento = new Date(evento.date);
                         return fechaEvento.getDate() === dia && fechaEvento.getMonth() === mes && fechaEvento.getFullYear() === anio;
                     });
 
-                    // Cambiar color según el número de eventos
-                    if (eventosDelDia.length > 0) {
-                        celda.classList.add("cursor-pointer");
-                        if (eventosDelDia.length === 1) {
-                            celda.classList.add("bg-blue-200");
-                        } else if (eventosDelDia.length === 2) {
-                            celda.classList.add("bg-green-200"); // Color para 2 eventos
-                        } else {
-                            celda.classList.add("bg-red-200"); // Color para 3 o más eventos
-                        }
-                        celda.addEventListener("click", () => mostrarDetallesEvento(eventosDelDia));
+                    celda.innerHTML = `<p>${dia}</p>`;
+                    eventosDelDia.forEach(evento => {
+                        const eventoTitulo = document.createElement("p");
+                        eventoTitulo.textContent = evento.title;
+                        eventoTitulo.classList.add("text-blue-600", "cursor-pointer", "hover:underline");
+                        eventoTitulo.onclick = () => mostrarDetallesEvento(evento);
+                        celda.appendChild(eventoTitulo);
+                    });
+
+                    // Aplicar clases según la cantidad de eventos
+                    if (eventosDelDia.length === 1) {
+                        celda.classList.add("evento-1");
+                    } else if (eventosDelDia.length === 2) {
+                        celda.classList.add("evento-2");
+                    } else if (eventosDelDia.length >= 3) {
+                        celda.classList.add("evento-3");
                     }
 
                     fila.appendChild(celda);
@@ -137,24 +175,23 @@
                 tabla.appendChild(fila);
             }
 
+            function mostrarDetallesEvento(evento) {
+                document.getElementById("modal-titulo").textContent = evento.title;
+                document.getElementById("modal-fecha").textContent = `Fecha: ${evento.date}`;
+                document.getElementById("modal-hora").textContent = evento.time; // Actualizado para mostrar la hora
+                document.getElementById("modal-descripcion").textContent = evento.description;
 
-            function mostrarDetallesEvento(eventosDelDia) {
-                // Limpiar el contenido del modal antes de agregar los eventos
-                document.getElementById("modal-fecha").textContent = eventosDelDia[0].date;
-                const descripcionContainer = document.getElementById("modal-descripcion");
+                const botonEliminar = document.getElementById("eliminar-evento");
+                botonEliminar.onclick = () => eliminarEvento(evento);
 
-                // Limpiar las descripciones anteriores
-                descripcionContainer.innerHTML = '';
-
-                // Agregar todos los eventos del día
-                eventosDelDia.forEach(evento => {
-                    const descripcionElemento = document.createElement("p");
-                    descripcionElemento.textContent = evento.description;
-                    descripcionContainer.appendChild(descripcionElemento);
-                });
-
-                // Mostrar el modal
                 document.getElementById("modal").classList.remove("hidden");
+            }
+
+            function eliminarEvento(evento) {
+                eventos = eventos.filter(e => e.date !== evento.date || e.title !== evento.title || e.description !== evento.description);
+                localStorage.setItem("calendarioEventos", JSON.stringify(eventos));
+                cerrarModal();
+                renderizarCalendario();
             }
 
             function cerrarModal() {
@@ -168,15 +205,23 @@
 
             function agregarEvento() {
                 const fecha = document.getElementById("fecha").value;
+                const hora = document.getElementById("hora").value;
+                const titulo = document.getElementById("titulo").value;
                 const descripcion = document.getElementById("descripcion").value;
 
-                if (fecha && descripcion) {
-                    eventos.push({date: fecha, description: descripcion});
-                    localStorage.setItem('calendarioEventos', JSON.stringify(eventos));
+                if (fecha && hora && titulo && descripcion) {
+                    eventos.push({date: fecha, time: hora, title: titulo, description: descripcion});
+                    localStorage.setItem("calendarioEventos", JSON.stringify(eventos));
                     renderizarCalendario();
                     document.getElementById("fecha").value = '';
+                    document.getElementById("hora").value = '';
+                    document.getElementById("titulo").value = '';
                     document.getElementById("descripcion").value = '';
                 }
+            }
+
+            function volverAlMenu() {
+                window.location.href = "menu_principal"; // Reemplazar con la URL de tu menú principal
             }
 
             renderizarCalendario();

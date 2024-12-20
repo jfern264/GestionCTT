@@ -1,17 +1,31 @@
 package Tennis_ERP.TennisErp.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
+@Entity
+@Table(name = "Actividades")
 public class Event {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // La clave primaria de la entidad
+    
     private LocalDate date;
-    private String title;  // Nuevo campo para el título
+    private LocalTime time;  // Nuevo campo para la hora
+    private String title;
     private String description;
 
-    // Constructor modificado para incluir título
-    public Event(String fecha, String titulo, String descripcion) {
+    // Constructor modificado para incluir hora
+    public Event(String fecha, String hora, String titulo, String descripcion) {
         this.date = LocalDate.parse(fecha); // Asegúrate de manejar correctamente el formato de la fecha
-        this.title = titulo;  // Asignar el título
+        this.time = LocalTime.parse(hora);  // Asignar la hora
+        this.title = titulo;
         this.description = descripcion;
     }
 
@@ -22,6 +36,14 @@ public class Event {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     public String getTitle() {

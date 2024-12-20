@@ -2,41 +2,65 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Login - Tennis ERP</title>
         <style>
-            /* Estilos básicos para el diseño */
+            /* Estilos generales */
             body {
-                font-family: Arial, sans-serif;
-                background-color: #f0f8ff;
+                font-family: 'Poppins', sans-serif;
+                background: linear-gradient(135deg, #007fff, #00c2ff); /* Gradiente azul vibrante */
+                font-family: 'Inter', sans-serif; /* Fuente más moderna */
                 margin: 0;
                 padding: 0;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 height: 100vh;
+                color: #333;
             }
 
             .login-container {
                 background-color: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                padding: 40px;
-                width: 300px;
+                border-radius: 20px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+                padding: 40px 30px;
+                width: 100%;
+                max-width: 400px;
                 text-align: center;
+                animation: fadeIn 0.8s ease-in-out;
+                box-sizing: border-box; /* Asegura que padding y border no afecten el tamaño */
             }
 
             h2 {
                 color: #007bff;
-                margin-bottom: 30px;
+                font-size: 28px;
+                margin-bottom: 20px;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                align-items: center; /* Centra los campos */
             }
 
             input {
-                width: 100%;
-                padding: 10px;
-                margin: 10px 0;
+                width: calc(100% - 20px); /* Asegura márgenes uniformes */
+                max-width: 360px; /* Evita que sea demasiado ancho */
+                padding: 15px;
+                margin: 0 auto; /* Centra los campos horizontalmente */
                 border: 1px solid #ccc;
-                border-radius: 5px;
+                border-radius: 12px;
                 font-size: 16px;
+                transition: border-color 0.3s, box-shadow 0.3s;
+            }
+
+            input:focus {
+                outline: none;
+                border-color: #007bff;
+                box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
             }
 
             input[type="submit"] {
@@ -44,20 +68,29 @@
                 color: white;
                 border: none;
                 cursor: pointer;
-                transition: background-color 0.3s;
+                font-size: 16px;
+                font-weight: bold;
+                transition: background-color 0.3s, transform 0.2s;
+                border-radius: 12px;
+                padding: 15px;
+                width: 100%; /* Se adapta al contenedor */
+                max-width: 360px;
             }
 
             input[type="submit"]:hover {
                 background-color: #0056b3;
+                transform: translateY(-2px);
             }
 
             .forgot-password {
                 font-size: 14px;
                 color: #007bff;
                 text-decoration: none;
+                transition: color 0.3s;
             }
 
             .forgot-password:hover {
+                color: #0056b3;
                 text-decoration: underline;
             }
 
@@ -69,15 +102,42 @@
             .signup-link a {
                 color: #007bff;
                 text-decoration: none;
+                font-weight: bold;
+                transition: color 0.3s;
             }
 
             .signup-link a:hover {
+                color: #0056b3;
                 text-decoration: underline;
+            }
+
+            .message {
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
+            .message.error {
+                color: #e63946;
+            }
+
+            .message.success {
+                color: #2a9d8f;
+            }
+
+            /* Animación para el contenedor */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
         </style>
     </head>
     <body>
-
         <div class="login-container">
             <h2>Iniciar Sesión</h2>
             <form th:action="@{/login}" method="post">
@@ -85,16 +145,13 @@
                 <input type="password" name="password" placeholder="Contraseña" required="required" />
                 <input type="submit" value="Iniciar Sesión" />
 
-                <!-- Mostrar mensaje de error si hay un fallo en el login -->
-                <div th:if="${error}">
-                    <p style="color:red;" th:text="${error}"></p>
-                </div>
-                <div th:if="${message}">
-                    <p style="color:green;" th:text="${message}"></p>
-                </div>
-
+                <!-- Mensajes de error y éxito -->
+                <div th:if="${error}" class="message error" th:text="${error}"></div>
+                <div th:if="${message}" class="message success" th:text="${message}"></div>
             </form>
+            <div class="signup-link">
+                ¿No tienes una cuenta? <a href="/signup">Regístrate aquí</a>
+            </div>
         </div>
-
     </body>
 </html>
