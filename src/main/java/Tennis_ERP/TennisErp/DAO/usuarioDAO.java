@@ -1,6 +1,6 @@
 package Tennis_ERP.TennisErp.DAO;
 
-import Tennis_ERP.TennisErp.domain.usuario;  // Importando la clase correctamente
+import Tennis_ERP.TennisErp.domain.usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +9,12 @@ import java.util.Optional;
 @Repository
 public interface UsuarioDAO extends JpaRepository<usuario, Integer> {
 
-    Optional<usuario> findByNombre(String nombre);  // Método para buscar por nombre
+    /**
+     * Busca un usuario por su nombre.
+     *
+     * @param nombre El nombre del usuario.
+     * @return Un Optional que contiene el usuario si se encuentra, o vacío en
+     * caso contrario.
+     */
+    Optional<usuario> findByNombre(String nombre);
 }

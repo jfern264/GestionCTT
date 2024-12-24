@@ -7,58 +7,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import lombok.Data;
 
 @Entity
 @Table(name = "Actividades")
+@Data
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // La clave primaria de la entidad
-    
+    private Long id; // ID es Long
+
     private LocalDate date;
     private LocalTime time;  // Nuevo campo para la hora
     private String title;
     private String description;
 
-    // Constructor modificado para incluir hora
-    public Event(String fecha, String hora, String titulo, String descripcion) {
-        this.date = LocalDate.parse(fecha); // Asegúrate de manejar correctamente el formato de la fecha
-        this.time = LocalTime.parse(hora);  // Asignar la hora
-        this.title = titulo;
-        this.description = descripcion;
-    }
-
-    // Getters y setters
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
+    // El constructor sin el ID, ya que el ID es autogenerado
+    public Event(LocalDate date, LocalTime time, String title, String description) {
         this.date = date;
-    }
-
-    public LocalTime getTime() {
-        return time;
-    }
-
-    public void setTime(LocalTime time) {
         this.time = time;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
     }
 }

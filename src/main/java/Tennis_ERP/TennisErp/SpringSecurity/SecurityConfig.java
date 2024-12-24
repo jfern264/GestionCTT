@@ -1,7 +1,6 @@
 package Tennis_ERP.TennisErp.SpringSecurity;
 
 import org.springframework.context.annotation.ComponentScan;
-import Tennis_ERP.TennisErp.Service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -10,25 +10,13 @@ public class usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    public int id; // Campo público para acceso directo
 
-    private String nombre;
-    private String contraseña;
+    public String nombre; // Campo público para acceso directo
+
+    public String contraseña; // Campo público para acceso directo
 
     @ManyToOne
-    @JoinColumn(name = "rol_id", nullable = false) // Relación con la tabla roles
-    private rol rol;
-
-    // Métodos getter
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getContraseña() {
-        return contraseña;
-    }
-
-    public rol getRol() {
-        return rol;
-    }
+    @JoinColumn(name = "rol_id", nullable = false)
+    public rol rol; // Campo público para acceso directo
 }

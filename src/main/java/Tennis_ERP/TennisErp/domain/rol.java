@@ -1,9 +1,11 @@
 package Tennis_ERP.TennisErp.domain;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "roles")
+@Data
 public class rol {
 
     @Id
@@ -11,9 +13,4 @@ public class rol {
     private int id;
 
     private String rol;
-
-    // Método getter para el campo 'rol'
-    public String getRol() {
-        return rol;
-    }
 }
