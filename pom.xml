@@ -58,12 +58,13 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.36</version> <!-- Asegúrate de usar la última versión -->
+            <scope>provided</scope>
         </dependency>
+
 
         <!-- DevTools -->
         <dependency>

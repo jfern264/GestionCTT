@@ -1,9 +1,11 @@
 package Tennis_ERP.TennisErp.domain;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "usuarios")
+@Data
 public class usuario {
 
     @Id
@@ -28,18 +30,5 @@ public class usuario {
 
     public rol getRol() {
         return rol;
-    }
-
-    // Métodos setter
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public void setContraseña(String contraseña) {
-        this.contraseña = contraseña;
-    }
-
-    public void setRol(rol rol) {
-        this.rol = rol;
     }
 }
