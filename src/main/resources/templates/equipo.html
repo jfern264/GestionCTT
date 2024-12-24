@@ -11,41 +11,65 @@
         }
 
         .container {
-            width: 80%;
+            width: 90%;
             margin: auto;
         }
 
-        .recuadro {
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
             border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
+            text-align: left;
+            padding: 10px;
         }
 
-        .titulo {
-            font-size: 1.5em;
+        th {
+            background-color: #f4f4f4;
             font-weight: bold;
-            margin-bottom: 10px;
         }
 
-        .detalle {
-            margin: 5px 0;
+        td {
+            background-color: #fafafa;
+        }
+
+        h1 {
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Lista de Equipos</h1>
-        <div th:each="equipo : ${equipos}" class="recuadro">
-            <div class="titulo" th:text="${equipo.equipo}"></div>
-            <div class="detalle"><strong>Liga:</strong> <span th:text="${equipo.liga}"></span></div>
-            <div class="detalle"><strong>Categoría:</strong> <span th:text="${equipo.categoria}"></span></div>
-            <div class="detalle"><strong>Puntos:</strong> <span th:text="${equipo.puntos}"></span></div>
-            <div class="detalle"><strong>Partidos Jugados:</strong> <span th:text="${equipo.partidos}"></span></div>
-            <div class="detalle"><strong>Objetivo:</strong> <span th:text="${equipo.objetivo}"></span></div>
-            <div class="detalle"><strong>Precio Liga:</strong> <span th:text="${equipo.precioLiga}"></span></div>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Equipo</th>
+                    <th>Liga</th>
+                    <th>Categoría</th>
+                    <th>Puntos</th>
+                    <th>Partidos</th>
+                    <th>Objetivo</th>
+                    <th>Precio Liga</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="equipo : ${equipos}">
+                    <td th:text="${equipo.nombre}"></td>
+                    <td th:text="${equipo.equipo}"></td>
+                    <td th:text="${equipo.liga}"></td>
+                    <td th:text="${equipo.categoria}"></td>
+                    <td th:text="${equipo.puntos}"></td>
+                    <td th:text="${equipo.partidos}"></td>
+                    <td th:text="${equipo.objetivo}"></td>
+                    <td th:text="${equipo.precioLiga}"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
