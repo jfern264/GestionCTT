@@ -1,4 +1,4 @@
-package Tennis_ERP.TennisErp.Controller.DAO;
+package Tennis_ERP.TennisErp.DAO;
 
 public class rolDAO {
 

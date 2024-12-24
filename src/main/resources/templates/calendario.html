@@ -3,56 +3,58 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Calendario Mejorado</title>
+        <title>Calendario</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
             body {
-                background-color: #F3F4F6; /* Gris claro para un fondo neutro */
+                background-color: #F3F4F6;
                 font-family: 'Arial', sans-serif;
                 margin: 0;
             }
             table {
-                height: calc(100vh - 200px);
+                width: 100%;
                 table-layout: fixed;
             }
             td, th {
-                width: 14.28%;
                 text-align: center;
                 vertical-align: top;
+                padding: 8px;
+                height: 100px;
             }
             td {
                 transition: all 0.3s ease;
             }
             td:hover {
-                transform: scale(1.05); /* Animación de zoom */
+                transform: scale(1.05);
             }
-            /* Colores según cantidad de eventos */
             .evento-1 {
-                background-color: #BFDBFE; /* Azul claro */
+                background-color: #BFDBFE;
             }
             .evento-2 {
-                background-color: #BBF7D0; /* Verde claro */
+                background-color: #BBF7D0;
             }
             .evento-3 {
-                background-color: #FECACA; /* Rojo claro */
+                background-color: #FECACA;
+            }
+            .vacio {
+                background-color: #F9FAFB;
             }
         </style>
     </head>
     <body class="flex flex-col">
-        <!-- Título -->
         <header class="bg-blue-600 text-white py-4 text-center shadow-md">
             <h1 class="text-4xl font-extrabold">Calendario</h1>
-            <button onclick="volverAlMenu()" class="bg-blue-500 text-white py-2 px-4 rounded mt-2 hover:bg-blue-600">Volver al Menú Principal</button>
+            <button onclick="volverAlMenu()" class="bg-red-600 text-white py-3 px-8 rounded-full mt-6 hover:bg-red-700 hover:shadow-lg transform transition duration-300 ease-in-out mx-auto block text-xl font-semibold tracking-wide focus:outline-none focus:ring-4 focus:ring-red-500">
+                Volver al Menú Principal
+            </button>
         </header>
 
-        <!-- Controles de navegación -->
         <div class="flex justify-between items-center px-6 py-4 bg-white shadow-sm">
             <button class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onclick="cambiarMes(-1)">Anterior</button>
             <h2 id="mes-actual" class="text-2xl font-bold text-blue-600"></h2>
             <button class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600" onclick="cambiarMes(1)">Siguiente</button>
         </div>
 
-        <!-- Tabla del calendario -->
         <main class="flex-grow bg-gray-100 px-4 py-6">
             <table class="table-auto w-full text-gray-800 border-separate border-spacing-2">
                 <thead>
@@ -66,13 +68,10 @@
                         <th class="py-2 rounded">Domingo</th>
                     </tr>
                 </thead>
-                <tbody id="tabla-calendario" class="bg-white shadow-md">
-                    <!-- Generación dinámica de celdas -->
-                </tbody>
+                <tbody id="tabla-calendario" class="bg-white shadow-md"></tbody>
             </table>
         </main>
 
-        <!-- Formulario para agregar un evento -->
         <section class="bg-white px-6 py-6 shadow-md mt-4">
             <h2 class="text-xl font-bold text-blue-500 mb-4">Agregar Evento</h2>
             <form onsubmit="event.preventDefault(); agregarEvento();" class="space-y-4">
@@ -97,19 +96,41 @@
             </form>
         </section>
 
-        <!-- Ventana Modal para mostrar detalles del evento -->
         <div id="modal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
-            <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
-                <h2 id="modal-titulo" class="text-xl font-bold text-blue-600 mb-4"></h2>
-                <p id="modal-fecha" class="mb-2"></p>
-                <p id="modal-hora" class="mb-2"></p> <!-- Nueva línea para la hora -->
-                <div id="modal-descripcion" class="text-gray-700"></div>
-                <button onclick="cerrarModal()" class="bg-blue-500 text-white py-2 px-4 rounded mt-4 hover:bg-blue-600">Cerrar</button>
-                <button id="eliminar-evento" class="bg-red-500 text-white py-2 px-4 rounded mt-4 hover:bg-red-600">Eliminar</button>
+            <div class="bg-white rounded-lg p-4 w-80 sm:w-96 max-w-sm shadow-lg">
+                <h2 id="modal-titulo" class="text-lg font-semibold text-blue-600 mb-4 text-center">Detalles del Evento</h2>
+                <form id="form-editar-evento" class="space-y-2">
+                    <table class="table-auto w-full text-gray-700">
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="font-semibold py-1 px-4 text-left">Fecha:</td>
+                                <td class="py-1 px-4 text-right">
+                                    <input type="date" id="modal-fecha" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="font-semibold py-1 px-4 text-left">Hora:</td>
+                                <td class="py-1 px-4 text-right">
+                                    <input type="time" id="modal-hora" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold py-1 px-4 text-left">Descripción:</td>
+                                <td class="py-1 px-4 text-right">
+                                    <input type="text" id="modal-descripcion" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" placeholder="Descripción del evento">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex justify-end mt-4 space-x-2">
+                        <button type="button" onclick="cerrarModal()" class="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500">Cerrar</button>
+                        <button id="eliminar-evento" type="button" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">Eliminar</button>
+                        <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Guardar cambios</button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <!-- Script para manejar el calendario dinámico -->
         <script>
             const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
             let fechaActual = new Date();
@@ -124,12 +145,14 @@
                 const primerDia = new Date(anio, mes, 1).getDay();
                 const diasEnMes = new Date(anio, mes + 1, 0).getDate();
 
+                const primerDiaSemana = primerDia === 0 ? 6 : primerDia - 1;
                 const tabla = document.getElementById("tabla-calendario");
                 tabla.innerHTML = "";
 
                 let fila = document.createElement("tr");
-                for (let i = 1; i < (primerDia === 0 ? 7 : primerDia); i++) {
+                for (let i = 0; i < primerDiaSemana; i++) {
                     const celda = document.createElement("td");
+                    celda.classList.add("vacio");
                     fila.appendChild(celda);
                 }
 
@@ -141,7 +164,6 @@
 
                     const celda = document.createElement("td");
                     celda.classList.add("border", "p-2", "rounded-lg");
-
                     const eventosDelDia = eventos.filter(evento => {
                         const fechaEvento = new Date(evento.date);
                         return fechaEvento.getDate() === dia && fechaEvento.getMonth() === mes && fechaEvento.getFullYear() === anio;
@@ -156,7 +178,6 @@
                         celda.appendChild(eventoTitulo);
                     });
 
-                    // Aplicar clases según la cantidad de eventos
                     if (eventosDelDia.length === 1) {
                         celda.classList.add("evento-1");
                     } else if (eventosDelDia.length === 2) {
@@ -170,6 +191,7 @@
 
                 while (fila.children.length < 7) {
                     const celda = document.createElement("td");
+                    celda.classList.add("vacio");
                     fila.appendChild(celda);
                 }
                 tabla.appendChild(fila);
@@ -177,14 +199,25 @@
 
             function mostrarDetallesEvento(evento) {
                 document.getElementById("modal-titulo").textContent = evento.title;
-                document.getElementById("modal-fecha").textContent = `Fecha: ${evento.date}`;
-                document.getElementById("modal-hora").textContent = evento.time; // Actualizado para mostrar la hora
-                document.getElementById("modal-descripcion").textContent = evento.description;
+                document.getElementById("modal-fecha").value = evento.date;
+                document.getElementById("modal-hora").value = evento.time;
+                document.getElementById("modal-descripcion").value = evento.description;
+
+                document.getElementById("form-editar-evento").onsubmit = function (event) {
+                    event.preventDefault();
+                    evento.date = document.getElementById("modal-fecha").value;
+                    evento.time = document.getElementById("modal-hora").value;
+                    evento.description = document.getElementById("modal-descripcion").value;
+
+                    localStorage.setItem("calendarioEventos", JSON.stringify(eventos));
+                    cerrarModal();
+                    renderizarCalendario();
+                };
+
+                document.getElementById("modal").classList.remove("hidden");
 
                 const botonEliminar = document.getElementById("eliminar-evento");
                 botonEliminar.onclick = () => eliminarEvento(evento);
-
-                document.getElementById("modal").classList.remove("hidden");
             }
 
             function eliminarEvento(evento) {
