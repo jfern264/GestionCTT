@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lista de Jugadores</title>
+        <style>
+            /* General styles */
+            body {
+                margin: 0;
+                font-family: 'Arial', sans-serif;
+                background: linear-gradient(135deg, #007bff, #00c6ff); /* Fondo gradiente con azul claro */
+                color: #ffffff;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                flex-direction: column;
+            }
+
+            .container {
+                width: 90%;
+                max-width: 1000px;
+                margin: 20px auto;
+                background-color: #ffffff;
+                padding: 20px;
+                border-radius: 12px; /* Bordes más redondeados */
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Sombra más suave */
+                overflow: hidden;
+                flex: 1; /* Para que ocupe el alto de la pantalla */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            h1 {
+                text-align: center;
+                color: #007bff; /* Color azul del título */
+                margin-bottom: 30px;
+                font-size: 2.5em;
+                font-weight: 600;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                margin-top: 20px;
+                border-radius: 12px;
+                border: 1px solid #e1e1e1;
+                background-color: #f5f5f5;
+                padding: 10px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            th, td {
+                padding: 12px;
+                text-align: center;
+                font-size: 1em;
+            }
+
+            th {
+                background-color: #007bff; /* Azul claro para el encabezado */
+                color: #ffffff;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            tr:hover {
+                background-color: #e0e0e0;
+                transition: background-color 0.2s ease-in-out;
+            }
+
+            td {
+                color: #007bff; /* Azul claro para las celdas */
+                font-weight: 500;
+            }
+
+            .action-buttons a {
+                text-decoration: none;
+                padding: 6px 14px;
+                margin: 0 8px;
+                border-radius: 6px;
+                font-weight: bold;
+                text-transform: uppercase;
+                transition: background-color 0.3s ease-in-out;
+                font-size: 0.9em;
+            }
+
+            .action-buttons a:nth-child(1) {
+                background-color: #ffc107;
+                color: #007bff;
+            }
+
+            .action-buttons a:nth-child(1):hover {
+                background-color: #e0a800;
+            }
+
+            .action-buttons a:nth-child(2) {
+                background-color: #dc3545;
+                color: #ffffff;
+            }
+
+            .action-buttons a:nth-child(2):hover {
+                background-color: #c82333;
+            }
+
+            .btn-container {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .btn {
+                display: inline-block;
+                padding: 12px 24px;
+                margin: 10px;
+                font-size: 1.1em;
+                font-weight: bold;
+                border-radius: 8px;
+                text-transform: uppercase;
+                text-decoration: none;
+                transition: background-color 0.3s ease-in-out;
+                color: #ffffff;
+            }
+
+            .btn-add {
+                background-color: #28a745;
+            }
+
+            .btn-add:hover {
+                background-color: #218838;
+            }
+
+            .btn-back {
+                background-color: #17a2b8;
+            }
+
+            .btn-back:hover {
+                background-color: #138496;
+            }
+
+            footer {
+                text-align: center;
+                margin-top: 30px;
+                font-size: 1em;
+                color: #ffffff;
+                font-weight: 300;
+            }
+
+            /* Small screen responsiveness */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 20px;
+                }
+
+                h1 {
+                    font-size: 2em;
+                }
+
+                table {
+                    font-size: 1em;
+                }
+
+                .btn-container a {
+                    font-size: 1em;
+                    padding: 10px 20px;
+                }
+
+                .table-wrapper {
+                    margin-top: 15px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="container">
+            <h1>Lista de Jugadores</h1>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Iterar sobre la lista de jugadores -->
+                        <tr th:each="jugador : ${jugadores}">
+                            <td th:text="${jugador.id}"></td>
+                            <td th:text="${jugador.nombre}"></td>
+                            <td th:text="${jugador.apellidos}"></td>
+                            <td th:text="${jugador.rol.rol}"></td>
+                            <td class="action-buttons">
+                                <a th:href="@{/editJugador/{id}(id=${jugador.id})}">Editar</a>
+                                <a th:href="@{/deleteJugador/{id}(id=${jugador.id})}" 
+                                   onclick="return confirm('¿Estás seguro de que deseas eliminar este jugador?')">Eliminar</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn-container">
+                <a href="/addJugador" class="btn btn-add">Añadir Nuevo Jugador</a>
+                <a href="/menu_principal" class="btn btn-back">Volver al Menú</a>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2025 Tennis ERP. Todos los derechos reservados.
+        </footer>
+
+    </body>
+</html>

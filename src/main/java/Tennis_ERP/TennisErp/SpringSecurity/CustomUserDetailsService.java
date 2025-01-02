@@ -31,8 +31,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Si no existe el usuario, lanzamos excepción
         usuario usuario = optionalUsuario.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + nombre));
 
-        // Obtenemos el rol del usuario directamente
-        GrantedAuthority autoridad = new SimpleGrantedAuthority(usuario.rol.getRol());
+        // Convertir RoleType a String para Spring Security
+        GrantedAuthority autoridad = new SimpleGrantedAuthority("ROLE_" + usuario.rol.getRol().name());
 
         // Log de información
         log.info("Usuario: {}", usuario.nombre);
