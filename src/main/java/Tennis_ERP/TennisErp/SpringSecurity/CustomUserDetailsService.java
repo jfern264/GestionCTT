@@ -1,7 +1,7 @@
 package Tennis_ERP.TennisErp.SpringSecurity;
 
 import Tennis_ERP.TennisErp.domain.usuario;
-import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
+import Tennis_ERP.TennisErp.DAO.usuarioDAO;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.util.Collections;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UsuarioDAO usuarioDao;
+    private usuarioDAO usuarioDao;
 
     @Override
     @Transactional(readOnly = true)

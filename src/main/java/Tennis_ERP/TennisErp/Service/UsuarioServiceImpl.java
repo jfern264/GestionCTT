@@ -4,18 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
+import Tennis_ERP.TennisErp.DAO.usuarioDAO;
 import Tennis_ERP.TennisErp.domain.usuario;
 
 @Service
 @Transactional
 public class UsuarioServiceImpl implements UsuarioService {
 
-    private final UsuarioDAO usuarioDao;
+    private final usuarioDAO usuarioDao;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioServiceImpl(UsuarioDAO usuarioDao, PasswordEncoder passwordEncoder) {
+    public UsuarioServiceImpl(usuarioDAO usuarioDao, PasswordEncoder passwordEncoder) {
         this.usuarioDao = usuarioDao;
         this.passwordEncoder = passwordEncoder;
     }

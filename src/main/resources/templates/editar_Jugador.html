@@ -100,14 +100,9 @@
                     <input type="text" id="apellidos" name="apellidos" class="form-control" th:value="${jugador.apellidos}" required>
                 </div>
 
-                <!-- Campo de rol -->
-                <div class="form-group">
-                    <label for="rol">Rol</label>
-                    <select id="rol" name="rol" class="form-control" required>
-                        <option value="" th:text="'Seleccione un rol'" disabled selected>Seleccione un rol</option>
-                        <option th:each="rol : ${roles}" th:value="${rol.id}" th:text="${rol.rol}" th:selected="${rol.id == jugador.rol.id}"></option>
-                    </select>
-                </div>
+                
+                <!-- Campo oculto para el rol -->
+                <input type="hidden" id="rol" name="rol" value="3">
 
                 <!-- Botones de acción -->
                 <div class="d-flex justify-content-between">

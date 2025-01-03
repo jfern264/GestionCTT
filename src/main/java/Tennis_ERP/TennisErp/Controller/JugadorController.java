@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class JugadorController {
@@ -31,41 +33,40 @@ public class JugadorController {
 
     // Mostrar formulario para añadir un nuevo jugador
     @GetMapping("/addJugador")
-    public String mostrarFormularioNuevoJugador(Model model) {
-        // Obtener todos los roles
-        List<rol> listaRoles = rolService.findAllRoles();
-
-        // Pasar los roles a la vista y el objeto vacío para el jugador
-        model.addAttribute("roles", listaRoles);
-        model.addAttribute("jugador", new Jugadores());
-
-        // Retornar el nombre de la vista que contiene el formulario
+    public String mostrarFormularioAgregarJugador(Model model) {
+        prepararFormulario(model, new Jugadores());
         return "addJugador";
     }
 
-    // Manejar el envío del formulario para añadir un nuevo jugador
     @PostMapping("/addJugadores")
-    public String agregarNuevoJugador(@ModelAttribute Jugadores jugador, Model model) {
-        try {
-            // Verificamos si el rol seleccionado existe
-            rol rolSeleccionado = rolService.findRolById(jugador.getRol().getId());  // Obtener el rol del jugador
-            if (rolSeleccionado == null) {
-                throw new EntityNotFoundException("Rol no encontrado");
-            }
-
-            jugador.setRol(rolSeleccionado); // Asignar el rol al jugador
-            jugadoresService.saveJugador(jugador); // Guardar el jugador
-
-        } catch (EntityNotFoundException e) {
-            model.addAttribute("error", e.getMessage());
-            return "addJugador"; // Volver al formulario con un mensaje de error
-        } catch (Exception e) {
-            model.addAttribute("error", "Ocurrió un error inesperado");
-            return "addJugador"; // Volver al formulario con un mensaje de error
+    public String guardarJugador(@ModelAttribute Jugadores jugador, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+        if (result.hasErrors()) {
+            prepararFormulario(model, jugador);
+            return "addJugador";
         }
 
-        // Redirigir a la lista de jugadores
+        try {
+            rol rolSeleccionado = rolService.findRolById(jugador.getRol().getId());
+            if (rolSeleccionado == null) {
+                redirectAttributes.addFlashAttribute("error", "Rol no encontrado");
+                return "redirect:/addJugador";
+            }
+
+            jugador.setRol(rolSeleccionado);
+            jugadoresService.saveJugador(jugador);
+            redirectAttributes.addFlashAttribute("success", "Jugador añadido con éxito");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ocurrió un error inesperado");
+            return "redirect:/addJugador";
+        }
+
         return "redirect:/jugadores";
+    }
+
+    private void prepararFormulario(Model model, Jugadores jugador) {
+        List<rol> listaRoles = rolService.findAllRoles();
+        model.addAttribute("roles", listaRoles);
+        model.addAttribute("jugador", jugador);
     }
 
     @GetMapping("/editJugador/{id}")
