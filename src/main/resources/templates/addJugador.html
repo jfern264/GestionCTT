@@ -8,7 +8,7 @@
         <style>
             body {
                 font-family: 'Arial', sans-serif;
-                background: linear-gradient(135deg, #007bff, #00c6ff); /* Fondo con gradiente */
+                background: linear-gradient(135deg, #007bff, #00c6ff);
                 color: #343a40;
                 display: flex;
                 justify-content: center;
@@ -78,13 +78,11 @@
                 margin-bottom: 20px;
             }
 
-            /* Estilo para el mensaje de error */
             .invalid-feedback {
                 font-size: 0.9em;
                 color: #dc3545;
             }
 
-            /* Animación de entrada para el formulario */
             .container {
                 animation: fadeIn 1s ease-out;
             }
@@ -122,6 +120,12 @@
                     <label for="apellidos" class="form-label">Apellidos:</label>
                     <input type="text" class="form-control" id="apellidos" name="apellidos" required>
                     <div class="invalid-feedback">Por favor, ingresa los apellidos.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="dni" class="form-label">DNI:</label>
+                    <input type="text" class="form-control" id="dni" name="dni" required>
+                    <div class="invalid-feedback">Por favor, ingresa un DNI válido.</div>
                 </div>
 
                 <!-- Campo oculto para el rol -->

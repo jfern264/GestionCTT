@@ -25,7 +25,10 @@ public class Jugadores {
     @Column(name = "Apellidos", nullable = false)
     private String apellidos;
 
+    @Column(name = "DNI", nullable = false, length = 9, unique = true)
+    private String dni;
+
     @ManyToOne
     @JoinColumn(name = "rol_id", nullable = false)
-    private rol rol;  // Campo privado, siguiendo buenas prácticas de encapsulamiento
+    private rol rol;
 }

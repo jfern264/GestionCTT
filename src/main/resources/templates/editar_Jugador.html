@@ -100,7 +100,12 @@
                     <input type="text" id="apellidos" name="apellidos" class="form-control" th:value="${jugador.apellidos}" required>
                 </div>
 
-                
+                <!-- Campo de DNI -->
+                <div class="form-group">
+                    <label for="dni">DNI</label>
+                    <input type="text" id="dni" name="dni" class="form-control" th:value="${jugador.dni}" required>
+                </div>
+
                 <!-- Campo oculto para el rol -->
                 <input type="hidden" id="rol" name="rol" value="3">
 
