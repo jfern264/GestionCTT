@@ -1,75 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Equipos</title>
+    <title>Categorías de Equipos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            background: linear-gradient(135deg, #007fff, #00c2ff);
+            font-family: 'Inter', sans-serif;
         }
-
-        .container {
-            width: 90%;
-            margin: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ccc;
-            text-align: left;
-            padding: 10px;
-        }
-
-        th {
-            background-color: #f4f4f4;
-            font-weight: bold;
-        }
-
-        td {
-            background-color: #fafafa;
-        }
-
-        h1 {
+        .btn-container {
             text-align: center;
+            margin-top: 10px;
+        }
+        .btn-back {
+            background-color: #17a2b8;
+            border: 2px solid #138496;
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .btn-back:hover {
+            background-color: #138496;
+            border-color: #0f6d75;
+            transform: scale(1.05);
+        }
+        .btn-category {
+            transition: transform 0.3s ease-in-out;
+        }
+        .btn-category:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Lista de Equipos</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Equipo</th>
-                    <th>Liga</th>
-                    <th>Categoría</th>
-                    <th>Puntos</th>
-                    <th>Partidos</th>
-                    <th>Objetivo</th>
-                    <th>Precio Liga</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="equipo : ${equipos}">
-                    <td th:text="${equipo.nombre}"></td>
-                    <td th:text="${equipo.equipo}"></td>
-                    <td th:text="${equipo.liga}"></td>
-                    <td th:text="${equipo.categoria}"></td>
-                    <td th:text="${equipo.puntos}"></td>
-                    <td th:text="${equipo.partidos}"></td>
-                    <td th:text="${equipo.objetivo}"></td>
-                    <td th:text="${equipo.precioLiga}"></td>
-                </tr>
-            </tbody>
-        </table>
+<body class="flex items-center justify-center h-screen">
+
+    <!-- Contenedor principal -->
+    <div class="bg-white rounded-3xl shadow-2xl p-10 w-[90%] max-w-lg text-center">
+
+        <!-- Imagen superior -->
+        <div class="mb-8 flex justify-center">
+            <img src="/images/escudo.png" alt="Escudo" class="w-28 h-28 object-contain">
+        </div>
+
+        <!-- Título -->
+        <h1 class="text-4xl font-extrabold text-blue-700 mb-10 tracking-tight">Categorías de Equipos</h1>
+
+        <!-- Botones de categorías -->
+        <div class="grid grid-cols-2 gap-6">
+            <a href="/equipo_categoria/junior_masculi" class="btn-category block py-3 px-5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-xl text-lg shadow">
+                Junior Masculí
+            </a>
+            <a href="/equipo_categoria/junior_femeni" class="btn-category block py-3 px-5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl text-lg shadow">
+                Junior Femení
+            </a>
+            <a href="/equipo_categoria/senior_masculi" class="btn-category block py-3 px-5 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl text-lg shadow">
+                Senior Masculí
+            </a>
+            <a href="/equipo_categoria/senior_femeni" class="btn-category block py-3 px-5 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-bold rounded-xl text-lg shadow">
+                Senior Femení
+            </a>
+            <a href="/equipo_categoria/cadet_masculi" class="btn-category block py-3 px-5 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-xl text-lg shadow">
+                Cadet Masculí
+            </a>
+            <a href="/equipo_categoria/cadet_femeni" class="btn-category block py-3 px-5 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold rounded-xl text-lg shadow">
+                Cadet Femení
+            </a>
+            <a href="/equipo_categoria/infantil_masculi" class="btn-category block py-3 px-5 bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-bold rounded-xl text-lg shadow">
+                Infantil Masculí
+            </a>
+            <a href="/equipo_categoria/infantil_femeni" class="btn-category block py-3 px-5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold rounded-xl text-lg shadow">
+                Infantil Femení
+            </a>
+            <a href="/equipo_categoria/alevi_masculi" class="btn-category block py-3 px-5 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold rounded-xl text-lg shadow">
+                Aleví Masculí
+            </a>
+            <a th:href="@{/equipo_categoria/alevi_femeni}" class="btn-category block py-3 px-5 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-xl text-lg shadow">
+                Aleví Femení
+            </a>
+        </div>
+
+        <!-- Botón de "Atrás" -->
+        <div class="btn-container mt-6">
+            <a href="/menu_principal" class="btn-back">Atrás</a>
+        </div>
+
+        <!-- Pie de página -->
+        <div class="mt-10 text-sm text-gray-500">
+            <p>© 2024 Tennis ERP.</p>
+        </div>
+
     </div>
+
 </body>
 </html>
