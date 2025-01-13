@@ -9,8 +9,14 @@ import lombok.Data;
 public class rol {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Asegúrate de que se genere el ID automáticamente
     private int id;
 
-    private String rol;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RoleType rol;
+
+    public enum RoleType {
+        Admin, Trabajador, Usuario
+    }
 }

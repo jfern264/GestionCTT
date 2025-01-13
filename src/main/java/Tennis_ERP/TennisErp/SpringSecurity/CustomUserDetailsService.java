@@ -1,7 +1,7 @@
 package Tennis_ERP.TennisErp.SpringSecurity;
 
 import Tennis_ERP.TennisErp.domain.usuario;
-import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
+import Tennis_ERP.TennisErp.DAO.usuarioDAO;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.util.Collections;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UsuarioDAO usuarioDao;
+    private usuarioDAO usuarioDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -31,8 +31,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Si no existe el usuario, lanzamos excepción
         usuario usuario = optionalUsuario.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + nombre));
 
-        // Obtenemos el rol del usuario directamente
-        GrantedAuthority autoridad = new SimpleGrantedAuthority(usuario.rol.getRol());
+        // Convertir RoleType a String para Spring Security
+        GrantedAuthority autoridad = new SimpleGrantedAuthority("ROLE_" + usuario.rol.getRol().name());
 
         // Log de información
         log.info("Usuario: {}", usuario.nombre);
