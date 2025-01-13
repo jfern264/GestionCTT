@@ -161,7 +161,6 @@
                             <th>Nombre</th>
                             <th>Apellidos</th>
                             <th>DNI</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -171,11 +170,6 @@
                             <td th:text="${jugador.nombre}"></td>
                             <td th:text="${jugador.apellidos}"></td>
                             <td th:text="${jugador.dni}"></td>
-                            <td class="action-buttons">
-                                
-                                <a th:href="@{/deleteJugador/{id}(id=${jugador.id})}" 
-                                   onclick="return confirm('¿Estás seguro de que deseas eliminar este jugador?')">Eliminar</a>
-                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -183,7 +177,6 @@
 
             <div class="btn-container">
                 <a href="/menu_principal" class="btn btn-back">Volver al Menú</a>
-                <a href="/addJugador" class="btn btn-add">Añadir Nuevo Jugador</a>
             </div>
         </div>
     </body>

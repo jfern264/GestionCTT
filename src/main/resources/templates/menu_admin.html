@@ -1,59 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu administrador</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #007fff, #00c2ff); /* Gradiente azul vibrante */
-            font-family: 'Inter', sans-serif; /* Fuente más moderna */
-        }
-        .btn {
-            transition: transform 0.3s ease-in-out;
-        }
-        .btn:hover {
-            transform: scale(1.1);
-        }
-    </style>
-</head>
-<body class="flex items-center justify-center h-screen">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Menu Administrador</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                background: linear-gradient(135deg, #00c2ff, #007fff); /* Gradiente más suave */
+                font-family: 'Inter', sans-serif; /* Fuente moderna */
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0;
+            }
+            .btn {
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            .btn:hover {
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            }
+            .btn:active {
+                transform: translateY(2px);
+            }
+            .shadow-custom {
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            }
+            .gradient-border {
+                background: linear-gradient(135deg, #007fff, #00c2ff);
+                -webkit-background-clip: text;
+                color: transparent;
+                font-weight: bold;
+                font-size: 1.5rem;
+            }
+        </style>
+    </head>
+    <body>
 
-    <!-- Contenedor principal -->
-    <div class="bg-white rounded-3xl shadow-2xl p-10 w-[90%] max-w-lg text-center">
+        <!-- Contenedor principal -->
+        <div class="bg-white rounded-3xl p-10 w-[90%] max-w-lg text-center shadow-xl border border-white">
 
-        <!-- Imagen superior -->
-        <div class="mb-8 flex justify-center">
-            <img src="/images/escudo.png" alt="Escudo" class="w-28 h-28 object-contain">
+            <!-- Imagen superior -->
+            <div class="mb-8 flex justify-center">
+                <img src="/images/escudo.png" alt="Escudo" class="w-28 h-28 object-contain">
+            </div>
+
+            <!-- Título -->
+            <h1 class="gradient-border mb-10 text-5xl font-extrabold tracking-tight">Administrar</h1>
+
+            <!-- Botones de navegación -->
+            <div class="grid grid-cols-1 gap-6">
+                <a href="/administrar_equipos" class="btn block py-3 px-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-xl text-lg shadow-custom hover:from-blue-600 hover:to-cyan-600 hover:shadow-lg">
+                    Administrar Equipos
+                </a>
+                <a href="/adminjugadores" class="btn block py-3 px-6 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold rounded-xl text-lg shadow-custom hover:from-teal-600 hover:to-cyan-700 hover:shadow-lg">
+                    Administrar Jugadores
+                </a>
+
+                <a href="/admintrabajadores" class="btn block py-3 px-6 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold rounded-xl text-lg shadow-custom hover:from-teal-600 hover:to-cyan-700 hover:shadow-lg">
+                    Administrar Trabajadores
+                </a>
+            </div>
+
+            <!-- Botón de "Atrás" -->
+            <div class="mt-6">
+                <a href="/menu_principal" class="btn block py-2 px-4 bg-gray-500 text-white font-bold rounded-lg text-sm shadow hover:bg-gray-600">
+                    Atrás
+                </a>
+            </div>
+
+            <!-- Pie de página -->
+            <div class="mt-10 text-sm text-gray-500">
+                <p>© 2024 Tennis ERP. Todos los derechos reservados.</p>
+            </div>
+
         </div>
 
-        <!-- Título -->
-        <h1 class="text-4xl font-extrabold text-blue-700 mb-10 tracking-tight">Administrar</h1>
-
-        <!-- Botones de navegación -->
-        <div class="grid grid-cols-1 gap-6">
-            <a href="/administrar_equipos" class="btn block py-3 px-5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-xl text-lg shadow hover:from-blue-600 hover:to-cyan-600 hover:shadow-lg">
-                Administrar Equipos
-            </a>
-            <a href="/administrar_jugadores" class="btn block py-3 px-5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl text-lg shadow hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg">
-                Administrar Jugadores
-            </a>
-        </div>
-
-        <!-- Botón de "Atrás" -->
-        <div class="mt-6">
-            <a href="/menu_principal" class="btn block py-2 px-4 bg-gray-500 text-white font-bold rounded-lg text-sm shadow hover:bg-gray-600">
-                Atrás
-            </a>
-        </div>
-
-        <!-- Pie de página -->
-        <div class="mt-10 text-sm text-gray-500">
-            <p>© 2024 Tennis ERP.</p>
-        </div>
-
-    </div>
-
-</body>
+    </body>
 </html>

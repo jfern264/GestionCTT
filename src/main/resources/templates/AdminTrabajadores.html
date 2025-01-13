@@ -164,6 +164,7 @@
                             <th>Apellidos</th>
                             <th>DNI</th>
                             <th>Correo</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -173,13 +174,24 @@
                             <td th:text="${trabajador.apellidos}"></td>
                             <td th:text="${trabajador.dni}"></td>
                             <td th:text="${trabajador.correo}"></td>
+                            <td class="action-buttons">
+                                <!-- Enlace de edición corregido -->
+                                <a th:href="@{/editTrabajador/{id}(id=${trabajador.id})}" class="btn btn-info">Editar</a>
+
+                                <!-- Formulario de eliminación -->
+                                <form th:action="@{/deleteTrabajador/{id}(id=${trabajador.id})}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger"
+                                            onclick="return confirm('¿Estás seguro de que deseas eliminar este trabajador?')">Eliminar</button>
+                                </form>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
             <div class="btn-container">
-                <a href="/menu_principal" class="btn btn-back">Volver al Menú</a>
+                <a href="/menu_admin" class="btn btn-back">Volver al Menú</a>
+                <a href="/addTrabajador" class="btn btn-add">Añadir Nuevo Trabajador</a>
             </div>
         </div>
     </body>

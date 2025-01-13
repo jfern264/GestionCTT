@@ -1,7 +1,6 @@
 package Tennis_ERP.TennisErp.controller;
 
 import Tennis_ERP.TennisErp.domain.Trabajador;
-import Tennis_ERP.TennisErp.domain.rol;
 import Tennis_ERP.TennisErp.service.TrabajadorService;
 import Tennis_ERP.TennisErp.service.RolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +30,13 @@ public class TrabajadorController {
         return "Trabajadores"; // Nombre de la plantilla HTML
     }
 
+    @GetMapping("/admintrabajadores")
+    public String administrarTrabajadores(Model model) {
+        List<Trabajador> listaTrabajadores = trabajadorService.getAllTrabajadores();
+        model.addAttribute("trabajadores", listaTrabajadores);
+        return "AdminTrabajadores"; // Nombre de la plantilla HTML
+    }
+
     @GetMapping("/addTrabajador")
     public String mostrarFormularioAgregarTrabajador(Model model) {
         model.addAttribute("trabajador", new Trabajador());
@@ -54,7 +60,7 @@ public class TrabajadorController {
             redirectAttributes.addFlashAttribute("error", "Ocurrió un error al agregar el trabajador.");
         }
 
-        return "redirect:/trabajadores"; // Redirigir a la lista de trabajadores
+        return "redirect:/admintrabajadores"; // Redirigir a la lista de trabajadores
     }
 
     @GetMapping("/editTrabajador/{id}")
@@ -92,7 +98,7 @@ public class TrabajadorController {
             Optional<Trabajador> trabajadorExistenteOpt = trabajadorService.getTrabajadorById(id);
             if (!trabajadorExistenteOpt.isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "Trabajador no encontrado");
-                return "redirect:/trabajadores";
+                return "redirect:/admintrabajadores";
             }
 
             if (existeTrabajadorConDni(trabajador.getDni(), id)) {
@@ -109,16 +115,16 @@ public class TrabajadorController {
             redirectAttributes.addFlashAttribute("error", "Ocurrió un error inesperado");
         }
 
-        return "redirect:/trabajadores";
+        return "redirect:/admintrabajadores";
     }
 
-    @GetMapping("/deleteTrabajador/{id}")
+    @PostMapping("/deleteTrabajador/{id}")
     public String eliminarTrabajador(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             Optional<Trabajador> trabajadorOpt = trabajadorService.getTrabajadorById(id);
             if (!trabajadorOpt.isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "Trabajador no encontrado");
-                return "redirect:/trabajadores";
+                return "redirect:/admintrabajadores";
             }
 
             trabajadorService.deleteTrabajador(id);
@@ -126,7 +132,7 @@ public class TrabajadorController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ocurrió un error al intentar eliminar el trabajador");
         }
-        return "redirect:/trabajadores";
+        return "redirect:/admintrabajadores";
     }
 
 }

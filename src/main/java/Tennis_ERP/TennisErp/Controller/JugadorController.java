@@ -31,6 +31,13 @@ public class JugadorController {
         return "Jugadores"; // Nombre de la plantilla HTML
     }
 
+    @GetMapping("/adminjugadores")
+    public String AdministrarJugadores(Model model) {
+        List<Jugadores> listaJugadores = jugadoresService.findAllJugadores();
+        model.addAttribute("jugadores", listaJugadores);
+        return "AdminJugadores";
+    }
+
     // Mostrar formulario para añadir un nuevo jugador
     @GetMapping("/addJugador")
     public String mostrarFormularioAgregarJugador(Model model) {
@@ -60,7 +67,7 @@ public class JugadorController {
             return "redirect:/addJugador";
         }
 
-        return "redirect:/jugadores";
+        return "redirect:/adminjugadores";
     }
 
     private void prepararFormulario(Model model, Jugadores jugador) {
@@ -110,7 +117,7 @@ public class JugadorController {
         }
 
         // Redirigimos a la lista de jugadores
-        return "redirect:/jugadores";
+        return "redirect:/adminjugadores";
     }
 
     // Eliminar un jugador
@@ -125,6 +132,6 @@ public class JugadorController {
             model.addAttribute("error", "Ocurrió un error inesperado");
             return "errorPage"; // Página de error genérica
         }
-        return "redirect:/jugadores";
+        return "redirect:/adminjugadores";
     }
 }
