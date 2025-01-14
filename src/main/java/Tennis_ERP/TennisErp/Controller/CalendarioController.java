@@ -42,6 +42,26 @@ public class CalendarioController {
         return "calendario"; // Nombre de la vista HTML
     }
 
+    @GetMapping("/admincalendario")
+    public String administrarCalendario(Model model) {
+        // Obtener la fecha actual
+        LocalDate currentDate = LocalDate.now();
+
+        // Crear el calendario del mes
+        List<List<Integer>> calendario = eventService.crearCalendario(currentDate);
+
+        // Obtener todos los eventos del servicio
+        List<Event> events = eventService.obtenerEventos();
+
+        // Pasar los datos al modelo
+        model.addAttribute("currentYear", currentDate.getYear());
+        model.addAttribute("currentMonth", currentDate.getMonthValue());
+        model.addAttribute("events", events);
+        model.addAttribute("calendario", calendario);
+
+        return "AdminCalendario"; // Nombre de la vista HTML
+    }
+
     @PostMapping("/calendario")
     public String agregarEvento(@RequestParam("fecha") String fecha,
             @RequestParam("hora") String hora,
@@ -58,7 +78,7 @@ public class CalendarioController {
         eventService.agregarEvento(nuevoEvento);  // Llamamos al servicio para agregar el evento
 
         // Redirigir para refrescar la página con el nuevo evento
-        return "redirect:/calendario"; // Redirige a la página de calendario
+        return "redirect:/admincalendario"; // Redirige a la página de calendario
     }
 
 }

@@ -112,6 +112,52 @@
                 background-color: #c82333;
             }
 
+            /* Estilo de los botones de paginación */
+            .pagination {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .pagination button {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                margin: 0 5px;
+                font-size: 1.1em;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .pagination button.active {
+                background-color: #00c6ff;
+            }
+
+            .pagination button:hover {
+                background-color: #0056b3;
+            }
+
+            /* Barra de búsqueda */
+            .search-container {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .search-container input {
+                padding: 10px 15px;
+                width: 80%;
+                font-size: 1.1em;
+                border: 2px solid #007bff;
+                border-radius: 8px;
+                outline: none;
+                transition: border-color 0.3s;
+            }
+
+            .search-container input:focus {
+                border-color: #00c6ff;
+            }
+
             .btn-container {
                 text-align: center;
                 margin-top: 20px;
@@ -153,14 +199,20 @@
         <div class="container">
             <h1>Lista de Jugadores</h1>
 
+            <!-- Campo de búsqueda -->
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar por nombre...">
+            </div>
+
             <div class="table-wrapper">
-                <table>
+                <table id="jugadorTable">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Apellidos</th>
                             <th>DNI</th>
+                            <th>Correo</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -171,6 +223,7 @@
                             <td th:text="${jugador.nombre}"></td>
                             <td th:text="${jugador.apellidos}"></td>
                             <td th:text="${jugador.dni}"></td>
+                            <td th:text="${jugador.correo}"></td>
                             <td class="action-buttons">
                                 <a th:href="@{/editJugador/{id}(id=${jugador.id})}" class="btn-edit">Editar</a>
                                 <a th:href="@{/deleteJugador/{id}(id=${jugador.id})}" 
@@ -180,11 +233,66 @@
                     </tbody>
                 </table>
             </div>
-
+            
+            
+            <div class="pagination" id="paginationControls"></div>
+            
+            
             <div class="btn-container">
                 <a href="/menu_admin" class="btn btn-back">Volver al Menú</a>
                 <a href="/addJugador" class="btn btn-add">Añadir Nuevo Jugador</a>
             </div>
         </div>
     </body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rowsPerPage = 5;
+            let currentPage = 1;
+
+            const tableBody = document.querySelector('#jugadorTable tbody');
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+            const searchInput = document.getElementById('searchInput');
+            const paginationControls = document.getElementById('paginationControls');
+            let filteredRows = rows;
+
+            function renderTable(page) {
+                const start = (page - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                rows.forEach(row => (row.style.display = 'none'));
+                filteredRows.slice(start, end).forEach(row => (row.style.display = ''));
+            }
+
+            function renderPagination() {
+                const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+                paginationControls.innerHTML = '';
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const button = document.createElement('button');
+                    button.textContent = i;
+                    button.className = i === currentPage ? 'active' : '';
+                    button.addEventListener('click', () => {
+                        currentPage = i;
+                        renderTable(currentPage);
+                        renderPagination();
+                    });
+                    paginationControls.appendChild(button);
+                }
+            }
+
+            function filterRows() {
+                const term = searchInput.value.toLowerCase();
+                filteredRows = rows.filter(row =>
+                    row.cells[0].textContent.toLowerCase().includes(term)
+                );
+                currentPage = 1;
+                renderTable(currentPage);
+                renderPagination();
+            }
+
+            searchInput.addEventListener('input', filterRows);
+            renderTable(currentPage);
+            renderPagination();
+        });
+    </script>
 </html>

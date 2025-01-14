@@ -18,6 +18,22 @@
             .btn {
                 transition: all 0.3s ease;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                position: relative;
+                overflow: hidden;
+            }
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 200%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.2);
+                transform: skewX(-45deg);
+                transition: all 0.5s ease-in-out;
+            }
+            .btn:hover::before {
+                left: 100%;
             }
             .btn:hover {
                 transform: translateY(-5px) scale(1.05);
@@ -59,9 +75,11 @@
                 <a href="/adminjugadores" class="btn block py-3 px-6 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold rounded-xl text-lg shadow-custom hover:from-teal-600 hover:to-cyan-700 hover:shadow-lg">
                     Administrar Jugadores
                 </a>
-
-                <a href="/admintrabajadores" class="btn block py-3 px-6 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-bold rounded-xl text-lg shadow-custom hover:from-teal-600 hover:to-cyan-700 hover:shadow-lg">
+                <a href="/admintrabajadores" class="btn block py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl text-lg shadow-custom hover:from-green-600 hover:to-emerald-600 hover:shadow-lg">
                     Administrar Trabajadores
+                </a>
+                <a href="/admincalendario" class="btn block py-3 px-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl text-lg shadow-custom hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg">
+                    Administrar Calendario
                 </a>
             </div>
 

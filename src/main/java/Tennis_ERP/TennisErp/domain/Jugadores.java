@@ -28,6 +28,9 @@ public class Jugadores {
     @Column(name = "DNI", nullable = false, length = 9, unique = true)
     private String dni;
 
+    @Column(name = "Correo", nullable = false, unique = true)
+    private String correo;
+
     @ManyToOne
     @JoinColumn(name = "rol_id", nullable = false)
     private rol rol;
