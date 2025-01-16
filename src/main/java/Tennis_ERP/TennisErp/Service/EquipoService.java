@@ -9,7 +9,7 @@ public interface EquipoService {
     Equipo crearEquipo(Equipo equipo);
 
     // Obtener un equipo por su ID
-    Optional<Equipo> obtenerEquipoPorId(int id);
+    Optional<Equipo> obtenerEquipoPorId(Long id);
 
     // Obtener todos los equipos
     List<Equipo> listarEquipos();
@@ -18,5 +18,5 @@ public interface EquipoService {
     Equipo actualizarEquipo(Equipo equipo);
 
     // Eliminar un equipo por su ID
-    void eliminarEquipo(int id);
+    void eliminarEquipo(Long id);
 }

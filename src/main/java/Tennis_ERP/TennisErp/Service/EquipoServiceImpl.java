@@ -25,8 +25,7 @@ public class EquipoServiceImpl implements EquipoService {
     }
 
     @Override
-    public Optional<Equipo> obtenerEquipoPorId(int id) {
-        // Buscar un equipo por su ID
+    public Optional<Equipo> obtenerEquipoPorId(Long id) {
         return equipoDAO.findById(id);
     }
 
@@ -38,12 +37,13 @@ public class EquipoServiceImpl implements EquipoService {
 
     @Override
     public Equipo actualizarEquipo(Equipo equipo) {
-        // Actualizar el equipo (si ya existe)
-        return equipoDAO.save(equipo);
+        // Verifica que el equipo existe antes de actualizarlo
+            return equipoDAO.save(equipo);
     }
 
+
     @Override
-    public void eliminarEquipo(int id) {
+    public void eliminarEquipo(Long id) {
         // Eliminar el equipo por su ID
         equipoDAO.deleteById(id);
     }
@@ -57,14 +57,6 @@ public class EquipoServiceImpl implements EquipoService {
         return equipoDAO.findByCategoria(categoria);
     }
 
-    public Equipo buscarEquipoPorNombre(String nombre) {
-        return equipoDAO.findByEquipo(nombre);
-    }
-
-    public List<Equipo> buscarEquiposPorNombreParcial(String keyword) {
-        return equipoDAO.findByEquipoContainingIgnoreCase(keyword);
-    }
-
     public List<Equipo> buscarEquiposPorPuntos(int puntos) {
         return equipoDAO.findByPuntos(puntos);
     }
@@ -75,9 +67,5 @@ public class EquipoServiceImpl implements EquipoService {
 
     public List<Equipo> buscarEquiposPorPrecioMayorQue(double precioMinimo) {
         return equipoDAO.findEquiposConPrecioMayorQue(precioMinimo);
-    }
-
-    public List<Equipo> buscarEquiposPorNombreParcialConLike(String nombre) {
-        return equipoDAO.findEquiposByPartialName(nombre);
     }
 }

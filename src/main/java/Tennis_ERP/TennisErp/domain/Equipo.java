@@ -10,10 +10,9 @@ public class Equipo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String liga;
-    private String equipo; // posiblemente quitar
     private int puntos;
     private String jugadores;
     private String categoria;
