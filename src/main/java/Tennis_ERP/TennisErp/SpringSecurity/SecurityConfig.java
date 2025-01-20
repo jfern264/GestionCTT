@@ -2,73 +2,65 @@ package Tennis_ERP.TennisErp.SpringSecurity;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    private final CustomUserDetailsService customUserDetailsService;
+    @Lazy
+    private PasswordEncoder passwordEncoder;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
-        this.customUserDetailsService = customUserDetailsService;
-    }
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
+    // Configuración del PasswordEncoder (BCryptPasswordEncoder para la encriptación de contraseñas)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Configuración de la autenticación de usuarios
+    @Autowired
+    public void autenticacio(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder);
+    }
+
+    // Configuración de las rutas de seguridad
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-                // Permisos específicos para las rutas
-                .requestMatchers(HttpMethod.GET, "/addJugador").permitAll()
-                .requestMatchers(HttpMethod.POST, "/addJugador").permitAll()
-                .requestMatchers(HttpMethod.GET, "/addJugadores").permitAll()
-                .requestMatchers(HttpMethod.POST, "/addJugadores").permitAll()
-                .requestMatchers("/menu_principal/**").permitAll()
-                .requestMatchers("/").hasAnyAuthority("Admin", "Trabajador", "Usuario")
-                .anyRequest().authenticated() // Cualquier otra solicitud requiere autenticación
-        )
-                .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/addJugador", "/addJugadores") // Ignora CSRF para estas rutas
-                )
+        http.authorizeHttpRequests(
+                authorize -> authorize
+                        .requestMatchers("/adminpistas/**").permitAll()
+                        .requestMatchers("/addPista/**").permitAll() // Asegura que los POST también sean permitidos
+                        .requestMatchers("/usuario/**").permitAll()
+                        .requestMatchers("/addJugador/**").permitAll()
+                        .requestMatchers("/addJugadores/**").permitAll()
+                        .requestMatchers("/menu_admin/**").permitAll()
+                        .requestMatchers("/menu_principal/**").permitAll()
+                        .anyRequest().authenticated())
+                // Configuración del formulario de login
                 .formLogin(form -> form
                 .loginPage("/login") // Página personalizada de login
-                .defaultSuccessUrl("/menu_principal", true)
+                .defaultSuccessUrl("/menu_principal", true) // Redirige a /menu_principal después del login exitoso
                 .permitAll()
                 )
+                // Configuración del logout
                 .logout(logout -> logout
-                .deleteCookies("JSESSIONID")
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .deleteCookies("JSESSIONID") // Borra la cookie JSESSIONID al hacer logout
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // Ruta de logout
+                .permitAll()
                 );
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customUserDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
     }
 }
