@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -21,46 +22,48 @@ public class SecurityConfig {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private UserDetailsService userDetailsService;
 
-    // Configuración del PasswordEncoder (BCryptPasswordEncoder para la encriptación de contraseñas)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configuración de la autenticación de usuarios
     @Autowired
     public void autenticacio(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 
-    // Configuración de las rutas de seguridad
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
-                authorize -> authorize
-                        .requestMatchers("/adminpistas/**").permitAll()
-                        .requestMatchers("/addPista/**").permitAll() // Asegura que los POST también sean permitidos
-                        .requestMatchers("/usuario/**").permitAll()
-                        .requestMatchers("/addJugador/**").permitAll()
-                        .requestMatchers("/addJugadores/**").permitAll()
-                        .requestMatchers("/menu_admin/**").permitAll()
-                        .requestMatchers("/menu_principal/**").permitAll()
-                        .anyRequest().authenticated())
-                // Configuración del formulario de login
-                .formLogin(form -> form
-                .loginPage("/login") // Página personalizada de login
-                .defaultSuccessUrl("/menu_principal", true) // Redirige a /menu_principal después del login exitoso
+                authorize -> authorize.requestMatchers(("/Usuario/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
+                        .requestMatchers(("/menu_admin/**")).hasAnyRole("Admin", "Trabajador")
+                        .requestMatchers(("/admincalendario/**")).hasAnyRole("Admin", "Trabajador")
+                        .requestMatchers(("/adminpista/**")).hasAnyRole("Admin", "Trabajador")
+                        .requestMatchers(("/adminjugadores/**")).hasAnyRole("Admin")
+                        .requestMatchers(("/menu_principal/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
+                        .requestMatchers(("/calendario/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
+                        .requestMatchers(("/jugadores/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
+                        .requestMatchers(("/trabajadores/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
+                        .requestMatchers(("/pistas/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
+                        .requestMatchers(("/login/*")).permitAll()
+                        .anyRequest().authenticated()
+        )
+                .formLogin((form) -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/menu_principal", true)
                 .permitAll()
                 )
-                // Configuración del logout
-                .logout(logout -> logout
-                .deleteCookies("JSESSIONID") // Borra la cookie JSESSIONID al hacer logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // Ruta de logout
-                .permitAll()
+                .exceptionHandling(exception -> exception
+                .accessDeniedPage("/errors/error403")
                 );
 
-        return http.build();
+        http.logout(authz -> authz
+                .deleteCookies("JSESSIONID") // Elimina la cookie JSESSIONID al cerrar sesión
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // Define la URL de logout
+        );
+
+        return http.build(); // Construye el objeto SecurityFilterChain con la configuración aplicada
     }
 }

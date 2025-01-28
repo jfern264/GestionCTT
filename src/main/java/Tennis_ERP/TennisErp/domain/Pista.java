@@ -1,12 +1,8 @@
 package Tennis_ERP.TennisErp.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+import java.util.List;
 
 @Entity
 @Table(name = "Pista")
@@ -22,4 +18,8 @@ public class Pista {
 
     @Column(nullable = false)
     private boolean disponible = true;
+
+    // Relación bidireccional con la entidad Event
+    @OneToMany(mappedBy = "pista")
+    private List<Event> eventos; // La lista de eventos asociados a esta pista
 }

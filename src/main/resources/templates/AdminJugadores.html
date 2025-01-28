@@ -225,19 +225,19 @@
                             <td th:text="${jugador.dni}"></td>
                             <td th:text="${jugador.correo}"></td>
                             <td class="action-buttons">
-                                <a th:href="@{/editJugador/{id}(id=${jugador.id})}" class="btn-edit">Editar</a>
-                                <a th:href="@{/deleteJugador/{id}(id=${jugador.id})}" 
+                                <a th:href="@{adminjugadores/editJugador/{id}(id=${jugador.id})}" class="btn-edit">Editar</a>
+                                <a th:href="@{adminjugadores/deleteJugador/{id}(id=${jugador.id})}" 
                                    onclick="return confirm('¿Estás seguro de que deseas eliminar este jugador?')">Eliminar</a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            
-            
+
+
             <div class="pagination" id="paginationControls"></div>
-            
-            
+
+
             <div class="btn-container">
                 <a href="/menu_admin" class="btn btn-back">Volver al Menú</a>
                 <a href="/addJugador" class="btn btn-add">Añadir Nuevo Jugador</a>

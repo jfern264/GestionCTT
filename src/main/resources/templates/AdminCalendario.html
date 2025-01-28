@@ -43,9 +43,9 @@
     </head>
     <body class="flex flex-col">
         <header class="bg-blue-600 text-white py-4 text-center shadow-md">
-            <h1 class="text-4xl font-extrabold">Calendario</h1>
-            <button onclick="volverAlMenu()" class="bg-red-600 text-white py-3 px-8 rounded-full mt-6 hover:bg-red-700 hover:shadow-lg transform transition duration-300 ease-in-out mx-auto block text-xl font-semibold tracking-wide focus:outline-none focus:ring-4 focus:ring-red-500">
-                Volver al Menú Principal
+            <h1 class="text-4xl font-extrabold">Administrar Calendario</h1>
+            <button onclick="volver()" class="bg-red-600 text-white py-3 px-8 rounded-full mt-6 hover:bg-red-700 hover:shadow-lg transform transition duration-300 ease-in-out mx-auto block text-xl font-semibold tracking-wide focus:outline-none focus:ring-4 focus:ring-red-500">
+                Volver
             </button>
         </header>
 
@@ -92,41 +92,59 @@
                     <label for="descripcion" class="block text-left font-semibold">Descripción:</label>
                     <input type="text" id="descripcion" name="descripcion" placeholder="Descripción del evento" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
                 </div>
+
+                <div>
+                    <label for="pista" class="block text-left font-semibold">Pista:</label>
+                    <select id="pista" name="pista" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
+                        <!-- Iteramos sobre las pistas enviadas desde el backend -->
+                        <th:block th:each="pista : ${pistas}">
+                            <option th:value="${pista.id}" th:text="${pista.nombrePista}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
                 <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">Agregar</button>
             </form>
         </section>
 
+        <!-- Modal para mostrar los detalles del evento -->
         <div id="modal" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
             <div class="bg-white rounded-lg p-4 w-80 sm:w-96 max-w-sm shadow-lg">
                 <h2 id="modal-titulo" class="text-lg font-semibold text-blue-600 mb-4 text-center">Detalles del Evento</h2>
-                <form id="form-editar-evento" class="space-y-2">
-                    <table class="table-auto w-full text-gray-700">
-                        <tbody>
-                            <tr class="border-b">
-                                <td class="font-semibold py-1 px-4 text-left">Fecha:</td>
-                                <td class="py-1 px-4 text-right">
-                                    <input type="date" id="modal-fecha" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                </td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="font-semibold py-1 px-4 text-left">Hora:</td>
-                                <td class="py-1 px-4 text-right">
-                                    <input type="time" id="modal-hora" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="font-semibold py-1 px-4 text-left">Descripción:</td>
-                                <td class="py-1 px-4 text-right">
-                                    <input type="text" id="modal-descripcion" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" placeholder="Descripción del evento">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="flex justify-end mt-4 space-x-2">
-                        <button type="button" onclick="cerrarModal()" class="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500">Cerrar</button>
-                        <button id="eliminar-evento" type="button" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">Eliminar</button>
-                        <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Guardar cambios</button>
+                <form onsubmit="event.preventDefault(); editarEvento();" class="space-y-4" id="form-editar-evento">
+                    <div>
+                        <label for="modal-fecha" class="block text-left font-semibold">Fecha:</label>
+                        <input type="date" id="modal-fecha" name="fecha" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
                     </div>
+
+                    <div>
+                        <label for="modal-hora" class="block text-left font-semibold">Hora:</label>
+                        <input type="time" id="modal-hora" name="hora" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div>
+                        <label for="modal-titulo" class="block text-left font-semibold">Título:</label>
+                        <input type="text" id="modal-titulo" name="titulo" placeholder="Título del evento" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div>
+                        <label for="modal-descripcion" class="block text-left font-semibold">Descripción:</label>
+                        <input type="text" id="modal-descripcion" name="descripcion" placeholder="Descripción del evento" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
+                    </div>
+
+                    <div>
+                        <label for="modal-pista" class="block text-left font-semibold">Pista:</label>
+                        <select id="modal-pista" name="pista" required class="border border-gray-300 rounded px-3 py-2 w-full focus:ring-2 focus:ring-blue-400">
+                            <!-- Aquí puedes iterar sobre las pistas y cargarlas si es necesario -->
+                            <th:block th:each="pista : ${pistas}">
+                                <option th:value="${pista.id}" th:text="${pista.nombrePista}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <button type="button" id="eliminar-evento" class="bg-red-600 text-white font-semibold py-2 px-4 rounded hover:bg-red-700">Eliminar Evento</button>
+                    <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600">Guardar cambios</button>
+
                 </form>
             </div>
         </div>
@@ -198,34 +216,50 @@
             }
 
             function mostrarDetallesEvento(evento) {
-                document.getElementById("modal-titulo").textContent = evento.title;
+                // Mostrar detalles en el modal
+                document.getElementById("modal-titulo").value = evento.title;
+                document.getElementById("modal-descripcion").value = evento.description;
                 document.getElementById("modal-fecha").value = evento.date;
                 document.getElementById("modal-hora").value = evento.time;
-                document.getElementById("modal-descripcion").value = evento.description;
 
-                document.getElementById("form-editar-evento").onsubmit = function (event) {
+                // Asignamos la pista previamente seleccionada en el evento
+                const pistaSelect = document.getElementById("modal-pista");
+                pistaSelect.value = evento.pistaId;
+
+                // Mostrar el modal
+                document.getElementById("modal").classList.remove("hidden");
+
+                // Guardar evento con cambios
+                const botonGuardar = document.getElementById("form-editar-evento");
+                botonGuardar.onsubmit = function (event) {
                     event.preventDefault();
+                    evento.title = document.getElementById("modal-titulo").value;
+                    evento.description = document.getElementById("modal-descripcion").value;
                     evento.date = document.getElementById("modal-fecha").value;
                     evento.time = document.getElementById("modal-hora").value;
-                    evento.description = document.getElementById("modal-descripcion").value;
+                    evento.pistaId = document.getElementById("modal-pista").value;
 
                     localStorage.setItem("calendarioEventos", JSON.stringify(eventos));
                     cerrarModal();
                     renderizarCalendario();
                 };
 
-                document.getElementById("modal").classList.remove("hidden");
-
+                // Vincular el botón de eliminar al evento
                 const botonEliminar = document.getElementById("eliminar-evento");
-                botonEliminar.onclick = () => eliminarEvento(evento);
+                botonEliminar.onclick = function () {
+                    eliminarEvento(evento);
+                };
             }
 
+
             function eliminarEvento(evento) {
-                eventos = eventos.filter(e => e.date !== evento.date || e.title !== evento.title || e.description !== evento.description);
+                // Filtrar el evento por su id
+                eventos = eventos.filter(e => e.id !== evento.id);
                 localStorage.setItem("calendarioEventos", JSON.stringify(eventos));
                 cerrarModal();
                 renderizarCalendario();
             }
+
 
             function cerrarModal() {
                 document.getElementById("modal").classList.add("hidden");
@@ -241,20 +275,24 @@
                 const hora = document.getElementById("hora").value;
                 const titulo = document.getElementById("titulo").value;
                 const descripcion = document.getElementById("descripcion").value;
+                const pista = document.getElementById("pista").value;
 
-                if (fecha && hora && titulo && descripcion) {
-                    eventos.push({date: fecha, time: hora, title: titulo, description: descripcion});
+                if (fecha && hora && titulo && descripcion && pista) {
+                    // Guardamos el evento incluyendo la pista
+                    eventos.push({date: fecha, time: hora, title: titulo, description: descripcion, pistaId: pista});
                     localStorage.setItem("calendarioEventos", JSON.stringify(eventos));
                     renderizarCalendario();
                     document.getElementById("fecha").value = '';
                     document.getElementById("hora").value = '';
                     document.getElementById("titulo").value = '';
                     document.getElementById("descripcion").value = '';
+                    document.getElementById("pista").value = ''; // Reiniciar el campo pista
                 }
             }
 
-            function volverAlMenu() {
-                window.location.href = "menu_principal"; // Reemplazar con la URL de tu menú principal
+
+            function volver() {
+                window.location.href = "menu_admin";
             }
 
             renderizarCalendario();

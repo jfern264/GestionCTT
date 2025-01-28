@@ -37,21 +37,21 @@ public class TrabajadorController {
         return "AdminTrabajadores"; // Nombre de la plantilla HTML
     }
 
-    @GetMapping("/addTrabajador")
+    @GetMapping("/admintrabajadores/addTrabajador")
     public String mostrarFormularioAgregarTrabajador(Model model) {
         model.addAttribute("trabajador", new Trabajador());
         model.addAttribute("roles", rolService.findAllRoles()); // Cargar roles para el formulario
         return "addTrabajador";
     }
 
-    @PostMapping("/addTrabajador")
+    @PostMapping("/admintrabajadores/addTrabajador")
     public String agregarTrabajador(@ModelAttribute Trabajador trabajador, RedirectAttributes redirectAttributes) {
         try {
             // Verificar si el DNI ya está registrado
             Optional<Trabajador> trabajadorExistente = trabajadorService.getTrabajadorByDni(trabajador.getDni());
             if (trabajadorExistente.isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "El DNI ya está registrado por otro trabajador.");
-                return "redirect:/addTrabajador";
+                return "redirect:/admintrabajadores/addTrabajador";
             }
 
             trabajadorService.saveTrabajador(trabajador); // Guardar trabajador
@@ -63,7 +63,7 @@ public class TrabajadorController {
         return "redirect:/admintrabajadores"; // Redirigir a la lista de trabajadores
     }
 
-    @GetMapping("/editTrabajador/{id}")
+    @GetMapping("/admintrabajadores/editTrabajador/{id}")
     public String mostrarFormularioEditarTrabajador(@PathVariable Long id, Model model) {
         if (id == null || id <= 0) {
             model.addAttribute("error", "ID inválido proporcionado");
@@ -87,7 +87,7 @@ public class TrabajadorController {
         return trabajadorOpt.isPresent() && !trabajadorOpt.get().getId().equals(idExcluido);
     }
 
-    @PostMapping("/editTrabajador/{id}")
+    @PostMapping("/admintrabajadores/editTrabajador/{id}")
     public String editarTrabajador(@PathVariable Long id, @ModelAttribute Trabajador trabajador, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("roles", rolService.findAllRoles());
@@ -103,7 +103,7 @@ public class TrabajadorController {
 
             if (existeTrabajadorConDni(trabajador.getDni(), id)) {
                 redirectAttributes.addFlashAttribute("error", "El DNI ya está registrado por otro trabajador.");
-                return "redirect:/editTrabajador/" + id;
+                return "redirect:/admintrabajadores/editTrabajador/" + id;
             }
 
             trabajador.setId(id); // Asegurarse de que el ID no cambie
@@ -118,7 +118,7 @@ public class TrabajadorController {
         return "redirect:/admintrabajadores";
     }
 
-    @PostMapping("/deleteTrabajador/{id}")
+    @PostMapping("/admintrabajadores/deleteTrabajador/{id}")
     public String eliminarTrabajador(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             Optional<Trabajador> trabajadorOpt = trabajadorService.getTrabajadorById(id);

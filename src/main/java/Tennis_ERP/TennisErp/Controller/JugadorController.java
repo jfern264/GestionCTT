@@ -39,13 +39,13 @@ public class JugadorController {
     }
 
     // Mostrar formulario para añadir un nuevo jugador
-    @GetMapping("/addJugador")
+    @GetMapping("/adminjugadores/addJugador")
     public String mostrarFormularioAgregarJugador(Model model) {
         prepararFormulario(model, new Jugadores());
         return "addJugador";
     }
 
-    @PostMapping("/addJugadores")
+    @PostMapping("/adminjugadores/addJugadores")
     public String guardarJugador(@ModelAttribute Jugadores jugador, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
         if (result.hasErrors()) {
             prepararFormulario(model, jugador);
@@ -56,7 +56,7 @@ public class JugadorController {
             rol rolSeleccionado = rolService.findRolById(jugador.getRol().getId());
             if (rolSeleccionado == null) {
                 redirectAttributes.addFlashAttribute("error", "Rol no encontrado");
-                return "redirect:/addJugador";
+                return "redirect:/adminjugadores/addJugador";
             }
 
             jugador.setRol(rolSeleccionado);
@@ -64,7 +64,7 @@ public class JugadorController {
             redirectAttributes.addFlashAttribute("success", "Jugador añadido con éxito");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ocurrió un error inesperado");
-            return "redirect:/addJugador";
+            return "redirect:/adminjugadores/addJugador";
         }
 
         return "redirect:/adminjugadores";
@@ -76,7 +76,7 @@ public class JugadorController {
         model.addAttribute("jugador", jugador);
     }
 
-    @GetMapping("/editJugador/{id}")
+    @GetMapping("/adminjugadores/editJugador/{id}")
     public String mostrarFormularioEditarJugador(@PathVariable Long id, Model model) {
         Optional<Jugadores> jugadorOpt = jugadoresService.findJugadorById(id);
         if (!jugadorOpt.isPresent()) {
@@ -93,7 +93,7 @@ public class JugadorController {
         return "editar_Jugador";  // Nombre de la vista (editar jugador)
     }
 
-    @PostMapping("/editJugador/{id}")
+    @PostMapping("/adminjugadores/editJugador/{id}")
     public String editarJugador(@PathVariable Long id, @ModelAttribute Jugadores jugador, Model model) {
         try {
             // Verificamos si el jugador existe
@@ -121,7 +121,7 @@ public class JugadorController {
     }
 
     // Eliminar un jugador
-    @GetMapping("/deleteJugador/{id}")
+    @GetMapping("/adminjugadores/deleteJugador/{id}")
     public String eliminarJugador(@PathVariable Long id, Model model) {
         try {
             jugadoresService.deleteJugador(id);

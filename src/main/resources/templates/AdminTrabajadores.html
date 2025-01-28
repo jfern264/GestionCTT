@@ -226,10 +226,10 @@
                             <td th:text="${trabajador.correo}"></td>
                             <td class="action-buttons">
                                 <!-- Enlace de edición corregido -->
-                                <a th:href="@{/editTrabajador/{id}(id=${trabajador.id})}" class="btn btn-info">Editar</a>
+                                <a th:href="@{/admintrabajadores/editTrabajador/{id}(id=${trabajador.id})}" class="btn btn-info">Editar</a>
 
                                 <!-- Formulario de eliminación -->
-                                <form th:action="@{/deleteTrabajador/{id}(id=${trabajador.id})}" method="post" style="display:inline;">
+                                <form th:action="@{/admintrabajadores/deleteTrabajador/{id}(id=${trabajador.id})}" method="post" style="display:inline;">
                                     <button type="submit" class="btn btn-danger"
                                             onclick="return confirm('¿Estás seguro de que deseas eliminar este trabajador?')">Eliminar</button>
                                 </form>
@@ -243,7 +243,7 @@
 
             <div class="btn-container">
                 <a href="/menu_admin" class="btn btn-back">Volver al Menú</a>
-                <a href="/addTrabajador" class="btn btn-add">Añadir Nuevo Trabajador</a>
+                <a href="/admintrabajadores/addTrabajador" class="btn btn-add">Añadir Nuevo Trabajador</a>
             </div>
         </div>
     </body>

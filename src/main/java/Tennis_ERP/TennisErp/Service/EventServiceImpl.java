@@ -35,7 +35,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void eliminarEvento(int id) {
-        eventDAO.deleteById(Long.MIN_VALUE); // Aquí el id está declarado como int
+        eventDAO.deleteById((long) id);
     }
 
     @Override
