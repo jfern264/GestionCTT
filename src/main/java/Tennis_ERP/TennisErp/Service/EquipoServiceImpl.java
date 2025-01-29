@@ -20,7 +20,6 @@ public class EquipoServiceImpl implements EquipoService {
 
     @Override
     public Equipo crearEquipo(Equipo equipo) {
-        // Guardar el equipo en la base de datos
         return equipoDAO.save(equipo);
     }
 
@@ -31,41 +30,22 @@ public class EquipoServiceImpl implements EquipoService {
 
     @Override
     public List<Equipo> listarEquipos() {
-        // Obtener todos los equipos
         return equipoDAO.findAll();
     }
 
     @Override
     public Equipo actualizarEquipo(Equipo equipo) {
-        // Verifica que el equipo existe antes de actualizarlo
-            return equipoDAO.save(equipo);
+        return equipoDAO.save(equipo);
     }
-
 
     @Override
     public void eliminarEquipo(Long id) {
-        // Eliminar el equipo por su ID
         equipoDAO.deleteById(id);
     }
 
-    // Métodos adicionales usando las consultas personalizadas del DAO
-    public List<Equipo> buscarEquiposPorLiga(String liga) {
-        return equipoDAO.findByLiga(liga);
+    @Override
+    public List<Equipo> findEquiposByNombreCategoria(String nombreCategoria) {
+        return equipoDAO.findEquiposByNombreCategoria(nombreCategoria);
     }
-
-    public List<Equipo> buscarEquiposPorCategoria(String categoria) {
-        return equipoDAO.findByCategoria(categoria);
-    }
-
-    public List<Equipo> buscarEquiposPorPuntos(int puntos) {
-        return equipoDAO.findByPuntos(puntos);
-    }
-
-    public List<Equipo> buscarEquiposPorRangoDePuntos(int minPuntos, int maxPuntos) {
-        return equipoDAO.findByPuntosBetween(minPuntos, maxPuntos);
-    }
-
-    public List<Equipo> buscarEquiposPorPrecioMayorQue(double precioMinimo) {
-        return equipoDAO.findEquiposConPrecioMayorQue(precioMinimo);
-    }
+    
 }

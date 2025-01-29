@@ -113,8 +113,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Equipo</th>
+                        <th>Jugadores</th>
                         <th>Liga</th>
                         <th>Categoría</th>
                         <th>Puntos</th>
@@ -124,17 +123,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="equipo : ${equipos}" th:if="${equipo.categoria} == 'Cadet Femení'">
+                    <tr th:each="equipo : ${equipos}">
                         <td th:text="${equipo.jugadores}"></td>
-                        <td th:text="${equipo.equipo}"></td>
                         <td th:text="${equipo.liga}"></td>
-                        <td th:text="${equipo.categoria}"></td>
+                        <td th:text="${equipo.categoria.nombre}"></td>
                         <td th:text="${equipo.puntos}"></td>
                         <td th:text="${equipo.partidos}"></td>
                         <td th:text="${equipo.objetivo}"></td>
                         <td th:text="${equipo.precioLiga}"></td>
                     </tr>
                 </tbody>
+
             </table>
         </div>
 

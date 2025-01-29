@@ -2,23 +2,12 @@ package Tennis_ERP.TennisErp.Controller;
 
 import Tennis_ERP.TennisErp.Service.EquipoService;
 import Tennis_ERP.TennisErp.domain.Equipo;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
-
-
-
-
-/*Para añadir nuevo equipo /equipos/nuevo */
-
-
-
+import java.util.List;
 
 @Controller
 public class EquipoController {
@@ -35,33 +24,43 @@ public class EquipoController {
     }
 
     @GetMapping("/equipo_categoria/{categoria}")
-    public String mostrarCategoria(@PathVariable String categoria, Model model) {
-        List<Equipo> equipos = equipoService.listarEquipos();
+    public String findEquiposByNombreCategoria(@PathVariable String categoria, Model model) {
+        String categoriaNormalizada = categoria.replace("_", " ");
+        List<Equipo> equipos = equipoService.findEquiposByNombreCategoria(categoriaNormalizada);
+        if (equipos.isEmpty()) {
+            System.out.println("No se encontraron equipos para la categoría: " + categoriaNormalizada);
+        } else {
+            System.out.println("Equipos encontrados: " + equipos);
+        }
         model.addAttribute("equipos", equipos);
-        return "equipo_categoria/" + categoria;
+        return "equipo_categoria/"+ categoria; // Asegúrate de que esta vista existe
     }
+
+
+    
 
     // Mostrar formulario para añadir un nuevo equipo
     @GetMapping("/equipos/nuevo")
     public String formularioNuevoEquipo(Model model) {
-        model.addAttribute("equipo", new Equipo()); // Inicializa un equipo vacío para el formulario
+        model.addAttribute("equipo", new Equipo());
+        
         return "addEquipo"; // Vista para agregar un nuevo equipo
     }
 
     // Guardar un nuevo equipo
     @PostMapping("/equipos/guardar")
     public String guardarEquipo(@ModelAttribute Equipo equipo) {
-        equipoService.crearEquipo(equipo); // El ID no debería ser enviado en el formulario
+        equipoService.crearEquipo(equipo);
         return "redirect:/equipos"; // Redirige a la lista de equipos después de guardar
     }
 
     // Mostrar el formulario de edición
     @GetMapping("/equipos/editar/{id}")
     public String mostrarFormularioEdicion(@PathVariable("id") Long id, Model model) {
-        Equipo equipo = equipoService.obtenerEquipoPorId(id).orElseThrow(() -> 
+        Equipo equipo = equipoService.obtenerEquipoPorId(id).orElseThrow(() ->
                 new IllegalArgumentException("El equipo con ID " + id + " no existe."));
         model.addAttribute("equipo", equipo);
-        return "editar_equipo"; // Vista para el formulario de edición
+        return "editar_equipo"; // Vista para editar un equipo
     }
 
     // Procesar la edición de un equipo
@@ -77,4 +76,8 @@ public class EquipoController {
         equipoService.eliminarEquipo(id);
         return "redirect:/equipos";
     }
+
 }
+
+
+ 

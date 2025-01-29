@@ -1,10 +1,12 @@
 package Tennis_ERP.TennisErp.Service;
 
 import Tennis_ERP.TennisErp.domain.Equipo;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface EquipoService {
+
     // Crear un nuevo equipo
     Equipo crearEquipo(Equipo equipo);
 
@@ -19,4 +21,7 @@ public interface EquipoService {
 
     // Eliminar un equipo por su ID
     void eliminarEquipo(Long id);
+
+    // Listar equipos por nombre de categoría
+    List<Equipo> findEquiposByNombreCategoria(String nombreCategoria);
 }
