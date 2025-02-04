@@ -107,7 +107,7 @@
             <h1>Editar Pista</h1>
 
             <!-- Formulario de edición -->
-            <form th:action="@{/editpista/{id}(id=${pista.id})}" th:object="${pista}" method="post">
+            <form th:action="@{/adminpistas/editpista/{id}(id=${pista.id})}" th:object="${pista}" method="post">
 
                 <!-- Campo Nombre de la Pista -->
                 <label for="nombrePista">Nombre de la Pista</label>

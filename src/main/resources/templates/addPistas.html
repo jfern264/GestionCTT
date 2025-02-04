@@ -100,7 +100,7 @@
             </div>
 
             <!-- Formulario -->
-            <form action="/addPista" method="post" th:action="@{/addPista}" novalidate>
+            <form action="/adminpistas/addPista" method="post" th:action="@{/addPista}" novalidate>
                 <!-- Token CSRF -->
                 <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
 

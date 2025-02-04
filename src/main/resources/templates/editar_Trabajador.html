@@ -117,7 +117,7 @@
             </div>
 
             <!-- Formulario de edición -->
-            <form th:action="@{/editTrabajador/{id}(id=${trabajador.id})}" method="post">
+            <form th:action="@{/admintrabajadores/editTrabajador/{id}(id=${trabajador.id})}" method="post">
 
                 <!-- Campo ID (oculto) -->
                 <input type="hidden" name="id" th:value="${trabajador.id}">

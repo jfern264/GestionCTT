@@ -109,7 +109,7 @@
             </div>
 
             <!-- Formulario -->
-            <form action="/addJugadores" method="post" class="needs-validation" novalidate>
+            <form action="/adminjugadores/addJugadores" method="post" class="needs-validation" novalidate>
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre:</label>
                     <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -133,8 +133,7 @@
                     <input type="text" class="form-control" id="correo" name="correo" required>
                     <div class="invalid-feedback">Por favor, ingresa un Correo válido.</div>
                 </div>
-                
-                <!-- Campo oculto para el rol -->
+
                 <input type="hidden" id="rol" name="rol" value="3">
 
                 <button type="submit" class="btn btn-primary">Añadir Jugador</button>

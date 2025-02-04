@@ -88,7 +88,7 @@
                 <p id="error-text"></p>
             </div>
 
-            <form action="/addTrabajador" method="post">
+            <form action="/admintrabajadores/addTrabajador" method="post">
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre:</label>
                     <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -120,10 +120,9 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            // Simulando un error (puedes reemplazarlo con tu lógica de error)
-            document.getElementById("add-player-form").addEventListener("submit", function (event) {
-                const error = false; // Cambiar según tu lógica de error
 
+            document.getElementById("add-player-form").addEventListener("submit", function (event) {
+                const error = false;
                 if (error) {
                     document.getElementById("error-msg").style.display = "block";
                     document.getElementById("error-text").textContent = "Hubo un problema al añadir el trabajador. Por favor, intentalo de nuevo.";

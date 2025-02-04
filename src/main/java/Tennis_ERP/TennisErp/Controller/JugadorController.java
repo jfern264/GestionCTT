@@ -23,12 +23,11 @@ public class JugadorController {
     @Autowired
     private RolService rolService;
 
-    // Mostrar la página principal de jugadores
     @GetMapping("/jugadores")
     public String mostrarJugadores(Model model) {
         List<Jugadores> listaJugadores = jugadoresService.findAllJugadores();
         model.addAttribute("jugadores", listaJugadores);
-        return "Jugadores"; // Nombre de la plantilla HTML
+        return "Jugadores";
     }
 
     @GetMapping("/adminjugadores")
@@ -38,7 +37,6 @@ public class JugadorController {
         return "AdminJugadores";
     }
 
-    // Mostrar formulario para añadir un nuevo jugador
     @GetMapping("/adminjugadores/addJugador")
     public String mostrarFormularioAgregarJugador(Model model) {
         prepararFormulario(model, new Jugadores());
@@ -81,56 +79,54 @@ public class JugadorController {
         Optional<Jugadores> jugadorOpt = jugadoresService.findJugadorById(id);
         if (!jugadorOpt.isPresent()) {
             model.addAttribute("error", "Jugador no encontrado");
-            return "errorPage";  // Página de error si no se encuentra el jugador
+            return "errorPage";
         }
 
-        Jugadores jugador = jugadorOpt.get();  // Obtener el jugador
-        List<rol> listaRoles = rolService.findAllRoles();  // Obtener todos los roles
+        Jugadores jugador = jugadorOpt.get();
+        List<rol> listaRoles = rolService.findAllRoles();
 
-        model.addAttribute("jugador", jugador);  // Agregar el jugador al modelo
-        model.addAttribute("roles", listaRoles);  // Agregar la lista de roles al modelo
+        model.addAttribute("jugador", jugador);
+        model.addAttribute("roles", listaRoles);
 
-        return "editar_Jugador";  // Nombre de la vista (editar jugador)
+        return "editar_Jugador";
     }
 
     @PostMapping("/adminjugadores/editJugador/{id}")
     public String editarJugador(@PathVariable Long id, @ModelAttribute Jugadores jugador, Model model) {
         try {
-            // Verificamos si el jugador existe
+
             Optional<Jugadores> jugadorExistenteOpt = jugadoresService.findJugadorById(id);
             if (!jugadorExistenteOpt.isPresent()) {
                 throw new EntityNotFoundException("Jugador no encontrado");
             }
 
             Jugadores jugadorExistente = jugadorExistenteOpt.get();
-            jugador.setId(id); // Aseguramos que el ID no cambie
-            jugador.setRol(jugadorExistente.getRol()); // Mantener el rol del jugador original (si no lo editamos)
+            jugador.setId(id);
+            jugador.setRol(jugadorExistente.getRol());
 
-            jugadoresService.saveJugador(jugador); // Guardamos los cambios
+            jugadoresService.saveJugador(jugador);
 
         } catch (EntityNotFoundException e) {
             model.addAttribute("error", e.getMessage());
-            return "errorPage"; // Página de error si no se puede encontrar el jugador
+            return "errorPage";
         } catch (Exception e) {
             model.addAttribute("error", "Ocurrió un error inesperado");
-            return "errorPage"; // Página de error genérica
+            return "errorPage";
         }
 
-        // Redirigimos a la lista de jugadores
         return "redirect:/adminjugadores";
     }
 
-    // Eliminar un jugador
     @GetMapping("/adminjugadores/deleteJugador/{id}")
     public String eliminarJugador(@PathVariable Long id, Model model) {
         try {
             jugadoresService.deleteJugador(id);
         } catch (EntityNotFoundException e) {
             model.addAttribute("error", e.getMessage());
-            return "errorPage"; // Página de error si no se puede eliminar el jugador
+            return "errorPage";
         } catch (Exception e) {
             model.addAttribute("error", "Ocurrió un error inesperado");
-            return "errorPage"; // Página de error genérica
+            return "errorPage";
         }
         return "redirect:/adminjugadores";
     }
