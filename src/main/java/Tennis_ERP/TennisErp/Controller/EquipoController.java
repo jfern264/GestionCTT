@@ -27,11 +27,6 @@ public class EquipoController {
     public String findEquiposByNombreCategoria(@PathVariable String categoria, Model model) {
         String categoriaNormalizada = categoria.replace("_", " ");
         List<Equipo> equipos = equipoService.findEquiposByNombreCategoria(categoriaNormalizada);
-        if (equipos.isEmpty()) {
-            System.out.println("No se encontraron equipos para la categoría: " + categoriaNormalizada);
-        } else {
-            System.out.println("Equipos encontrados: " + equipos);
-        }
         model.addAttribute("equipos", equipos);
         return "equipo_categoria/"+ categoria; // Asegúrate de que esta vista existe
     }

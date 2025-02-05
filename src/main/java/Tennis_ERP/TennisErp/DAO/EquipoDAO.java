@@ -15,9 +15,6 @@ public interface EquipoDAO extends JpaRepository<Equipo, Long> {
     // Buscar equipos por puntos
     List<Equipo> findByPuntos(int puntos);
 
-    // Buscar equipos por un rango de puntos
-    List<Equipo> findByPuntosBetween(int minPuntos, int maxPuntos);
-
     @Query("SELECT e FROM Equipo e JOIN e.categoria c WHERE c.nombre = :nombreCategoria")
     List<Equipo> findEquiposByNombreCategoria(@Param("nombreCategoria") String nombreCategoria);
 
