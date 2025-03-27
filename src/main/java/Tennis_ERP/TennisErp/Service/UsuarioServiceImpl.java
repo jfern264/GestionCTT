@@ -4,52 +4,54 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import Tennis_ERP.TennisErp.DAO.usuarioDAO;
-import Tennis_ERP.TennisErp.domain.usuario;
+import Tennis_ERP.TennisErp.domain.Usuario;
+import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
 public class UsuarioServiceImpl implements UsuarioService {
 
-    private final usuarioDAO usuarioDao;
-    private final PasswordEncoder passwordEncoder;
-
     @Autowired
-    public UsuarioServiceImpl(usuarioDAO usuarioDao, PasswordEncoder passwordEncoder) {
-        this.usuarioDao = usuarioDao;
-        this.passwordEncoder = passwordEncoder;
+    private UsuarioDAO usuarioDAO;
+
+    @Override
+    @Transactional
+    public Usuario saveUsuario(Usuario usuario) {
+        return usuarioDAO.save(usuario);
     }
 
     @Override
-    public void crearUsuario(usuario nuevoUsuario) {
-        nuevoUsuario.setContraseña(passwordEncoder.encode(nuevoUsuario.getContraseña()));
-        usuarioDao.save(nuevoUsuario);
+    @Transactional(readOnly = true)
+    public List<Usuario> getAllUsuarios() {
+        return usuarioDAO.findAll();
     }
 
     @Override
-    public usuario obtenerUsuarioPorNombre(String nombre) {
-        return usuarioDao.findByNombre(nombre)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + nombre));
+    @Transactional(readOnly = true)
+    public Optional<Usuario> getUsuarioById(Long id) {
+        return usuarioDAO.findById(id);
     }
 
     @Override
-    public boolean verificarContraseña(String contrasenaIngresada, String contrasenaCifrada) {
-        return passwordEncoder.matches(contrasenaIngresada, contrasenaCifrada);
+    @Transactional(readOnly = true)
+    public Optional<Usuario> findByNombreUsuario(String nombreUsuario) {
+        return Optional.ofNullable(usuarioDAO.findByNombreUsuario(nombreUsuario));
     }
 
     @Override
-    public void actualizarUsuario(usuario usuarioActualizado) {
-        if (!usuarioDao.existsById(usuarioActualizado.id)) {
-            throw new RuntimeException("Usuario no encontrado con ID: " + usuarioActualizado.id);
-        }
-        usuarioDao.save(usuarioActualizado);
+    @Transactional(readOnly = true)
+    public Optional<Usuario> findByEmail(String email) {
+        return Optional.ofNullable(usuarioDAO.findByEmail(email));
     }
 
     @Override
-    public void eliminarUsuarioPorId(int id) {
-        if (!usuarioDao.existsById(id)) {
-            throw new RuntimeException("Usuario no encontrado con ID: " + id);
-        }
-        usuarioDao.deleteById(id);
+    @Transactional
+    public void deleteUsuario(Long id) {
+        usuarioDAO.deleteById(id);
     }
 }

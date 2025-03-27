@@ -1,12 +1,18 @@
 package Tennis_ERP.TennisErp.service;
 
 import Tennis_ERP.TennisErp.domain.Categoria;
-
 import java.util.List;
+import java.util.Optional;
 
 public interface CategoriaService {
-    List<Categoria> listarCategorias();
-    Categoria obtenerCategoriaPorId(Long id);
-    Categoria guardarCategoria(Categoria categoria);
-    void eliminarCategoria(Long id);
+
+    Categoria saveCategoria(Categoria categoria);
+
+    List<Categoria> getAllCategorias();
+
+    Optional<Categoria> getCategoriaById(Long id);
+
+    List<Categoria> findByLigaId(Long ligaId);
+
+    void deleteCategoria(Long id);
 }

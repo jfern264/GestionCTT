@@ -1,7 +1,7 @@
 package Tennis_ERP.TennisErp.SpringSecurity;
 
-import Tennis_ERP.TennisErp.domain.usuario;
-import Tennis_ERP.TennisErp.DAO.usuarioDAO;
+import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
+import Tennis_ERP.TennisErp.domain.Usuario;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,33 +13,33 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-@Service("CustomUserDetailsService")
+@Service("userDetailsService")
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private usuarioDAO usuarioDao;
+    private UsuarioDAO usuarioDAO;
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String nombre) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String nombreUsuario) throws UsernameNotFoundException {
 
-        Optional<usuario> optionalUsuario = usuarioDao.findByNombre(nombre);
+        Usuario usuario = usuarioDAO.findByNombreUsuario(nombreUsuario);
 
-        // Si no existe el usuario, lanzamos excepción
-        usuario usuario = optionalUsuario.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + nombre));
+        if (usuario == null) {
+            throw new UsernameNotFoundException("Usuario no encontrado: " + nombreUsuario);
+        }
 
-        // Convertir RoleType a String para Spring Security
-        GrantedAuthority autoridad = new SimpleGrantedAuthority("ROLE_" + usuario.rol.getRol().name());
+        Set<GrantedAuthority> authorities = usuario.getRoles().stream()
+                .map(rol -> new SimpleGrantedAuthority(rol.getNombreRol()))
+                .collect(Collectors.toSet());
 
-        // Log de información
-        log.info("Usuario: {}", usuario.nombre);
-        log.info("Contraseña: {}", usuario.contraseña);
-        log.info("Rol: {}", autoridad.getAuthority());
+        log.info("Usuario: {}", usuario.getNombreUsuario());
+        log.info("Roles: {}", authorities);
 
-        // Retornamos el usuario con nombre de usuario, contraseña y rol
-        return new User(usuario.nombre, usuario.contraseña, Collections.singleton(autoridad));
+        return new User(usuario.getNombreUsuario(), usuario.getPassword(), authorities);
     }
 }

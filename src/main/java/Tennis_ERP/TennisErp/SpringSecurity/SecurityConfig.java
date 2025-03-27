@@ -8,8 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -18,52 +18,59 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     @Autowired
-    @Lazy
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private UserDetailsService userDetailsService;
+    
+        // A partir de Spring Security 5.7+, ya no se recomienda sobrescribir directamente AuthenticationManagerBuilder.
+        // En su lugar, se utiliza AuthenticationConfiguration, y Spring se encarga automáticamente de configurar
+        // el AuthenticationManager si detecta un UserDetailsService y un PasswordEncoder en el contexto.
+        //
+        // ¿Por qué funciona sin configurarlo manualmente?
+        // Porque Spring Boot detecta que existe un @Bean de PasswordEncoder y un @Service("userDetailsService")
+        // que implementa UserDetailsService, y los registra automáticamente para el AuthenticationManager.
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @Autowired
-    public void autenticacio(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
-                authorize -> authorize.requestMatchers(("/Usuario/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
-                        .requestMatchers(("/menu_admin/**")).hasAnyRole("Admin", "Trabajador")
-                        .requestMatchers(("/admincalendario/**")).hasAnyRole("Admin", "Trabajador")
-                        .requestMatchers(("/adminpista/**")).hasAnyRole("Admin", "Trabajador")
-                        .requestMatchers(("/adminjugadores/**")).hasAnyRole("Admin")
-                        .requestMatchers(("/menu_principal/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
-                        .requestMatchers(("/calendario/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
-                        .requestMatchers(("/jugadores/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
-                        .requestMatchers(("/trabajadores/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
-                        .requestMatchers(("/pistas/**")).hasAnyRole("Admin", "Trabajador", "Usuario")
-                        .requestMatchers(("/login/*")).permitAll()
+                authorize -> authorize
+                        .requestMatchers("/Usuario/**").hasAnyAuthority("Admin", "Jugador", "Usuario")
+                        .requestMatchers("/menu_admin/**").hasAnyAuthority("Admin", "Jugador")
+                        .requestMatchers("/admincalendario/**").hasAnyAuthority("Admin", "Jugador")
+                        .requestMatchers("/adminpista/**").hasAnyAuthority("Admin", "Jugador")
+                        .requestMatchers("/adminjugadores/**").hasAuthority("Admin")
+                        .requestMatchers("/menu_principal/**").hasAnyAuthority("Admin", "Jugador", "Usuario")
+                        .requestMatchers("/calendario/**").hasAnyAuthority("Admin", "Jugador", "Usuario")
+                        .requestMatchers("/jugadores/**").hasAnyAuthority("Admin", "Jugador", "Usuario")
+                        .requestMatchers("/trabajadores/**").hasAnyAuthority("Admin", "Jugador", "Usuario")
+                        .requestMatchers("/pistas/**").hasAnyAuthority("Admin", "Jugador", "Usuario")
+                        .requestMatchers("/login/**").permitAll()
                         .anyRequest().authenticated()
         )
-                .formLogin((form) -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/menu_principal", true)
-                .permitAll()
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/menu_principal", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .deleteCookies("JSESSIONID")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
                 )
                 .exceptionHandling(exception -> exception
-                .accessDeniedPage("/errors/error403")
+                        .accessDeniedPage("/errors/error403")
                 );
 
-        http.logout(authz -> authz
-                .deleteCookies("JSESSIONID") // Elimina la cookie JSESSIONID al cerrar sesión
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // Define la URL de logout
-        );
-
-        return http.build(); // Construye el objeto SecurityFilterChain con la configuración aplicada
+        return http.build();
     }
 }

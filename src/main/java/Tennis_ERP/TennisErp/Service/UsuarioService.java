@@ -1,16 +1,21 @@
 package Tennis_ERP.TennisErp.Service;
 
-import Tennis_ERP.TennisErp.domain.usuario;
+import Tennis_ERP.TennisErp.domain.Usuario;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface UsuarioService {
 
-    void crearUsuario(usuario nuevoUsuario);
+    Usuario saveUsuario(Usuario usuario);
 
-    usuario obtenerUsuarioPorNombre(String nombre);
+    List<Usuario> getAllUsuarios();
 
-    boolean verificarContraseña(String contrasenaIngresada, String contrasenaCifrada);
+    Optional<Usuario> getUsuarioById(Long id);
 
-    void actualizarUsuario(usuario usuarioActualizado);
+    Optional<Usuario> findByNombreUsuario(String nombreUsuario);
 
-    void eliminarUsuarioPorId(int id);
+    Optional<Usuario> findByEmail(String email);
+
+    void deleteUsuario(Long id);
 }
