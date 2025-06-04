@@ -1,8 +1,8 @@
 package Tennis_ERP.TennisErp.service;
 
-
 import Tennis_ERP.TennisErp.DAO.CategoriaDAO;
 import Tennis_ERP.TennisErp.domain.Categoria;
+import Tennis_ERP.TennisErp.domain.Liga;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,5 +43,28 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Transactional
     public void deleteCategoria(Long id) {
         categoriaDAO.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Categoria> getCategoriasByLiga(Liga liga) {
+        return categoriaDAO.findByLiga_Id(liga.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Categoria> findAllWithUsuariosOrdenados() {
+        List<Categoria> categorias = categoriaDAO.findAll();
+
+        for (Categoria categoria : categorias) {
+            categoria.getUsuarioCategorias().sort((uc1, uc2) -> {
+                if (uc1.isActivo() == uc2.isActivo()) {
+                    return Boolean.compare(uc1.isSuplente(), uc2.isSuplente());
+                }
+                return Boolean.compare(!uc1.isActivo(), !uc2.isActivo()); // Activos primero
+            });
+        }
+
+        return categorias;
     }
 }

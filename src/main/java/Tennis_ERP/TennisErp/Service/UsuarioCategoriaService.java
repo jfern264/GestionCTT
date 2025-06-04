@@ -21,4 +21,13 @@ public interface UsuarioCategoriaService {
     List<UsuarioCategoria> findByUsuarioId(Long usuarioId);
 
     void deleteUsuarioCategoria(Long id);
+    
+    void asociarJugadorACategoria(Long usuarioId, Long categoriaId);
+    
+    void marcarActivo(Long usuarioCategoriaId);
+    
+    void marcarSuplente(Long usuarioCategoriaId);
+    
+    void desasociarJugadorDeCategoria(Long usuarioCategoriaId);
+
 }

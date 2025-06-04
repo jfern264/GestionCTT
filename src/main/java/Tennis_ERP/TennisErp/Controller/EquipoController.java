@@ -1,11 +1,18 @@
 package Tennis_ERP.TennisErp.Controller;
 
-import Tennis_ERP.TennisErp.Service.EquipoService;
-import Tennis_ERP.TennisErp.domain.Equipo;
+import Tennis_ERP.TennisErp.Service.LigaService;
+import Tennis_ERP.TennisErp.Service.UsuarioCategoriaService;
+import Tennis_ERP.TennisErp.Service.UsuarioService;
+import Tennis_ERP.TennisErp.domain.Categoria;
+import Tennis_ERP.TennisErp.domain.Liga;
+import Tennis_ERP.TennisErp.domain.Usuario;
+import Tennis_ERP.TennisErp.resources.FranjaEdad;
+import Tennis_ERP.TennisErp.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -13,66 +20,85 @@ import java.util.List;
 public class EquipoController {
 
     @Autowired
-    private EquipoService equipoService;
+    private CategoriaService categoriaService;
 
-    // Mostrar todos los equipos
-    @GetMapping("/equipos")
+    @Autowired
+    private LigaService ligaService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioCategoriaService usuarioCategoriaService;
+
+    @GetMapping("/menuAdmin/equipos")
     public String mostrarEquipos(Model model) {
-        List<Equipo> equipos = equipoService.listarEquipos();
-        model.addAttribute("equipos", equipos);
-        return "equipo"; // Vista que muestra todos los equipos
+        List<Liga> ligas = ligaService.getAllWithCategoriasAndUsuarios();
+        model.addAttribute("ligas", ligas);
+        return "equiposListar";
     }
 
-    @GetMapping("/equipo_categoria/{categoria}")
-    public String findEquiposByNombreCategoria(@PathVariable String categoria, Model model) {
-        String categoriaNormalizada = categoria.replace("_", " ");
-        List<Equipo> equipos = equipoService.findEquiposByNombreCategoria(categoriaNormalizada);
-        model.addAttribute("equipos", equipos);
-        return "equipo_categoria/"+ categoria; // Asegúrate de que esta vista existe
+    @GetMapping("/menuAdmin/equipos/{categoriaId}/editar")
+    public String editarEquipo(@PathVariable Long categoriaId, Model model) {
+        Categoria categoria = categoriaService.getCategoriaById(categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+        model.addAttribute("categoria", categoria);
+        return "equiposEditar";
     }
 
+    @GetMapping("/menuAdmin/equipos/{categoriaId}/añadir-jugador")
+    public String mostrarFormularioAñadirJugador(@PathVariable Long categoriaId, Model model) {
+        Categoria categoria = categoriaService.getCategoriaById(categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
 
-    
+        // 1) Lista de jugadores que aún no están en esta categoría
+        List<Usuario> jugadoresDisponibles = usuarioService.getJugadoresDisponibles(categoriaId);
 
-    // Mostrar formulario para añadir un nuevo equipo
-    @GetMapping("/equipos/nuevo")
-    public String formularioNuevoEquipo(Model model) {
-        model.addAttribute("equipo", new Equipo());
-        
-        return "addEquipo"; // Vista para agregar un nuevo equipo
+        // 2) Todas las franjas de edad (desde el enum)
+        FranjaEdad[] franjas = FranjaEdad.values();
+
+        model.addAttribute("categoria", categoria);
+        model.addAttribute("jugadoresDisponibles", jugadoresDisponibles);
+
+        // ¡Éste es el atributo que faltaba!
+        model.addAttribute("franjasEdad", franjas);
+
+        return "equiposAñadirJugador";
     }
 
-    // Guardar un nuevo equipo
-    @PostMapping("/equipos/guardar")
-    public String guardarEquipo(@ModelAttribute Equipo equipo) {
-        equipoService.crearEquipo(equipo);
-        return "redirect:/equipos"; // Redirige a la lista de equipos después de guardar
+    @PostMapping("/menuAdmin/equipos/{categoriaId}/añadir-jugador")
+    public String asignarJugadorACategoria(@PathVariable Long categoriaId,
+            @RequestParam Long usuarioId,
+            RedirectAttributes redirect) {
+        usuarioCategoriaService.asociarJugadorACategoria(usuarioId, categoriaId);
+        redirect.addFlashAttribute("successMessage", "Jugador añadido correctamente.");
+        return "redirect:/menuAdmin/equipos/" + categoriaId + "/editar";
     }
 
-    // Mostrar el formulario de edición
-    @GetMapping("/equipos/editar/{id}")
-    public String mostrarFormularioEdicion(@PathVariable("id") Long id, Model model) {
-        Equipo equipo = equipoService.obtenerEquipoPorId(id).orElseThrow(() ->
-                new IllegalArgumentException("El equipo con ID " + id + " no existe."));
-        model.addAttribute("equipo", equipo);
-        return "editar_equipo"; // Vista para editar un equipo
+    @GetMapping("/menuAdmin/equipos/{categoriaId}/activar/{ucId}")
+    public String activarJugador(@PathVariable Long categoriaId,
+            @PathVariable Long ucId,
+            RedirectAttributes redirect) {
+        usuarioCategoriaService.marcarActivo(ucId);
+        redirect.addFlashAttribute("successMessage", "Jugador marcado como activo.");
+        return "redirect:/menuAdmin/equipos/" + categoriaId + "/editar";
     }
 
-    // Procesar la edición de un equipo
-    @PostMapping("/equipos/editar")
-    public String editarEquipo(@ModelAttribute("equipo") Equipo equipo) {
-        equipoService.actualizarEquipo(equipo);
-        return "redirect:/equipos";
+    @GetMapping("/menuAdmin/equipos/{categoriaId}/suplente/{ucId}")
+    public String ponerSuplente(@PathVariable Long categoriaId,
+            @PathVariable Long ucId,
+            RedirectAttributes redirect) {
+        usuarioCategoriaService.marcarSuplente(ucId);
+        redirect.addFlashAttribute("successMessage", "Jugador marcado como suplente.");
+        return "redirect:/menuAdmin/equipos/" + categoriaId + "/editar";
     }
 
-    // Eliminar un equipo por su ID
-    @GetMapping("/equipos/eliminar/{id}")
-    public String eliminarEquipo(@PathVariable("id") Long id) {
-        equipoService.eliminarEquipo(id);
-        return "redirect:/equipos";
+    @GetMapping("/menuAdmin/equipos/{categoriaId}/eliminar-jugador/{ucId}")
+    public String eliminarJugador(@PathVariable Long categoriaId,
+            @PathVariable Long ucId,
+            RedirectAttributes redirect) {
+        usuarioCategoriaService.desasociarJugadorDeCategoria(ucId);
+        redirect.addFlashAttribute("successMessage", "Jugador eliminado del equipo.");
+        return "redirect:/menuAdmin/equipos/" + categoriaId + "/editar";
     }
-
 }
-
-
- 

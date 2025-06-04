@@ -1,13 +1,14 @@
 package Tennis_ERP.TennisErp.Service;
 
-
 import Tennis_ERP.TennisErp.DAO.LigaDAO;
+import Tennis_ERP.TennisErp.domain.Categoria;
 import Tennis_ERP.TennisErp.domain.Liga;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
+import org.hibernate.Hibernate;
 
 @Service
 public class LigaServiceImpl implements LigaService {
@@ -43,5 +44,21 @@ public class LigaServiceImpl implements LigaService {
     @Transactional
     public void deleteLiga(Long id) {
         ligaDAO.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public List<Liga> getAllWithCategoriasAndUsuarios() {
+        List<Liga> ligas = ligaDAO.findAll(); // solo fetch de ligas
+
+        // Paso 2: inicializar manualmente las colecciones con múltiples bags
+        for (Liga liga : ligas) {
+            Hibernate.initialize(liga.getCategorias()); // carga categorías
+            for (Categoria categoria : liga.getCategorias()) {
+                Hibernate.initialize(categoria.getUsuarioCategorias()); // carga usuarios de la categoría
+            }
+        }
+
+        return ligas;
     }
 }

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-cyan-400 to-blue-500 min-h-screen flex items-center justify-center font-sans">
+
+    <div class="bg-white rounded-3xl shadow-2xl p-10 w-[95%] max-w-6xl text-center">
+        
+        <h1 class="text-4xl font-bold text-blue-700 mb-8">Gestión de Usuarios</h1>
+
+        <div class="mb-6 text-right">
+            <a href="/menuAdmin/usuarios/nuevo"
+               class="btn inline-block py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-600 shadow">
+                + Nuevo Usuario
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm border rounded-lg">
+                <thead class="bg-blue-100">
+                    <tr>
+                        <th class="py-3 px-6">ID</th>
+                        <th class="py-3 px-6">Nombre Completo</th>
+                        <th class="py-3 px-6">Email</th>
+                        <th class="py-3 px-6">Roles</th>
+                        <th class="py-3 px-6">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="usuario : ${usuarios}" class="border-b hover:bg-gray-100 transition">
+                        <td class="py-3 px-6" th:text="${usuario.id}"></td>
+                        <td class="py-3 px-6" th:text="${usuario.nombre + ' ' + usuario.primerApellido + ' ' + usuario.segundoApellido}"></td>
+                        <td class="py-3 px-6" th:text="${usuario.email}"></td>
+                        <td class="py-3 px-6">
+                            <span th:each="rol, rolStat : ${usuario.roles}" th:text="${rol.nombreRol}" th:append="${!rolStat.last} ? ', ' : ''"></span>
+                        </td>
+                        <td class="py-3 px-6 space-x-2 whitespace-nowrap">
+                            <a th:href="@{'/menuAdmin/usuarios/editar/' + ${usuario.id}}"
+                               class="inline-block py-1 px-3 bg-yellow-400 text-white rounded hover:bg-yellow-500">Editar</a>
+                            <a th:href="@{'/menuAdmin/usuarios/eliminar/' + ${usuario.id}}"
+                               onclick="return confirm('¿Estás seguro?')"
+                               class="inline-block py-1 px-3 bg-red-500 text-white rounded hover:bg-red-600">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8">
+            <a href="/menu_admin"
+               class="btn block py-2 px-4 bg-gray-500 text-white font-bold rounded-lg text-sm hover:bg-gray-600 inline-block">
+                Atrás
+            </a>
+        </div>
+
+    </div>
+</body>
+</html>

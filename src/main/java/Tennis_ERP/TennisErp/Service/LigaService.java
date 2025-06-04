@@ -15,4 +15,6 @@ public interface LigaService {
     Optional<Liga> findByNombre(String nombre);
 
     void deleteLiga(Long id);
+
+    List<Liga> getAllWithCategoriasAndUsuarios();
 }

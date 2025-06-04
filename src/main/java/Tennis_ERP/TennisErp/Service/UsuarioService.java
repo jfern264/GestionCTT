@@ -18,4 +18,13 @@ public interface UsuarioService {
     Optional<Usuario> findByEmail(String email);
 
     void deleteUsuario(Long id);
+
+    List<Usuario> getUsuariosPorRol(String nombreRol);
+
+    Optional<Usuario> findByDni(String dni);
+
+    String encodePassword(String rawPassword);
+
+    List<Usuario> getJugadoresDisponibles(Long categoriaId);
+    
 }

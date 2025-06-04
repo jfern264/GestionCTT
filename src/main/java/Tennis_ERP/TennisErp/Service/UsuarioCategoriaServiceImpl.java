@@ -1,6 +1,10 @@
 package Tennis_ERP.TennisErp.Service;
 
+import Tennis_ERP.TennisErp.DAO.CategoriaDAO;
 import Tennis_ERP.TennisErp.DAO.UsuarioCategoriaDAO;
+import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
+import Tennis_ERP.TennisErp.domain.Categoria;
+import Tennis_ERP.TennisErp.domain.Usuario;
 import Tennis_ERP.TennisErp.domain.UsuarioCategoria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,12 @@ public class UsuarioCategoriaServiceImpl implements UsuarioCategoriaService {
 
     @Autowired
     private UsuarioCategoriaDAO usuarioCategoriaDAO;
+    
+    @Autowired
+    private UsuarioDAO usuarioDAO;
+    
+    @Autowired
+    private CategoriaDAO categoriaDAO;
 
     @Override
     @Transactional
@@ -49,4 +59,48 @@ public class UsuarioCategoriaServiceImpl implements UsuarioCategoriaService {
     public void deleteUsuarioCategoria(Long id) {
         usuarioCategoriaDAO.deleteById(id);
     }
+
+    @Override
+    @Transactional
+    public void asociarJugadorACategoria(Long usuarioId, Long categoriaId) {
+        Usuario usuario = usuarioDAO.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        Categoria categoria = categoriaDAO.findById(categoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+
+        UsuarioCategoria uc = new UsuarioCategoria();
+        uc.setUsuario(usuario);
+        uc.setCategoria(categoria);
+        uc.setActivo(true); // Puedes ajustar según lógica de negocio
+        uc.setSuplente(false);
+
+        usuarioCategoriaDAO.save(uc);
+    }
+    
+    @Override
+    @Transactional
+    public void marcarActivo(Long usuarioCategoriaId) {
+        var uc = usuarioCategoriaDAO.findById(usuarioCategoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Relación no encontrada"));
+        uc.setActivo(true);
+        uc.setSuplente(false); // opcional: solo uno
+        usuarioCategoriaDAO.save(uc);
+    }
+
+    @Override
+    @Transactional
+    public void marcarSuplente(Long usuarioCategoriaId) {
+        var uc = usuarioCategoriaDAO.findById(usuarioCategoriaId)
+                .orElseThrow(() -> new IllegalArgumentException("Relación no encontrada"));
+        uc.setSuplente(true);
+        uc.setActivo(false); // opcional: solo uno
+        usuarioCategoriaDAO.save(uc);
+    }
+
+    @Override
+    @Transactional
+    public void desasociarJugadorDeCategoria(Long usuarioCategoriaId) {
+        usuarioCategoriaDAO.deleteById(usuarioCategoriaId);
+    }
+
 }
