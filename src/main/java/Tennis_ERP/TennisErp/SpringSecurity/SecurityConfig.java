@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/trabajadores/**").hasAnyAuthority("Admin", "Jugador")
                         .requestMatchers("/pistas/**").hasAnyAuthority("Admin", "Jugador")
                         .requestMatchers("/login/**").permitAll()
+                        .requestMatchers(("/images/**")).permitAll()
                         .anyRequest().authenticated()
         )
                 .formLogin(form -> form
