@@ -1,6 +1,6 @@
 package Tennis_ERP.TennisErp.Service;
 
-import Tennis_ERP.TennisErp.domain.Rol;
+import Tennis_ERP.TennisErp.Domain.Rol;
 import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.DAO.RolDAO;
 

@@ -1,7 +1,7 @@
 package Tennis_ERP.TennisErp.service;
 
 import Tennis_ERP.TennisErp.DAO.PistaDAO;
-import Tennis_ERP.TennisErp.domain.Pista;
+import Tennis_ERP.TennisErp.Domain.Pista;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package Tennis_ERP.TennisErp.Service;
 
-import Tennis_ERP.TennisErp.domain.Event;
+import Tennis_ERP.TennisErp.Domain.Event;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Service;

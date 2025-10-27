@@ -1,7 +1,7 @@
 package Tennis_ERP.TennisErp.Service;
 
 import Tennis_ERP.TennisErp.DAO.EventDAO;
-import Tennis_ERP.TennisErp.domain.Event;
+import Tennis_ERP.TennisErp.Domain.Event;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 

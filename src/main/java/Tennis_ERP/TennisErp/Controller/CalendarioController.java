@@ -1,8 +1,8 @@
 package Tennis_ERP.TennisErp.Controller;
 
 import Tennis_ERP.TennisErp.Service.EventService;
-import Tennis_ERP.TennisErp.domain.Event;
-import Tennis_ERP.TennisErp.domain.Pista; // Importar la clase Pista
+import Tennis_ERP.TennisErp.Domain.Event;
+import Tennis_ERP.TennisErp.Domain.Pista; // Importar la clase Pista
 import Tennis_ERP.TennisErp.service.PistaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

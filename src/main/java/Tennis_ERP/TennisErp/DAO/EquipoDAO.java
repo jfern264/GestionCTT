@@ -1,6 +1,6 @@
 package Tennis_ERP.TennisErp.DAO;
 
-import Tennis_ERP.TennisErp.domain.Equipo;
+import Tennis_ERP.TennisErp.Domain.Equipo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

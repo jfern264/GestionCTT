@@ -1,6 +1,6 @@
 package Tennis_ERP.TennisErp.service;
 
-import Tennis_ERP.TennisErp.domain.Rol;
+import Tennis_ERP.TennisErp.Domain.Rol;
 import java.util.List;
 import java.util.Optional;
 

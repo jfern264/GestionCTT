@@ -4,7 +4,7 @@
  */
 package Tennis_ERP.TennisErp.Service;
 
-import Tennis_ERP.TennisErp.domain.UsuarioCategoria;
+import Tennis_ERP.TennisErp.Domain.UsuarioCategoria;
 import java.util.List;
 import java.util.Optional;
 

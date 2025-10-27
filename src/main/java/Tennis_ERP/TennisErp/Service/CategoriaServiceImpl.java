@@ -1,8 +1,8 @@
 package Tennis_ERP.TennisErp.service;
 
 import Tennis_ERP.TennisErp.DAO.CategoriaDAO;
-import Tennis_ERP.TennisErp.domain.Categoria;
-import Tennis_ERP.TennisErp.domain.Liga;
+import Tennis_ERP.TennisErp.Domain.Categoria;
+import Tennis_ERP.TennisErp.Domain.Liga;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

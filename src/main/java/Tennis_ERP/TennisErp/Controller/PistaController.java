@@ -1,6 +1,6 @@
 package Tennis_ERP.TennisErp.Controller;
 
-import Tennis_ERP.TennisErp.domain.Pista;
+import Tennis_ERP.TennisErp.Domain.Pista;
 import Tennis_ERP.TennisErp.service.PistaService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

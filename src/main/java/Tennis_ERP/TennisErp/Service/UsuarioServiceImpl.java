@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import Tennis_ERP.TennisErp.domain.Usuario;
+import Tennis_ERP.TennisErp.Domain.Usuario;
 import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
-import Tennis_ERP.TennisErp.domain.Categoria;
-import Tennis_ERP.TennisErp.domain.Rol;
-import Tennis_ERP.TennisErp.domain.UsuarioCategoria;
+import Tennis_ERP.TennisErp.Domain.Categoria;
+import Tennis_ERP.TennisErp.Domain.Rol;
+import Tennis_ERP.TennisErp.Domain.UsuarioCategoria;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;

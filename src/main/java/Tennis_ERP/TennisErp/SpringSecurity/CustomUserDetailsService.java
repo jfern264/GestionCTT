@@ -1,7 +1,7 @@
 package Tennis_ERP.TennisErp.SpringSecurity;
 
 import Tennis_ERP.TennisErp.DAO.UsuarioDAO;
-import Tennis_ERP.TennisErp.domain.Usuario;
+import Tennis_ERP.TennisErp.Domain.Usuario;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
