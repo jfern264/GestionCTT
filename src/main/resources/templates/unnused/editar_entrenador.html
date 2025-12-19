@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Entrenador</title>
+    <style>
+            /* Estilos generales */
+            body {
+                margin: 0;
+                font-family: 'Arial', sans-serif;
+                background: linear-gradient(135deg, #007bff, #00c6ff);
+                color: #ffffff;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 500px;
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            h1 {
+                text-align: center;
+                color: #007bff;
+                margin-bottom: 30px;
+                font-size: 2.5em;
+                font-weight: 600;
+            }
+
+            label {
+                font-size: 1.1em;
+                font-weight: bold;
+                color: #007bff;
+                margin-top: 15px;
+                display: block;
+            }
+
+            input, button {
+                width: 100%;
+                padding: 12px;
+                margin-top: 10px;
+                border-radius: 8px;
+                border: 1px solid #007bff;
+                font-size: 1.1em;
+                background-color: #f8f9fa;
+            }
+
+            input:focus, button:focus {
+                outline: none;
+                border-color: #00c6ff;
+                background-color: #e9ecef;
+            }
+
+            button {
+                background-color: #28a745;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+                border: none;
+                transition: background-color 0.3s ease;
+                margin-top: 20px; /* Este margen se aplica solo al primer botón */
+            }
+
+            button:hover {
+                background-color: #218838;
+            }
+
+            .btn-back {
+                background-color: #17a2b8;
+                color: white;
+                text-align: center;
+                font-weight: bold;
+                text-decoration: none;
+                padding: 14px;
+                border-radius: 8px;
+                margin-top: 10px; /* Ajustar el margen para que los botones estén pegados */
+                display: block;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-back:hover {
+                background-color: #138496;
+            }
+
+            /* Estilo para los mensajes de error */
+            .alert {
+                background-color: #f8d7da;
+                color: #721c24;
+                padding: 10px;
+                border-radius: 8px;
+                margin-top: 15px;
+                display: none;
+            }
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Editar Entrenador</h2>
+
+        <!-- Formulario para editar -->
+        <form th:action="@{/entrenadores/editar}" th:object="${entrenador}" method="post">
+
+            <!-- Campo oculto para el ID (es necesario para editar el entrenador) -->
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" id="nombre" name="nombre" class="form-control" th:field="*{nombre}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input type="text" id="apellido" name="apellido" class="form-control" th:field="*{apellido}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="dni" class="form-label">DNI</label>
+                <input type="text" id="dni" name="dni" class="form-control" th:field="*{DNI}" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="/entrenadores/adminentrenadores" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>
