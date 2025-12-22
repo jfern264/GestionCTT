@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ligas y Categorías</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-cyan-400 to-blue-500 min-h-screen font-sans py-10 px-4">
+
+<div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8">
+
+    <div class="flex justify-between items-center mb-10">
+        <h1 class="text-4xl font-bold text-blue-700">Ligas y Categorías</h1>
+        <a href="/menuAdmin/ligas/nueva"
+           class="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow">
+            + Nueva Liga
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <input type="text" id="buscarInput"
+               placeholder="Buscar categoría..."
+               class="w-full md:w-1/2 p-2 border border-gray-300 rounded-lg"/>
+
+        <select id="ordenSelect" class="p-2 border border-gray-300 rounded-lg">
+            <option value="nombre">Ordenar por nombre</option>
+            <option value="genero">Ordenar por género</option>
+        </select>
+    </div>
+
+    <div th:each="liga : ${ligas}" class="mb-12 border-b pb-8 liga-container">
+        <!-- Fila de la liga -->
+        <div class="flex justify-between items-center bg-blue-100 p-4 rounded-lg">
+            <div class="text-xl font-semibold text-blue-800" th:text="${liga.nombre}">Nombre Liga</div>
+            <div class="space-x-2">
+                <a th:href="@{'/menuAdmin/ligas/editar/' + ${liga.id}}"
+                   class="py-1 px-3 bg-yellow-400 text-white rounded hover:bg-yellow-500">Editar</a>
+                <a th:href="@{'/menuAdmin/ligas/eliminar/' + ${liga.id}}"
+                   onclick="return confirm('¿Estás seguro de eliminar esta liga?')"
+                   class="py-1 px-3 bg-red-500 text-white rounded hover:bg-red-600">Eliminar</a>
+            </div>
+        </div>
+
+        <!-- Botón de nueva categoría -->
+        <div class="text-right mt-4 mb-2">
+            <a th:href="@{'/menuAdmin/ligas/categorias/nueva/' + ${liga.id}}"
+               class="py-1 px-3 bg-emerald-500 text-white rounded hover:bg-emerald-600 shadow">
+                + Nueva Categoría
+            </a>
+        </div>
+
+        <!-- Categorías asociadas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 categoria-grid">
+            <div th:each="categoria : ${liga.categorias}"
+                 class="categoria bg-gray-100 p-4 rounded-lg shadow"
+                 th:attr="data-nombre=${categoria.nombre}, data-genero=${categoria.genero}">
+                <h3 class="text-lg font-bold text-blue-700 categoria-nombre" th:text="${categoria.nombre}">Nombre</h3>
+                <p class="text-sm text-gray-700 mt-1" th:text="${categoria.descripcion}">Descripción</p>
+                <p class="text-sm text-gray-600 italic" th:text="'Género: ' + ${categoria.genero}">Género</p>
+                <div class="mt-3 space-x-2">
+                    <a th:href="@{'/categorias/editar/' + ${categoria.id}}"
+                       class="py-1 px-3 bg-yellow-400 text-white rounded hover:bg-yellow-500 text-sm">Editar</a>
+                    <a th:href="@{'/categorias/eliminar/' + ${categoria.id}}"
+                       onclick="return confirm('¿Eliminar esta categoría?')"
+                       class="py-1 px-3 bg-red-500 text-white rounded hover:bg-red-600 text-sm">Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 text-center">
+        <a href="/menu_admin"
+           class="py-2 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm">
+            Volver al Menú Admin
+        </a>
+    </div>
+
+</div>
+
+<script>
+    const buscarInput = document.getElementById('buscarInput');
+    const ordenSelect = document.getElementById('ordenSelect');
+
+    buscarInput.addEventListener('input', () => {
+        const valor = buscarInput.value.toLowerCase();
+        document.querySelectorAll('.categoria').forEach(cat => {
+            const nombre = cat.dataset.nombre.toLowerCase();
+            cat.style.display = nombre.includes(valor) ? 'block' : 'none';
+        });
+    });
+
+    ordenSelect.addEventListener('change', () => {
+        const tipoOrden = ordenSelect.value;
+        document.querySelectorAll('.categoria-grid').forEach(grid => {
+            const items = Array.from(grid.children);
+            items.sort((a, b) => {
+                const valA = a.dataset[tipoOrden].toLowerCase();
+                const valB = b.dataset[tipoOrden].toLowerCase();
+                return valA.localeCompare(valB);
+            });
+            items.forEach(item => grid.appendChild(item));
+        });
+    });
+</script>
+
+</body>
+</html>

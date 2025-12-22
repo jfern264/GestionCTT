@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Jugadores - Tennis ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-cyan-400 to-blue-500 min-h-screen py-10 px-4">
+    <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8">
+        
+        <div class="flex justify-between items-center mb-6">
+            <a href="/redireccion" class="py-2 px-4 bg-gray-500 text-white font-bold rounded-lg text-sm hover:bg-gray-600">← Atrás</a>
+            
+            <a href="/menuAdmin/jugadores/nuevo" sec:authorize="hasAuthority('ROLE_ADMIN')"
+               class="py-2 px-4 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 shadow">+ Nuevo Jugador</a>
+        </div>
+
+        <h1 class="text-3xl font-bold text-blue-700 text-center mb-6">Lista de Jugadores</h1>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-left">
+                <thead class="bg-blue-100">
+                    <tr>
+                        <th class="py-3 px-4">Nombre</th>
+                        <th class="py-3 px-4">Email</th>
+                        <th class="py-3 px-4 text-center" sec:authorize="hasAuthority('ROLE_ADMIN')">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="jugador : ${jugadores}" class="bg-white border-b hover:bg-gray-50">
+                        <td class="py-3 px-4" th:text="${jugador.nombre + ' ' + jugador.primerApellido}"></td>
+                        <td class="py-3 px-4" th:text="${jugador.email}"></td>
+                        <td class="py-3 px-4 text-center space-x-2" sec:authorize="hasAuthority('ROLE_ADMIN')">
+                            <a th:href="@{'/menuAdmin/jugadores/editar/' + ${jugador.id}}" class="text-yellow-600 font-bold">Editar</a>
+                            <a th:href="@{'/menuAdmin/jugadores/eliminar/' + ${jugador.id}}" class="text-red-600 font-bold">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
