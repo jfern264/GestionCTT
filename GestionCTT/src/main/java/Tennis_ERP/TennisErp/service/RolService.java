@@ -13,7 +13,10 @@ public interface RolService {
 
     Optional<Rol> getRolById(Long id);
 
-    Optional<Rol> findByNombreRol(String nombreRol);
+    Rol findByNombreRol(String nombreRol);
 
     void deleteRol(Long id);
+
+    boolean existeRol(String nombreRol);
+
 }

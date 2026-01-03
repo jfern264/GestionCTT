@@ -22,8 +22,4 @@ public class Rol {
         return nombreRol;
     }
 
-	public Rol orElseGet(Object object) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'orElseGet'");
-	}
 }

@@ -5,6 +5,7 @@
 package Tennis_ERP.TennisErp.controller;
 
 import Tennis_ERP.TennisErp.service.EquipoServiceImpl;
+import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
 import Tennis_ERP.TennisErp.validations.ValidationGroups.*;
 import Tennis_ERP.TennisErp.service.EquipoService;
@@ -32,6 +33,9 @@ public class JugadorController {
 
     @Autowired
     private RolDAO rolDAO;
+
+    @Autowired
+    private RolService rolService;
 
     @Autowired
     private EquipoService equipoService;
@@ -67,7 +71,7 @@ public class JugadorController {
         return "jugadoresCrear";
     }
 
-    @PostMapping("/menuAdmin/jugadores/guardar") // <-- Línea 46 aprox.
+    @PostMapping("/menuAdmin/jugadores/guardar")
     public String guardarJugador(
             @Validated(OnCreate.class) @ModelAttribute("jugador") Usuario jugador,
             BindingResult result,
@@ -87,18 +91,20 @@ public class JugadorController {
             return "jugadoresCrear";
         }
 
-        // Asignar rol y encriptar
-        Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR");
-        if (rolJugador != null) {
-            jugador.setRoles(Set.of(rolJugador));
-        }
+        // Asignar rol usando el servicio
+        Rol rolJugador = rolService.findByNombreRol("ROLE_JUGADOR"); // devuelve Rol directamente
+        jugador.setRoles(Set.of(rolJugador));
 
+        // Encriptar contraseña
         jugador.setPassword(usuarioService.encodePassword(jugador.getPassword()));
+
+        // Guardar jugador
         usuarioService.saveUsuario(jugador);
 
         redirectAttributes.addFlashAttribute("successMessage", "Jugador creado exitosamente.");
         return "redirect:/menuAdmin/jugadores";
-    } // <-- Asegúrate de que esta llave cierra el método
+    }
+
 
     @GetMapping("/menuAdmin/jugadores/editar/{id}")
     public String mostrarFormularioEditarJugador(@PathVariable Long id, Model model) {
@@ -114,9 +120,6 @@ public class JugadorController {
             BindingResult result,
             Model model) {
 
-        if (result.hasErrors()) {
-            return "jugadoresEditar";
-        }
 
         Usuario existente = usuarioService.getUsuarioById(id).orElseThrow();
         if (!jugador.getEmail().equals(existente.getEmail())
@@ -129,9 +132,6 @@ public class JugadorController {
             result.rejectValue("nombreUsuario", "error.jugador", "El nombre de usuario ya está en uso");
         }
 
-        if (result.hasErrors()) {
-            return "jugadoresEditar";
-        }
 
         Usuario original = usuarioService.getUsuarioById(jugador.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + jugador.getId()));
@@ -155,4 +155,21 @@ public class JugadorController {
         usuarioService.deleteUsuario(id);
         return "redirect:/menuAdmin/jugadores";
     }
+
+    @GetMapping("/menuAdmin/jugadoresDebug")
+        public String listarJugadoresDebug(Model model) {
+            // Obtener todos los roles
+            List<Rol> roles = rolDAO.findAll();
+
+            // Imprimir en consola
+            System.out.println("===== Roles en la base de datos =====");
+            roles.forEach(r -> System.out.println("'" + r.getNombreRol() + "'"));
+            System.out.println("===================================");
+
+            // Pasar los roles al modelo para mostrarlos en la página
+            model.addAttribute("roles", roles);
+
+            return "debugRoles"; // nombre de la plantilla Thymeleaf
+        }
+
 }

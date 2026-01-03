@@ -35,19 +35,20 @@ public class DataInitializer {
             PasswordEncoder encoder) {
         return args -> {
             // 1. ROLES (Admin y Jugador)
-            Rol adminRol = rDao.findByNombreRol("ROLE_ADMIN");
-            if (adminRol == null) {
-                adminRol = new Rol();
-                adminRol.setNombreRol("ROLE_ADMIN");
-                adminRol = rDao.save(adminRol);
-            }
+            Rol adminRol = rDao.findByNombreRol("ROLE_ADMIN")
+                    .orElseGet(() -> {
+                        Rol r = new Rol();
+                        r.setNombreRol("ROLE_ADMIN");
+                        return rDao.save(r);
+                    });
 
-            Rol jugadorRol = rDao.findByNombreRol("ROLE_JUGADOR");
-            if (jugadorRol == null) {
-                jugadorRol = new Rol();
-                jugadorRol.setNombreRol("ROLE_JUGADOR");
-                jugadorRol = rDao.save(jugadorRol);
-            }
+            Rol jugadorRol = rDao.findByNombreRol("ROLE_JUGADOR")
+                    .orElseGet(() -> {
+                        Rol r = new Rol();
+                        r.setNombreRol("ROLE_JUGADOR");
+                        return rDao.save(r);
+                    });
+
 
             // 2. LIGAS (3 ejemplos)
             if (lDao.count() == 0) {

@@ -2,6 +2,7 @@ package Tennis_ERP.TennisErp.service;
 
 import Tennis_ERP.TennisErp.dao.RolDAO;
 import Tennis_ERP.TennisErp.domain.Rol;
+import Tennis_ERP.TennisErp.domain.Usuario;
 import Tennis_ERP.TennisErp.service.RolService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,12 @@ public class RolServiceImpl implements RolService {
         return rolDAO.findById(id);
     }
 
-    @Override
+   @Override
     @Transactional(readOnly = true)
-    public Optional<Rol> findByNombreRol(String nombreRol) {
-        return Optional.ofNullable(rolDAO.findByNombreRol(nombreRol));
+    public Rol findByNombreRol(String nombreRol) {
+        return rolDAO.findByNombreRol(nombreRol)
+                .orElseThrow(() -> new IllegalStateException(
+                        "No existe el rol '" + nombreRol + "' en la base de datos"));
     }
 
     @Override
@@ -45,4 +48,11 @@ public class RolServiceImpl implements RolService {
     public void deleteRol(Long id) {
         rolDAO.deleteById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeRol(String nombreRol) {
+        return rolDAO.findByNombreRol(nombreRol).isPresent();
+    }
+
 }

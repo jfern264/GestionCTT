@@ -47,9 +47,10 @@ public class RolController {
 
     @PostMapping("/guardar")
     public String guardarRol(@Valid @ModelAttribute Rol rol,
-                             BindingResult result,
-                             RedirectAttributes redirectAttributes) {
-        if (rolService.findByNombreRol(rol.getNombreRol()).isPresent()) {
+                            BindingResult result,
+                            RedirectAttributes redirectAttributes) {
+        // Verificar si ya existe
+        if (rolService.existeRol(rol.getNombreRol())) {
             result.rejectValue("nombreRol", "error.rol", "El nombre del rol ya existe.");
         }
 
@@ -62,11 +63,5 @@ public class RolController {
         return "redirect:/menuAdmin/roles";
     }
 
-    @GetMapping("/eliminar/{id}")
-    public String eliminarRol(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        rolService.deleteRol(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Rol eliminado.");
-        return "redirect:/menuAdmin/roles";
-    }
 }
 

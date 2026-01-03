@@ -41,6 +41,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private UsuarioCategoriaDAO usuarioCategoriaDAO;
 
+    @Autowired
+    private RolService rolService;
+
     @Override
     @Transactional
     public Usuario saveUsuario(Usuario user) {
@@ -83,9 +86,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public List<Usuario> getUsuariosPorRol(String nombreRol) {
-        Rol rol = rolDAO.findByNombreRol(nombreRol);
+        Rol rol = rolDAO.findByNombreRol(nombreRol)
+                .orElseThrow(() -> new IllegalStateException(
+                        "No existe el rol '" + nombreRol + "' en la base de datos"));
+
         return usuarioDAO.findByRoles(rol);
     }
+
+
 
     @Override
     public Optional<Usuario> findByDni(String dni) {
@@ -95,15 +103,17 @@ public class UsuarioServiceImpl implements UsuarioService {
     public String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
-
+    
     @Override
     @Transactional(readOnly = true)
     public List<Usuario> getJugadoresDisponibles(Long categoriaId) {
         // 1. Obtener el rol “Jugador”
-        Rol rolJugador = rolDAO.findByNombreRol("Jugador");
+       Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR")
+                        .orElseThrow(() -> new IllegalStateException("No existe el rol 'ROLE_JUGADOR' en la base de datos"));
+
 
         // 2. Todos los usuarios con ese rol
-        List<Usuario> todosJugadores = usuarioDAO.findByRoles_Id(rolJugador.getId());
+        List<Usuario> todosJugadores = usuarioDAO.findByRoles(rolJugador);
 
         // 3. Filtrar aquellos que ya estén en la categoría
         List<Long> idsYaAsignados = usuarioCategoriaDAO
@@ -111,11 +121,13 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .stream()
                 .map(UsuarioCategoria::getUsuario)
                 .map(Usuario::getId)
-                .collect(Collectors.toList());
+                .toList();
 
         // 4. Quedarse solo con los que NO están en idsYaAsignados
         return todosJugadores.stream()
                 .filter(u -> !idsYaAsignados.contains(u.getId()))
-                .collect(Collectors.toList());
+                .toList();
     }
+
+
 }
