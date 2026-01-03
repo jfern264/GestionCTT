@@ -57,14 +57,17 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-gray-700">Teléfono</label>
-                    <input th:field="*{telefono}" class="w-full p-2 border rounded-md">
+                    <label class="block font-semibold text-gray-700">Teléfono *</label>
+                    <input th:field="*{telefono}" class="w-full p-2 border rounded-md" required>
+                    <p class="text-red-500 text-sm" th:errors="*{telefono}"></p>
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-gray-700">Fecha de Nacimiento</label>
-                    <input type="date" th:field="*{fechaNacimiento}" class="w-full p-2 border rounded-md">
+                    <label class="block font-semibold text-gray-700">Fecha de Nacimiento *</label>
+                    <input type="date" th:field="*{fechaNacimiento}" class="w-full p-2 border rounded-md" required>
+                    <p class="text-red-500 text-sm" th:errors="*{fechaNacimiento}"></p>
                 </div>
+
 
                 <div>
                     <label class="block font-semibold text-gray-700">Matrícula</label>
