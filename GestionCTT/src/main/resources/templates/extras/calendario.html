@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Platinum - CTT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --ctt-verde-profundo: #0c2b1d;
+            --ctt-verde-medio: #1a4731;
+            --ctt-esmeralda: #10b981;
+            --ctt-negro-puro: #000000;
+            --ctt-gris-borde: #64748b; 
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(180deg, var(--ctt-verde-profundo) 0%, var(--ctt-verde-medio) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0; padding: 0;
+        }
+
+        /* --- HEADER PLATINUM --- */
+        .header-section {
+            padding: 60px 20px 80px 20px;
+            text-align: center;
+        }
+
+        .main-pill-title {
+            background: var(--ctt-negro-puro);
+            color: white;
+            padding: 15px 80px;
+            border-radius: 100px;
+            font-weight: 900;
+            font-size: 3rem;
+            text-transform: uppercase;
+            border: 4px solid var(--ctt-esmeralda);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            display: inline-block;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .list-container {
+            max-width: 1200px;
+            margin: -40px auto 80px auto;
+            background: white;
+            border-radius: 50px;
+            padding: 50px;
+            border: 4px solid var(--ctt-gris-borde);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+        }
+
+        /* REJILLA UNIFICADA CON CUADRADOS GRANDES */
+        .unified-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .day-label {
+            text-align: center;
+            font-weight: 900;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--ctt-gris-borde);
+            padding-bottom: 20px;
+        }
+
+        /* Celdas como cuadrados perfectos */
+        .day-cell {
+            background: #f8fafc;
+            border: 2px solid #f1f5f9;
+            border-radius: 25px;
+            aspect-ratio: 1 / 1;
+            padding: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 8px;
+            position: relative;
+        }
+
+        .day-cell.vacio {
+            background: #fcfdfe;
+            border: 2px solid #f8fafc;
+            opacity: 0.5;
+        }
+
+        .day-cell:not(.vacio):hover {
+            transform: translateY(-8px);
+            border-color: var(--ctt-esmeralda);
+            background: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            z-index: 10;
+        }
+
+        .day-number {
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: var(--ctt-negro-puro);
+            margin-bottom: 5px;
+        }
+
+        .event-tag {
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 6px 10px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            background: #dcfce7;
+            color: #166534;
+            border-left: 4px solid var(--ctt-esmeralda);
+            white-space: normal;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="header-section flex flex-col items-center">
+        <h1 class="main-pill-title">Calendario</h1>
+        
+        <div class="mt-8 flex items-center gap-8 bg-black/40 px-10 py-3 rounded-full border border-white/10">
+            <button onclick="cambiarMes(-1)" class="text-emerald-400 font-900 text-2xl hover:scale-125 transition-all">←</button>
+            <h2 id="mes-actual" class="text-white text-xl font-900 uppercase tracking-widest min-w-[280px]"></h2>
+            <button onclick="cambiarMes(1)" class="text-emerald-400 font-900 text-2xl hover:scale-125 transition-all">→</button>
+        </div>
+    </header>
+
+    <main class="list-container">
+        <div class="flex justify-between items-center mb-10 px-2">
+            <a href="/menu_principal" class="flex items-center gap-2 font-900 text-[10px] uppercase tracking-[3px] text-slate-400 hover:text-black transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <b>Menú Principal</b>
+            </a>
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                <span class="text-[9px] font-900 uppercase text-slate-400 tracking-widest">Eventos Oficiales</span>
+            </div>
+        </div>
+
+        <div class="unified-calendar-grid">
+            <div class="day-label">Lun</div>
+            <div class="day-label">Mar</div>
+            <div class="day-label">Mié</div>
+            <div class="day-label">Jue</div>
+            <div class="day-label">Vie</div>
+            <div class="day-label">Sáb</div>
+            <div class="day-label">Dom</div>
+
+            <div id="grid-content" class="contents"></div>
+        </div>
+    </main>
+
+    <script>
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        let fechaActual = new Date();
+        
+        // Array de eventos vacío para implementación real
+        let eventos = []; 
+
+        function renderizarCalendario() {
+            const mes = fechaActual.getMonth();
+            const anio = fechaActual.getFullYear();
+            document.getElementById("mes-actual").textContent = `${meses[mes]} ${anio}`;
+
+            const primerDia = new Date(anio, mes, 1).getDay();
+            const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+            
+            // Ajustar para que el Lunes sea el día 0
+            const inicioSemana = primerDia === 0 ? 6 : primerDia - 1;
+            
+            const gridContent = document.getElementById("grid-content");
+            gridContent.innerHTML = "";
+
+            // Celdas vacías iniciales para cuadrar el mes
+            for (let i = 0; i < inicioSemana; i++) {
+                const div = document.createElement("div");
+                div.className = "day-cell vacio";
+                gridContent.appendChild(div);
+            }
+
+            // Días del mes con tamaño cuadrado uniforme
+            for (let dia = 1; dia <= diasEnMes; dia++) {
+                const cell = document.createElement("div");
+                cell.className = "day-cell";
+                cell.innerHTML = `<span class="day-number">${dia}</span>`;
+                
+                // Lógica para renderizar eventos si los hubiera
+                const fechaISO = `${anio}-${(mes+1).toString().padStart(2,'0')}-${dia.toString().padStart(2,'0')}`;
+                const eventosDelDia = eventos.filter(e => e.date === fechaISO);
+                
+                eventosDelDia.forEach(evento => {
+                    const tag = document.createElement("div");
+                    tag.className = "event-tag";
+                    tag.textContent = evento.titulo;
+                    cell.appendChild(tag);
+                });
+
+                gridContent.appendChild(cell);
+            }
+        }
+
+        function cambiarMes(inc) {
+            fechaActual.setMonth(fechaActual.getMonth() + inc);
+            renderizarCalendario();
+        }
+
+        // Ejecución inicial
+        renderizarCalendario();
+    </script>
+
+    <footer class="text-center opacity-40 mt-10">
+        <p class="text-[10px] text-white font-black uppercase tracking-[10px]">CTT Management System 2026</p>
+    </footer>
+
+</body>
+</html>

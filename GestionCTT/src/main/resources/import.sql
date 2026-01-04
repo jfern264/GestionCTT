@@ -1,6 +1,7 @@
 -- Usa IDs altos o deja que la base de datos decida si usas secuencias
 INSERT INTO roles (id, nombre_rol) VALUES (1, 'ROLE_ADMIN');
 INSERT INTO roles (id, nombre_rol) VALUES (2, 'ROLE_JUGADOR');
+INSERT INTO roles (id, nombre_rol) VALUES (3, 'ROLE_TRABAJADOR');
 
 -- Asegúrate de que los IDs de usuario también sean únicos
 INSERT INTO usuario (id, nombre_usuario, password, nombre, email, genero) 

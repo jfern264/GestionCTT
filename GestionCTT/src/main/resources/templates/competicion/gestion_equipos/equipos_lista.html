@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscripciones - CTT Steel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        .theme-player { --bg-page: linear-gradient(180deg, #0c2b1d 0%, #1a4731 100%); --accent: #10b981; }
+        .theme-admin { --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%); --accent: #94a3b8; }
+        :root { --ctt-carbono: #1a1a1a; --ctt-negro-puro: #000000; --ctt-gris-borde: #475569; --ctt-acero-luz: #e2e8f0; }
+        body { font-family: "Montserrat", sans-serif; background: var(--bg-page); background-attachment: fixed; min-height: 100vh; margin: 0; padding: 0; }
+        .header-section { padding: 50px 20px 40px 20px; text-align: center; }
+        .main-pill-title { background: var(--ctt-negro-puro); color: white; padding: 15px 80px; border-radius: 100px; font-weight: 900; font-size: 2.8rem; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 30px 60px rgba(0,0,0,0.6); display: inline-block; border: 4px solid var(--accent); }
+        .admin-container { max-width: 1300px; margin: 0 auto 80px auto; background: rgba(255, 255, 255, 0.98); border-radius: 40px; padding: 50px; border: 6px solid var(--ctt-gris-borde); box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
+        .league-divider { background: var(--ctt-carbono); color: white; padding: 30px 35px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; border-left: 8px solid var(--accent); margin-bottom: 30px; }
+        .category-card { background: white; border: 2px solid var(--ctt-acero-luz); border-radius: 25px; padding: 25px; transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%; }
+        .tech-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .tech-table th { text-transform: uppercase; font-size: 0.65rem; font-weight: 900; color: var(--accent); padding: 10px; letter-spacing: 2px; }
+        .tech-table td { background: #f8fafc; padding: 12px 15px; font-size: 0.85rem; font-weight: 700; color: #334155; }
+        .btn-edit-tech { background: #f1f5f9; color: #334155; padding: 8px 18px; border-radius: 10px; font-weight: 800; text-transform: uppercase; font-size: 0.65rem; border: 1px solid var(--ctt-acero-luz); transition: all 0.2s; }
+        .btn-edit-tech:hover { background: #334155; color: white; }
+
+        /* --- LINK TÉCNICO ESTÁTICO --- */
+        .nav-link-tech {
+            font-weight: 900; text-transform: uppercase; font-size: 0.75rem;
+            letter-spacing: 3px; color: var(--accent);
+            display: inline-flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body th:class="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? 'theme-admin' : 'theme-player'" class="pb-20">
+    <header class="header-section">
+        <h1 class="main-pill-title">Equipos</h1>
+    </header>
+
+    <main class="admin-container">
+        <div class="flex justify-start mb-12 px-2">
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" href="/menu_admin" class="nav-link-tech">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                <b>Panel Gestión</b>
+            </a>
+            <a sec:authorize="!hasAuthority('ROLE_ADMIN')" href="/menu_principal" class="nav-link-tech">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                <b>Inicio</b>
+            </a>
+        </div>
+
+        <div th:each="liga : ${ligas}" class="mb-16">
+            <div class="league-divider shadow-lg">
+                <div class="max-w-[70%]">
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">League Management Core</span>
+                    <h2 class="text-xl font-900 uppercase leading-none mb-2" th:text="${liga.nombre}">Nombre</h2>
+                    <p class="text-sm text-white font-medium leading-relaxed" 
+                       th:text="${liga.descripcion ?: 'Sin descripción técnica registrada.'}"></p>
+                </div>
+                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{'/ligas/editar/' + ${liga.id}}" class="btn-edit-tech !bg-white/10 !text-white !border-white/20 hover:!bg-white hover:!text-black">
+                    ⚙️ Ajustes
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div th:each="categoria : ${liga.categorias}" class="category-card shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-sm font-900 uppercase text-black" th:text="${categoria.nombre}">Categoría</h3>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter" th:text="${categoria.genero}">GENERO</span>
+                        </div>
+                        <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{'/equipos/' + ${categoria.id} + '/anadir-jugador'}" class="btn-edit-tech shadow-sm">+ Inscribir</a>
+                    </div>
+
+                    <p class="text-xs font-medium text-slate-600 mb-6 pb-3 border-b border-slate-100" 
+                       th:text="${categoria.descripcion ?: 'Sin detalles técnicos específicos.'}"></p>
+
+                    <div class="flex-grow overflow-hidden">
+                        <table class="tech-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Identidad</th>
+                                    <th sec:authorize="hasAuthority('ROLE_ADMIN')" class="text-right">Gestión</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="uc : ${categoria.usuarioCategorias}" class="hover:bg-slate-50 transition">
+                                    <td class="py-4">
+                                        <div th:text="${uc.usuario.nombre + ' ' + uc.usuario.primerApellido}" class="text-xs">Nombre</div>
+                                        <span th:class="${uc.activo} ? 'text-[8px] text-emerald-600 font-black uppercase' : 'text-[8px] text-slate-400 font-black uppercase'"
+                                              th:text="${uc.activo ? '● ACTIVO' : '○ INACTIVO'}"></span>
+                                    </td>
+
+                                    <td sec:authorize="hasAuthority('ROLE_ADMIN')" class="text-right space-x-1">
+                                        <a th:href="@{'/equipos/inscripcion/toggle-estatus/' + ${uc.id}}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border transition"
+                                           th:classappend="${uc.activo} ? 'bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-600 hover:text-white'">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                                        </a>
+                                        <a th:href="@{'/equipos/inscripcion/eliminar/' + ${uc.id}}" onclick="return confirm('¿RETIRAR JUGADOR?')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-100 bg-red-50 text-red-400 hover:bg-red-600 hover:text-white transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${#lists.isEmpty(categoria.usuarioCategorias)}" class="text-center py-6 border-2 border-dashed border-slate-100 rounded-xl">
+                            <span class="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Sin integrantes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="text-center opacity-30 mt-10">
+        <p class="text-[9px] text-white font-black uppercase tracking-[10px]">CTT Competition Engine 2026</p>
+    </footer>
+</body>
+</html>

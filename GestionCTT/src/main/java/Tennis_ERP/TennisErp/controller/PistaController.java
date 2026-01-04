@@ -2,67 +2,36 @@ package Tennis_ERP.TennisErp.controller;
 
 import Tennis_ERP.TennisErp.domain.Pista;
 import Tennis_ERP.TennisErp.service.PistaService;
-
-
-import java.util.List;
+import Tennis_ERP.TennisErp.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 
 @Controller
 public class PistaController {
 
-    @Autowired
-    private PistaService pistaService;
+    @Autowired private PistaService pistaService;
+    @Autowired private EventService eventService;
+
+    @GetMapping("/adminpistas")
+    public String adminPistas(Model model) {
+        model.addAttribute("pistas", pistaService.obtenerTodasPistas());
+        return "pistas/gestion_pistas/adminpistas"; 
+    }
 
     @GetMapping("/pistas")
     public String verPistas(Model model) {
-        List<Tennis_ERP.TennisErp.domain.Pista> pistas = pistaService.obtenerTodasPistas();
-        model.addAttribute("pistas", pistas);
-        return "Pistas";
+        model.addAttribute("pistas", pistaService.obtenerTodasPistas());
+        return "pistas/gestion_pistas/pistas";
     }
 
-    @GetMapping("/adminpistas")
-    public String administrarPistas(Model model) {
-        List<Tennis_ERP.TennisErp.domain.Pista> pistas = pistaService.obtenerTodasPistas();
-        model.addAttribute("pistas", pistas);
-        return "AdminPistas";
+    @GetMapping("/calendario")
+    public String verCalendario(Model model) {
+        LocalDate hoy = LocalDate.now();
+        model.addAttribute("events", eventService.obtenerEventos());
+        model.addAttribute("calendario", eventService.crearCalendario(hoy));
+        return "extras/calendario"; 
     }
-
-    @GetMapping("/adminpistas/addpista")
-    public String mostrarFormularioNuevaPista(Model model) {
-        model.addAttribute("pista", new Pista());
-        return "AddPistas";
-    }
-
-    @PostMapping("/adminpistas/addPista")
-    public String procesarNuevaPista(@ModelAttribute("pista") Pista pista) {
-        pistaService.crearPista(pista);
-        return "redirect:/adminpistas";
-    }
-
-    @GetMapping("/adminpistas/editpista/{id}")
-    public String mostrarFormularioEditarPista(@PathVariable("id") Long id, Model model) {
-        Tennis_ERP.TennisErp.domain.Pista pista = pistaService.obtenerPistaPorId(id)
-                .orElseThrow(() -> new RuntimeException("Pista no encontrada con ID: " + id));
-        model.addAttribute("pista", pista);
-        return "editar_Pista";
-    }
-
-    @PostMapping("/adminpistas/editpista/{id}")
-    public String procesarEditarPista(@PathVariable("id") Long id, @ModelAttribute("pista") Pista pistaActualizada) {
-        pistaService.actualizarPista(id, pistaActualizada);
-        return "redirect:/adminpistas";
-    }
-
-    @GetMapping("/adminpistas/deletepista/{id}")
-    public String eliminarPista(@PathVariable("id") Long id) {
-        pistaService.eliminarPista(id);
-        return "redirect:/adminpistas";
-    }
-
 }

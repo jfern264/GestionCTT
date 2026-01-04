@@ -80,6 +80,21 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public void deleteUsuario(Long id) {
+        Usuario usuario = usuarioDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // BLOQUEO DE SEGURIDAD: No borrar al superadmin
+        if ("admin".equals(usuario.getNombreUsuario())) {
+            throw new RuntimeException(
+                    "OPERACIÓN DENEGADA: El usuario 'admin' es vital para el sistema y no puede ser eliminado.");
+        }
+
+        // Si no es admin, procedemos con el borrado de inscripciones y luego el usuario
+        List<UsuarioCategoria> inscripciones = usuarioCategoriaDAO.findAll().stream()
+                .filter(uc -> uc.getUsuario().getId().equals(id))
+                .collect(Collectors.toList());
+
+        usuarioCategoriaDAO.deleteAll(inscripciones);
         usuarioDAO.deleteById(id);
     }
 
@@ -93,8 +108,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioDAO.findByRoles(rol);
     }
 
-
-
     @Override
     public Optional<Usuario> findByDni(String dni) {
         return usuarioDAO.findByDni(dni);
@@ -103,14 +116,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     public String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<Usuario> getJugadoresDisponibles(Long categoriaId) {
         // 1. Obtener el rol “Jugador”
-       Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR")
-                        .orElseThrow(() -> new IllegalStateException("No existe el rol 'ROLE_JUGADOR' en la base de datos"));
-
+        Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR")
+                .orElseThrow(() -> new IllegalStateException("No existe el rol 'ROLE_JUGADOR' en la base de datos"));
 
         // 2. Todos los usuarios con ese rol
         List<Usuario> todosJugadores = usuarioDAO.findByRoles(rolJugador);
@@ -129,5 +141,35 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .toList();
     }
 
+    @Override
+    @Transactional
+    public void updateUsuario(Long id, Usuario form) {
+        Usuario db = usuarioDAO.findById(id).orElseThrow(() -> new RuntimeException("No existe"));
 
+        if ("admin".equals(db.getNombreUsuario())) {
+            boolean tieneAdmin = form.getRoles().stream()
+                    .anyMatch(r -> r.getNombreRol().equals("ROLE_ADMIN"));
+
+            if (!tieneAdmin) {
+                throw new RuntimeException(
+                        "PROTECCIÓN DE CUENTA: No puedes quitar el rol ROLE_ADMIN al usuario principal.");
+            }
+        }
+        // Sincronización de todos los campos necesarios
+        db.setNombreUsuario(form.getNombreUsuario());
+        db.setNombre(form.getNombre());
+        db.setPrimerApellido(form.getPrimerApellido());
+        db.setSegundoApellido(form.getSegundoApellido());
+        db.setDni(form.getDni());
+        db.setEmail(form.getEmail());
+        db.setTelefono(form.getTelefono());
+        db.setRoles(form.getRoles());
+
+        // Lógica de contraseña: Solo si se escribe una nueva
+        if (form.getPassword() != null && !form.getPassword().trim().isEmpty()) {
+            db.setPassword(form.getPassword());
+        }
+
+        usuarioDAO.save(db);
+    }
 }

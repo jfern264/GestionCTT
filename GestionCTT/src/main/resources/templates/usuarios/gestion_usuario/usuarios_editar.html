@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edición - CTT Steel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .theme-admin { --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%); --accent: #94a3b8; }
+        :root { --ctt-carbono: #1a1a1a; --ctt-gris-borde: #475569; --ctt-acero-luz: #e2e8f0; }
+
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg-page); min-height: 100vh; margin: 0; background-attachment: fixed; }
+        .form-container { max-width: 950px; margin: 40px auto 80px auto; background: white; border-radius: 40px; padding: 60px; border: 6px solid var(--ctt-gris-borde); box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
+        .label-tech { display: block; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--ctt-gris-borde); margin-bottom: 8px; }
+        .input-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: 700; transition: 0.3s; }
+        .input-tech:focus { outline: none; border-color: var(--accent); background: white; }
+        .section-tag { font-size: 9px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid var(--ctt-acero-luz); padding-bottom: 5px; margin-bottom: 20px; grid-column: span 2; }
+        .error-box { background: #450a0a; border-left: 6px solid #ef4444; color: #fee2e2; padding: 15px; border-radius: 15px; margin-bottom: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        
+        /* LINK TÉCNICO ESTÁTICO */
+        .nav-link-tech {
+            font-weight: 900; text-transform: uppercase; font-size: 0.75rem;
+            letter-spacing: 3px; color: #f1f5f9;
+            display: inline-flex; align-items: center; gap: 10px;
+            text-decoration: none; margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="theme-admin">
+    <div class="max-w-[950px] mx-auto pt-10">
+        <a href="/usuarios" class="nav-link-tech">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <b>Control de Usuarios</b>
+        </a>
+
+        <main class="form-container">
+            <h1 class="text-3xl font-black uppercase tracking-tighter text-black mb-10 text-center">Editar Perfil Maestro</h1>
+
+            <div th:if="${errorDni}" class="error-box" th:text="${errorDni}"></div>
+
+            <form th:action="@{'/usuarios/actualizar/' + ${usuario.id}}" th:object="${usuario}" method="post">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div class="section-tag">Credenciales de Acceso</div>
+                    <div>
+                        <label class="label-tech">Username</label>
+                        <input type="text" th:field="*{nombreUsuario}" class="input-tech" required>
+                    </div>
+                    <div>
+                        <label class="label-tech">Nueva Clave (Opcional)</label>
+                        <input type="password" th:field="*{password}" class="input-tech" placeholder="••••••••">
+                    </div>
+
+                    <div class="section-tag">Datos de Identidad</div>
+                    <div>
+                        <label class="label-tech">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="input-tech" required>
+                    </div>
+                    <div>
+                        <label class="label-tech">Primer Apellido</label>
+                        <input type="text" th:field="*{primerApellido}" class="input-tech" required>
+                    </div>
+                    <div>
+                        <label class="label-tech">Segundo Apellido</label>
+                        <input type="text" th:field="*{segundoApellido}" class="input-tech">
+                    </div>
+                    <div>
+                        <label class="label-tech">DNI / Identificación</label>
+                        <input type="text" th:field="*{dni}" class="input-tech" required>
+                    </div>
+
+                    <div class="section-tag">Información de Contacto</div>
+                    <div>
+                        <label class="label-tech">Email Oficial</label>
+                        <input type="email" th:field="*{email}" class="input-tech" required>
+                    </div>
+                    <div>
+                        <label class="label-tech">Teléfono</label>
+                        <input type="text" th:field="*{telefono}" class="input-tech">
+                    </div>
+
+                    <div class="section-tag">Nivel de Privilegios</div>
+                    <div class="col-span-2 p-6 bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-wrap gap-6">
+                        <div th:each="rol : ${rolesDisponibles}" class="flex items-center gap-3">
+                            <input type="checkbox" th:value="${rol.id}" th:field="*{roles}" class="w-5 h-5 rounded border-2 border-slate-300 text-black focus:ring-0">
+                            <label class="text-[10px] font-black uppercase text-slate-500" th:text="${rol.nombreRol.replace('ROLE_', '')}"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 flex justify-between items-center border-t-2 border-slate-50 pt-8">
+                    <a href="/usuarios" class="font-900 uppercase text-[10px] tracking-[3px] text-slate-400 hover:text-black transition">Descartar Cambios</a>
+                    <button type="submit" class="py-4 px-10 bg-black text-white rounded-2xl font-900 uppercase border-2 border-slate-400 hover:bg-slate-800 transition-all shadow-lg">
+                        Sincronizar Maestro
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

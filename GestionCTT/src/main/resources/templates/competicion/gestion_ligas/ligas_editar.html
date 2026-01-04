@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sistema Ligas - CTT Steel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Montserrat", sans-serif;
+            background: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .tech-card {
+            width: 100%;
+            max-width: 550px;
+            background: white;
+            border-radius: 40px;
+            padding: 50px;
+            border: 6px solid #475569;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+        }
+        .label-tech {
+            display: block;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .input-tech {
+            width: 100%;
+            padding: 15px 20px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-weight: 700;
+            transition: 0.3s;
+            outline: none;
+        }
+        .input-tech:focus {
+            border-color: #475569;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="tech-card">
+        <span class="text-[9px] font-black text-slate-400 uppercase tracking-[5px] block mb-2">Protocolo de Configuración</span>
+        <h1 class="text-3xl font-900 uppercase tracking-tighter mb-10" 
+            th:text="${liga.id == null ? 'Nueva Competición' : 'Ajustes de Liga'}">
+            LIGA
+        </h1>
+
+        <form th:action="@{/ligas/guardar}" th:object="${liga}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="mb-6">
+                <label class="label-tech">Identificador de Liga</label>
+                <input type="text" 
+                       th:field="*{nombre}" 
+                       class="input-tech" 
+                       placeholder="Ej: Liga Master CTT" 
+                       required />
+            </div>
+
+            <div class="mb-10">
+                <label class="label-tech">Especificaciones Técnicas</label>
+                <textarea th:field="*{descripcion}" 
+                          class="input-tech min-h-[120px] font-medium text-sm normal-case" 
+                          placeholder="Detalles de la competición, premios, fechas..."
+                          rows="4"></textarea>
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                <a href="/ligas" 
+                   class="text-[10px] font-900 uppercase text-slate-400 hover:text-black transition tracking-widest">
+                   ← Abortar
+                </a>
+                <button type="submit" 
+                        class="bg-black text-white px-10 py-4 rounded-2xl font-900 uppercase border-2 border-slate-400 hover:bg-slate-800 transition-all shadow-xl active:scale-95">
+                    Sincronizar Datos
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -35,7 +35,7 @@ public class RolServiceImpl implements RolService {
         return rolDAO.findById(id);
     }
 
-   @Override
+    @Override
     @Transactional(readOnly = true)
     public Rol findByNombreRol(String nombreRol) {
         return rolDAO.findByNombreRol(nombreRol)
@@ -46,6 +46,14 @@ public class RolServiceImpl implements RolService {
     @Override
     @Transactional
     public void deleteRol(Long id) {
+        Rol rol = rolDAO.findById(id).orElseThrow();
+
+        // BLOQUEO DE SEGURIDAD: Roles de sistema
+        if ("ROLE_ADMIN".equals(rol.getNombreRol()) || "ROLE_JUGADOR".equals(rol.getNombreRol())) {
+            throw new RuntimeException(
+                    "ERROR TÉCNICO: Los roles estructurales (ADMIN/JUGADOR) no pueden ser eliminados.");
+        }
+
         rolDAO.deleteById(id);
     }
 

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Categoría Técnica - CTT Steel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .tech-card { width: 100%; max-width: 600px; background: white; border-radius: 40px; padding: 60px; border: 6px solid #475569; box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
+        .label-tech { display: block; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #475569; margin-bottom: 8px; }
+        .input-tech { width: 100%; padding: 15px 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: 700; transition: 0.3s; margin-bottom: 20px; }
+        .input-tech:focus { outline: none; border-color: #94a3b8; background: white; }
+    </style>
+</head>
+<body>
+    <div class="tech-card">
+        <span class="text-[9px] font-black text-slate-400 uppercase tracking-[5px]">Sub-Module Category</span>
+        <h1 class="text-3xl font-900 uppercase tracking-tighter mb-10">Configuración de Categoría</h1>
+
+        <form th:action="${categoria.id == null ? '/categorias/guardar' : '/categorias/actualizar/' + categoria.id}" th:object="${categoria}" method="post">
+            <input type="hidden" th:field="*{liga.id}"/>
+            <input type="hidden" th:field="*{id}" th:if="${categoria.id != null}"/>
+
+            <label class="label-tech">Nombre de Categoría</label>
+            <input type="text" th:field="*{nombre}" class="input-tech" placeholder="Ej: 1ª Masculina" required>
+
+            <label class="label-tech">Descripción Técnica</label>
+            <textarea th:field="*{descripcion}" class="input-tech h-32 py-4" placeholder="Detalles de nivel o requisitos..."></textarea>
+
+            <label class="label-tech">Restricción de Género</label>
+            <select th:field="*{genero}" class="input-tech bg-white appearance-none cursor-pointer" required>
+                <option value="MASCULINO">MASCULINO</option>
+                <option value="FEMENINO">FEMENINO</option>
+                <option value="MIXTO">MIXTO</option>
+            </select>
+
+            <div class="mt-10 flex justify-between items-center">
+                <a href="/ligas" class="text-[10px] font-900 uppercase text-slate-400">Abortar</a>
+                <button type="submit" class="bg-black text-white px-10 py-4 rounded-2xl font-900 uppercase border-2 border-slate-400 hover:bg-slate-800 transition-all">Sincronizar Categoría</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

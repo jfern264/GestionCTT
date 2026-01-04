@@ -20,6 +20,21 @@ public class LigaServiceImpl implements LigaService {
     @Override
     @Transactional
     public Liga saveLiga(Liga liga) {
+        if (liga.getId() != null) {
+            // 1. Buscamos la liga existente en la BD (objeto gestionado por Hibernate)
+            return ligaDAO.findById(liga.getId()).map(ligaExistente -> {
+                // 2. Actualizamos solo los campos que queremos cambiar del formulario
+                ligaExistente.setNombre(liga.getNombre());
+
+                // NO TOCAMOS ligaExistente.setCategorias(...)
+                // Así Hibernate mantiene la referencia a la colección original y no lanza el
+                // error 500
+
+                return ligaDAO.save(ligaExistente);
+            }).orElseGet(() -> ligaDAO.save(liga));
+        }
+
+        // Si es nueva (id es null), el save directo funciona sin problemas
         return ligaDAO.save(liga);
     }
 

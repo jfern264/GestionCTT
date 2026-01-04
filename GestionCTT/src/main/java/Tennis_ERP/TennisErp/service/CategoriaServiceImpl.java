@@ -1,8 +1,12 @@
 package Tennis_ERP.TennisErp.service;
 
 import Tennis_ERP.TennisErp.dao.CategoriaDAO;
+import Tennis_ERP.TennisErp.dao.UsuarioCategoriaDAO;
+import Tennis_ERP.TennisErp.dao.UsuarioDAO;
 import Tennis_ERP.TennisErp.domain.Categoria;
 import Tennis_ERP.TennisErp.domain.Liga;
+import Tennis_ERP.TennisErp.domain.Usuario;
+import Tennis_ERP.TennisErp.domain.UsuarioCategoria;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,10 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Autowired
     private CategoriaDAO categoriaDAO;
+    @Autowired
+    private UsuarioDAO usuarioDAO;
+    @Autowired
+    private UsuarioCategoriaDAO usuarioCategoriaDAO;
 
     @Override
     @Transactional
@@ -67,5 +75,41 @@ public class CategoriaServiceImpl implements CategoriaService {
         }
 
         return categorias;
+    }
+
+    @Override
+    @Transactional
+    public void inscribirJugador(Long categoriaId, Long usuarioId) {
+        // 1. Buscamos ambos objetos en la base de datos
+        Categoria categoria = categoriaDAO.findById(categoriaId)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        Usuario usuario = usuarioDAO.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // 2. Creamos la nueva inscripción (entidad intermedia)
+        UsuarioCategoria inscripcion = new UsuarioCategoria();
+        inscripcion.setCategoria(categoria);
+        inscripcion.setUsuario(usuario);
+        inscripcion.setActivo(true); // Lo marcamos como activo por defecto
+
+        // 3. Guardamos la relación
+        usuarioCategoriaDAO.save(inscripcion);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarInscripcion(Long inscripcionId) {
+        usuarioCategoriaDAO.deleteById(inscripcionId);
+    }
+
+    @Override
+    @Transactional
+    public void toggleEstatusInscripcion(Long inscripcionId) {
+        UsuarioCategoria uc = usuarioCategoriaDAO.findById(inscripcionId)
+                .orElseThrow(() -> new RuntimeException("Inscripción no encontrada"));
+
+        // Invertimos el estatus actual
+        uc.setActivo(!uc.isActivo());
+        usuarioCategoriaDAO.save(uc);
     }
 }

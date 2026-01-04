@@ -49,6 +49,26 @@ public class DataInitializer {
                         return rDao.save(r);
                     });
 
+            Rol trabajadorRol = rDao.findByNombreRol("ROLE_TRABAJADOR")
+                    .orElseGet(() -> {
+                        Rol r = new Rol();
+                        r.setNombreRol("ROLE_TRABAJADOR");
+                        return rDao.save(r);
+                    });
+
+
+            // Opcional: Crear un usuario de prueba para que la lista no esté vacía
+            if (uDao.findByNombreUsuario("profe1") == null) {
+                Usuario staff = new Usuario();
+                staff.setNombreUsuario("profe1");
+                staff.setPassword(encoder.encode("1"));
+                staff.setEmail("entrenador@tennis.com");
+                staff.setDni("99999999Z");
+                staff.setNombre("Carlos Entrenador");
+                staff.setGenero(Genero.MASCULINO);
+                staff.setRoles(Set.of(trabajadorRol));
+                uDao.save(staff);
+            }
 
             // 2. LIGAS (3 ejemplos)
             if (lDao.count() == 0) {

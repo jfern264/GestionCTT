@@ -1,27 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Tennis_ERP.TennisErp.controller;
 
+import Tennis_ERP.TennisErp.domain.Usuario;
 import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
-import Tennis_ERP.TennisErp.validations.ValidationGroups;
-import Tennis_ERP.TennisErp.validations.ValidationGroups.*;
-import Tennis_ERP.TennisErp.service.UsuarioService;
-import Tennis_ERP.TennisErp.dao.RolDAO;
-import Tennis_ERP.TennisErp.domain.Rol;
-import Tennis_ERP.TennisErp.domain.Usuario;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.List;
-import java.util.Set;
 
 @Controller
 public class UsuarioController {
@@ -30,119 +16,133 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @Autowired
-    private RolDAO rolDAO;
-
-    @Autowired
     private RolService rolService;
 
-    @GetMapping("/menuAdmin/usuarios")
-    public String listarTodosLosUsuarios(Model model) {
-        List<Usuario> usuarios = usuarioService.getAllUsuarios(); // Este método devuelve todos sin filtrar
-        model.addAttribute("usuarios", usuarios);
-        return "usuariosLista";
+    private Object flash;
+
+    // ==========================================
+    // 1. LISTADOS
+    // ==========================================
+    @GetMapping("/usuarios")
+    public String listarTodos(Model model) {
+        model.addAttribute("usuarios", usuarioService.getAllUsuarios());
+        return "usuarios/gestion_usuario/usuarios_lista";
     }
 
-    @GetMapping("/menuAdmin/usuarios/nuevo")
-    public String mostrarFormularioNuevoUsuario(Model model) {
+    @GetMapping("/jugadores")
+    public String listarJugadores(Model model) {
+        model.addAttribute("jugadores", usuarioService.getUsuariosPorRol("ROLE_JUGADOR"));
+        return "usuarios/gestion_jugadores/jugadores_lista";
+    }
+
+    @GetMapping("/trabajadores")
+    public String listarTrabajadores(Model model) {
+        // Asegúrate de que el rol se llame exactamente así en tu DB
+        model.addAttribute("trabajadores", usuarioService.getUsuariosPorRol("ROLE_TRABAJADOR"));
+        return "usuarios/gestion_trabajador/trabajadores_lista";
+    }
+
+    // ==========================================
+    // 2. FORMULARIOS DE ALTA
+    // ==========================================
+    @GetMapping("/usuarios/nuevo")
+    public String formularioNuevoUsuario(Model model) {
         model.addAttribute("usuario", new Usuario());
-        model.addAttribute("roles", rolDAO.findAll());
-        return "usuariosCrear";
+        model.addAttribute("roles", rolService.getAllRoles());
+        return "usuarios/gestion_usuario/usuarios_crear";
     }
 
-    @PostMapping("/menuAdmin/usuarios/guardar")
-    public String guardarUsuario(
-            @Validated(OnCreate.class) @ModelAttribute("usuario") Usuario usuario,
-            BindingResult result,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-
-        if (usuarioService.findByNombreUsuario(usuario.getNombreUsuario()).isPresent()) {
-            result.rejectValue("nombreUsuario", "error.usuario", "El nombre de usuario ya está en uso");
-        }
-
-        if (usuarioService.findByDni(usuario.getDni()).isPresent()) {
-            result.rejectValue("dni", "error.usuario", "El DNI ya está registrado");
-        }
-
-        if (usuario.getRoles() == null || usuario.getRoles().isEmpty()) {
-            result.rejectValue("roles", "error.usuario", "Debe seleccionar al menos un rol");
-        }
-        
-
-        if (result.hasErrors()) {
-            model.addAttribute("roles", rolDAO.findAll());
-            return "usuariosCrear";
-        }
-
-        usuarioService.saveUsuario(usuario);
-        redirectAttributes.addFlashAttribute("successMessage", "Usuario creado exitosamente.");
-        return "redirect:/menuAdmin/usuarios";
+    @GetMapping("/jugadores/nuevo")
+    public String formularioNuevoJugador(Model model) {
+        model.addAttribute("usuario", new Usuario()); // Unificado a "usuario" para el th:object
+        model.addAttribute("roles", rolService.getAllRoles());
+        return "usuarios/gestion_jugadores/jugadores_crear";
     }
 
-    @GetMapping("/menuAdmin/usuarios/editar/{id}")
-    public String mostrarFormularioEditarUsuario(@PathVariable Long id, Model model) {
-        Usuario usuario = usuarioService.getUsuarioById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ID no válido: " + id));
-
-        model.addAttribute("usuario", usuario);
+    // ==========================================
+    // 3. FORMULARIOS DE EDICIÓN
+    // ==========================================
+    @GetMapping("/usuarios/editar/{id}")
+    public String formularioEditarUsuario(@PathVariable Long id, Model model) {
+        Usuario user = usuarioService.getUsuarioById(id).orElseThrow();
+        model.addAttribute("usuario", user);
         model.addAttribute("rolesDisponibles", rolService.getAllRoles());
-
-        return "usuariosEditar";
+        return "usuarios/gestion_usuario/usuarios_editar";
     }
 
-    @PostMapping("/menuAdmin/usuarios/actualizar/{id}")
-    public String actualizarUsuario(@PathVariable Long id,
-            @Validated(OnUpdate.class) @ModelAttribute("usuario") Usuario usuario,
-            BindingResult result,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-
-        if (result.hasErrors()) {
-            model.addAttribute("rolesDisponibles", rolService.getAllRoles());
-            return "usuariosEditar";
-        }
-
-        Usuario original = usuarioService.getUsuarioById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ID no válido: " + id));
-
-        // Validación de email, nombreUsuario y DNI si cambian
-        if (!usuario.getEmail().equals(original.getEmail()) && usuarioService.findByEmail(usuario.getEmail()).isPresent()) {
-            result.rejectValue("email", "error.usuario", "El email ya está en uso");
-        }
-
-        if (!usuario.getNombreUsuario().equals(original.getNombreUsuario()) && usuarioService.findByNombreUsuario(usuario.getNombreUsuario()).isPresent()) {
-            result.rejectValue("nombreUsuario", "error.usuario", "El nombre de usuario ya está en uso");
-        }
-
-        if (!usuario.getDni().equals(original.getDni()) && usuarioService.findByDni(usuario.getDni()).isPresent()) {
-            result.rejectValue("dni", "error.usuario", "El DNI ya está registrado");
-        }
-
-        if (result.hasErrors()) {
-            model.addAttribute("rolesDisponibles", rolService.getAllRoles());
-            return "usuariosEditar";
-        }
-
-        // Conservar relaciones que no vienen del formulario
-        usuario.setUsuarioCategorias(original.getUsuarioCategorias());
-
-        // Contraseña: solo cifrar si se ha modificado
-        if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
-            usuario.setPassword(original.getPassword());
-        } else {
-            usuario.setPassword(usuarioService.encodePassword(usuario.getPassword()));
-        }
-
-        usuarioService.saveUsuario(usuario);
-        redirectAttributes.addFlashAttribute("successMessage", "Usuario actualizado correctamente.");
-
-        return "redirect:/menuAdmin/usuarios";
+    @GetMapping("/jugadores/editar/{id}")
+    public String formularioEditarJugador(@PathVariable Long id, Model model) {
+        Usuario user = usuarioService.getUsuarioById(id).orElseThrow();
+        // Unificado a "usuario" para que los campos del HTML carguen correctamente
+        model.addAttribute("usuario", user);
+        model.addAttribute("rolesDisponibles", rolService.getAllRoles());
+        return "usuarios/gestion_jugadores/jugadores_editar";
     }
 
-    @GetMapping("/menuAdmin/usuarios/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        usuarioService.deleteUsuario(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Usuario eliminado correctamente.");
-        return "redirect:/menuAdmin/usuarios";
+    // ==========================================
+    // 4. ACCIONES DE PERSISTENCIA
+    // ==========================================
+
+    @PostMapping("/usuarios/guardar")
+    public String guardarUsuario(@ModelAttribute("usuario") Usuario usuario, Model model) {
+        try {
+            usuarioService.saveUsuario(usuario);
+            return "redirect:/usuarios";
+        } catch (Exception e) {
+            model.addAttribute("errorDni", "ERROR: DNI o Usuario duplicado.");
+            model.addAttribute("roles", rolService.getAllRoles());
+            return "usuarios/gestion_usuario/usuarios_crear";
+        }
+    }
+
+    @PostMapping("/usuarios/actualizar/{id}")
+    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute("usuario") Usuario form, Model model) {
+        try {
+            usuarioService.updateUsuario(id, form);
+            return "redirect:/usuarios";
+        } catch (Exception e) {
+            prepararModeloError(model);
+            return "usuarios/gestion_usuario/usuarios_editar";
+        }
+    }
+
+    @PostMapping("/jugadores/actualizar/{id}")
+    public String actualizarJugador(@PathVariable Long id, @ModelAttribute("usuario") Usuario form, Model model) {
+        try {
+            usuarioService.updateUsuario(id, form);
+            return "redirect:/jugadores";
+        } catch (Exception e) {
+            prepararModeloError(model);
+            return "usuarios/gestion_jugadores/jugadores_editar";
+        }
+    }
+
+    @GetMapping("/usuarios/eliminar/{id}")
+    public String eliminarUsuario(@PathVariable Long id, RedirectAttributes flash) {
+        try {
+            usuarioService.deleteUsuario(id);
+            flash.addFlashAttribute("success", "Usuario maestro eliminado correctamente.");
+        } catch (RuntimeException e) {
+            // Aquí capturamos el mensaje de "OPERACIÓN DENEGADA" del servicio
+            flash.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/usuarios";
+    }
+
+    @GetMapping("/jugadores/eliminar/{id}")
+    public String eliminarJugador(@PathVariable Long id, RedirectAttributes flash) {
+        try {
+            usuarioService.deleteUsuario(id);
+            flash.addFlashAttribute("success", "Jugador retirado del sistema.");
+        } catch (RuntimeException e) {
+            flash.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/jugadores";
+    }
+
+    // Helper para no repetir código en los catch de actualización
+    private void prepararModeloError(Model model) {
+        model.addAttribute("errorDni", "IDENTIDAD DUPLICADA: Verifique DNI, Email o Usuario.");
+        model.addAttribute("rolesDisponibles", rolService.getAllRoles());
     }
 }

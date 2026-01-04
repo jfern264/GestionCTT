@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Directorio de Jugadores - CTT</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .theme-player {
+        --bg-page: linear-gradient(180deg, #0c2b1d 0%, #1a4731 100%);
+        --accent: #10b981;
+        --pill-border: #10b981;
+        --label-color: #64748b;
+        --badge-bg: rgba(16, 185, 129, 0.1);
+        --badge-text: #10b981;
+      }
+      .theme-admin {
+        --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%);
+        --accent: #94a3b8;
+        --pill-border: #94a3b8;
+        --label-color: #1a1a1a;
+        --badge-bg: #1a1a1a;
+        --badge-text: #f1f5f9;
+      }
+      :root {
+        --ctt-carbono: #1a1a1a;
+        --ctt-negro-puro: #000000;
+        --ctt-gris-borde: #475569;
+        --ctt-acero-luz: #e2e8f0;
+      }
+
+      body {
+        font-family: "Montserrat", sans-serif;
+        background: var(--bg-page);
+        background-attachment: fixed;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        transition: background 0.5s ease;
+      }
+      .header-section {
+        padding: 50px 20px 40px 20px;
+        text-align: center;
+      }
+      .main-pill-title {
+        background: var(--ctt-negro-puro);
+        color: white;
+        padding: 15px 80px;
+        border-radius: 100px;
+        font-weight: 900;
+        font-size: 2.8rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        display: inline-block;
+        border: 4px solid var(--pill-border);
+      }
+      .list-container {
+        max-width: 1200px;
+        margin: 0 auto 80px auto;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 40px;
+        padding: 50px;
+        border: 6px solid var(--ctt-gris-borde);
+        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+      }
+
+      .player-grid-layout {
+        display: grid;
+        grid-template-columns: 80px 1.2fr 1fr 1fr 100px;
+        align-items: center;
+        gap: 15px;
+      }
+      .theme-player .player-grid-layout {
+        grid-template-columns: 80px 1.2fr 1fr 1fr;
+      }
+      .player-row {
+        padding: 20px 30px;
+        border-radius: 25px;
+        margin-bottom: 12px;
+        border: 2px solid #f1f5f9;
+        background: white;
+        transition: 0.3s;
+      }
+      .player-row:hover {
+        transform: scale(1.01);
+        border-color: var(--accent);
+        background: #f8fafc;
+      }
+      .avatar-initial {
+        width: 55px;
+        height: 55px;
+        background: var(--ctt-negro-puro);
+        color: white;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 1.4rem;
+        border: 2px solid var(--accent);
+      }
+      .role-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 9px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: var(--badge-bg);
+        color: var(--badge-text);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        margin-right: 5px;
+        margin-bottom: 5px;
+      }
+      .btn-add-tech {
+        background: var(--ctt-negro-puro);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 15px;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        border: 2px solid var(--accent);
+      }
+
+      /* LINK TÉCNICO ESTÁTICO */
+      .nav-link-tech {
+        font-weight: 900;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 3px;
+        color: var(--accent);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+
+      .action-btn {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f1f5f9;
+        border: 1px solid var(--ctt-acero-luz);
+        color: #475569;
+      }
+      .action-btn-danger {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        color: #ef4444;
+      }
+      .action-btn-danger:hover {
+        background: #ef4444;
+        color: white;
+      }
+      .column-label {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: var(--label-color);
+        padding: 0 35px 15px 35px;
+      }
+      .search-bar {
+        width: 100%;
+        max-width: 600px;
+        background: white;
+        border-radius: 20px;
+        padding: 16px 25px 16px 60px;
+        font-weight: 700;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 2px solid var(--accent);
+        outline: none;
+      }
+    </style>
+  </head>
+  <body
+    th:class="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? 'theme-admin' : 'theme-player'"
+    class="pb-20"
+  >
+    <header class="header-section flex flex-col items-center">
+      <h1 class="main-pill-title">Jugadores</h1>
+      <div class="mt-8 w-full flex justify-center relative">
+        <svg
+          class="absolute left-[calc(50%-280px)] top-1/2 -translate-y-1/2 w-6 h-6 text-slate-300"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="3"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        <input
+          type="text"
+          id="playerSearch"
+          placeholder="Buscar por nombre, email o rol..."
+          class="search-bar"
+        />
+      </div>
+    </header>
+
+    <main class="list-container">
+      <div class="flex justify-between items-center mb-14 px-2">
+        <div>
+          <a
+            sec:authorize="hasAuthority('ROLE_ADMIN')"
+            href="/menu_admin"
+            class="nav-link-tech"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            <b>Menú Administrativo</b>
+          </a>
+          <a
+            sec:authorize="!hasAuthority('ROLE_ADMIN')"
+            href="/menu_principal"
+            class="nav-link-tech"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            <b>Menú Principal</b>
+          </a>
+        </div>
+
+        <a
+          sec:authorize="hasAuthority('ROLE_ADMIN')"
+          href="/jugadores/nuevo"
+          class="btn-add-tech"
+        >
+          + Registrar Jugador
+        </a>
+      </div>
+
+      <div class="hidden md:grid player-grid-layout column-label">
+        <div></div>
+        <span>Identidad</span>
+        <span>Contacto</span>
+        <span>Roles / Permisos</span>
+        <span sec:authorize="hasAuthority('ROLE_ADMIN')" class="text-right"
+          >Gestión</span
+        >
+      </div>
+
+      <div id="playerList" class="space-y-3">
+        <div
+          th:each="jugador : ${jugadores}"
+          class="player-row player-grid-layout group"
+        >
+          <div
+            class="avatar-initial"
+            th:text="${#strings.substring(jugador.nombre, 0, 1)}"
+          >
+            U
+          </div>
+
+          <div class="flex flex-col">
+            <span
+              class="font-900 text-black text-sm uppercase tracking-tight name-field"
+              th:text="${jugador.nombre + ' ' + jugador.primerApellido + ' ' + (jugador.segundoApellido ?: '')}"
+            >
+              Nombre Completo
+            </span>
+            <span
+              class="text-[9px] font-bold text-slate-400 tracking-widest uppercase"
+              th:text="${jugador.dni}"
+              >DNI</span
+            >
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span
+              class="text-xs font-bold text-slate-500 email-field"
+              th:text="${jugador.email}"
+              >correo@ctt.com</span
+            >
+          </div>
+
+          <div class="flex flex-wrap">
+            <span
+              th:each="rol : ${jugador.roles}"
+              class="role-badge"
+              th:text="${rol.nombreRol.replace('ROLE_', '')}"
+              >ADMIN</span
+            >
+          </div>
+
+          <div
+            sec:authorize="hasAuthority('ROLE_ADMIN')"
+            class="flex justify-end gap-2"
+          >
+            <a
+              th:href="@{'/jugadores/editar/' + ${jugador.id}}"
+              class="action-btn"
+              title="Editar Ficha"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                />
+              </svg>
+            </a>
+            <a
+              th:href="@{'/jugadores/eliminar/' + ${jugador.id}}"
+              class="action-btn-danger"
+              title="Eliminar Jugador"
+              onclick="return confirm('¿ESTÁS SEGURO? Se eliminarán todos los datos del jugador de forma permanente.')"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document
+        .getElementById("playerSearch")
+        .addEventListener("input", function (e) {
+          const term = e.target.value.toLowerCase();
+          document.querySelectorAll(".player-row").forEach((row) => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(term)
+              ? window.innerWidth < 768
+                ? "block"
+                : "grid"
+              : "none";
+          });
+        });
+    </script>
+  </body>
+</html>

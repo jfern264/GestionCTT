@@ -19,6 +19,9 @@ public class Liga {
 
     private String nombre;
 
+    @Column(length = 500)
+    private String descripcion;
+
     @OneToMany(mappedBy = "liga", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Categoria> categorias;
 }

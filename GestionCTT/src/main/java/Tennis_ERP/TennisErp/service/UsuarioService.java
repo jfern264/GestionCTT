@@ -27,4 +27,5 @@ public interface UsuarioService {
 
     List<Usuario> getJugadoresDisponibles(Long categoriaId);
     
+    void updateUsuario(Long id, Usuario form);
 }

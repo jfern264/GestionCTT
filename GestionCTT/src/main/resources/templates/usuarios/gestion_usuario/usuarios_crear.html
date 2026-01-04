@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Usuario - CTT Steel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .theme-admin { --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%); --accent: #94a3b8; }
+        :root { --ctt-carbono: #1a1a1a; --ctt-gris-borde: #475569; --ctt-acero-luz: #e2e8f0; }
+
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg-page); min-height: 100vh; margin: 0; }
+        .form-container { max-width: 900px; margin: 50px auto; background: white; border-radius: 40px; padding: 60px; border: 6px solid var(--ctt-gris-borde); box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
+        .label-tech { display: block; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--ctt-gris-borde); margin-bottom: 8px; }
+        .input-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid var(--ctt-acero-luz); border-radius: 12px; font-weight: 700; transition: 0.3s; }
+        .input-tech:focus { outline: none; border-color: var(--accent); background: white; }
+        .section-tag { font-size: 9px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid var(--ctt-acero-luz); padding-bottom: 5px; margin-bottom: 20px; grid-column: span 2; }
+    </style>
+</head>
+<body class="theme-admin">
+    <main class="form-container">
+        <h1 class="text-3xl font-black uppercase tracking-tighter text-black mb-10 text-center">Alta de Nuevo Maestro</h1>
+
+        <div th:if="${errorDni}" class="p-4 mb-6 bg-red-900 border-l-8 border-red-500 text-red-100 font-bold uppercase text-[11px]" th:text="${errorDni}"></div>
+
+        <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="section-tag">Credenciales de Seguridad</div>
+                <div><label class="label-tech">Username *</label><input type="text" th:field="*{nombreUsuario}" class="input-tech" required></div>
+                <div><label class="label-tech">Password Provisional *</label><input type="password" th:field="*{password}" class="input-tech" required></div>
+
+                <div class="section-tag">Datos Personales</div>
+                <div><label class="label-tech">Nombre</label><input type="text" th:field="*{nombre}" class="input-tech"></div>
+                <div><label class="label-tech">Primer Apellido</label><input type="text" th:field="*{primerApellido}" class="input-tech"></div>
+                <div><label class="label-tech">DNI / NIE *</label><input type="text" th:field="*{dni}" class="input-tech" required></div>
+                <div><label class="label-tech">Email Oficial *</label><input type="email" th:field="*{email}" class="input-tech" required></div>
+                <div><label class="label-tech">Teléfono *</label><input type="text" th:field="*{telefono}" class="input-tech" required></div>
+                <div><label class="label-tech">Fecha Nacimiento *</label><input type="date" th:field="*{fechaNacimiento}" class="input-tech" required></div>
+
+                <div class="section-tag">Asignación de Roles</div>
+                <div class="col-span-2 p-6 bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-wrap gap-6">
+                    <div th:each="rol : ${roles}" class="flex items-center gap-3">
+                        <input type="checkbox" th:value="${rol.id}" th:field="*{roles}" class="w-5 h-5 rounded text-black">
+                        <label class="text-[10px] font-black uppercase text-slate-500" th:text="${rol.nombreRol}"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 flex justify-between">
+                <a href="/usuarios" class="py-3 px-8 font-900 uppercase text-xs text-slate-400">Descartar</a>
+                <button type="submit" class="py-4 px-10 bg-black text-white rounded-2xl font-900 uppercase border-2 border-slate-400 hover:bg-slate-800 transition-all">Finalizar Registro</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

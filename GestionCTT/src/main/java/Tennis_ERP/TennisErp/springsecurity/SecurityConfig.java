@@ -7,78 +7,71 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    // A partir de Spring Security 5.7+, ya no se recomienda sobrescribir
-    // directamente AuthenticationManagerBuilder.
-    // En su lugar, se utiliza AuthenticationConfiguration, y Spring se encarga
-    // automáticamente de configurar
-    // el AuthenticationManager si detecta un UserDetailsService y un
-    // PasswordEncoder en el contexto.
-    //
-    // ¿Por qué funciona sin configurarlo manualmente?
-    // Porque Spring Boot detecta que existe un @Bean de PasswordEncoder y un
-    // @Service("userDetailsService")
-    // que implementa UserDetailsService, y los registra automáticamente para el
-    // AuthenticationManager.
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+                return authConfig.getAuthenticationManager();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                                .authorizeHttpRequests(auth -> auth
+                                                // 1. PUBLICO: Es VITAL añadir "/layout/**" e "/images/**" aquí para que
+                                                // el Login los vea
+                                                .requestMatchers("/login", "/css/**", "/js/**", "/images/**",
+                                                                "/layout/**", "/403", "/404")
+                                                .permitAll()
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+                                                // 2. CONSULTA: Acceso para todos los roles registrados
+                                                .requestMatchers("/menu_principal", "/calendario", "/usuarios",
+                                                                "/jugadores", "/trabajadores",
+                                                                "/equipos", "/competicion/ligas",
+                                                                "/competicion/equipos")
+                                                .hasAnyAuthority("ROLE_ADMIN", "ROLE_JUGADOR", "ROL_EMPLEADO")
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-                .authorizeHttpRequests(auth -> auth
-                        // 1. PUBLICO: Todo el mundo ve el login y los recursos estáticos
-                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/redireccion").permitAll()
+                                                // 3. GESTIÓN: Solo Admin y Empleados autorizados
+                                                .requestMatchers("/menu_admin", "/adminpistas/**")
+                                                .hasAnyAuthority("ROLE_ADMIN", "ROL_EMPLEADO")
 
-                        // 2. COMPARTIDO: El lugar donde pones lo que el Jugador SI puede ver
-                        // Asegúrate de incluir aquí el "menu_principal" y la ruta de "redireccion"
-                        .requestMatchers("/menu_principal", "/equipos", "/jugadores")
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_JUGADOR")
+                                                // 4. ALTA Y EDICIÓN CRÍTICA: Estrictamente ROLE_ADMIN
+                                                .requestMatchers("/usuarios/**", "/jugadores/**", "/ligas/**",
+                                                                "/categorias/**", "/competicion/**")
+                                                .hasAuthority("ROLE_ADMIN")
 
-                        // 3. RESTRINGIDO: Solo para el Admin
-                        .requestMatchers("/menu_admin/**").hasAuthority("ROLE_ADMIN")
+                                                .anyRequest().authenticated())
 
-                        // 4. RESTO: Cualquier otra cosa pide estar logueado
-                        .anyRequest().authenticated())
+                                .formLogin(form -> form
+                                                .loginPage("/login")
+                                                // CAMBIO CLAVE: 'true' obliga a ir a /redireccion e ignora intentos
+                                                // previos de cargar JPGs
+                                                .defaultSuccessUrl("/redireccion", true)
+                                                .permitAll())
 
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        // Importante: false para que no fuerce al jugador a ir a la zona de admin
-                        .defaultSuccessUrl("/redireccion", false)
-                        .permitAll())
+                                .logout(logout -> logout
+                                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                                                .logoutSuccessUrl("/login?logout")
+                                                .invalidateHttpSession(true) // Limpia la sesión por completo
+                                                .deleteCookies("JSESSIONID") // Borra la cookie de rastreo
+                                                .permitAll())
 
-                .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .deleteCookies("JSESSIONID")
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll())
+                                .exceptionHandling(exception -> exception
+                                                .accessDeniedPage("/403"));
 
-                .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/errors/error403"));
-
-        return http.build();
-    }
+                return http.build();
+        }
 }
