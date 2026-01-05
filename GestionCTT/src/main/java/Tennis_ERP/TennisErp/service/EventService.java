@@ -19,4 +19,7 @@ public interface EventService {
 
     // Método para crear el calendario para un mes específico
     List<List<Integer>> crearCalendario(LocalDate currentDate);
+    
+    // Método para obtener eventos como JSON para el calendario
+    String obtenerEventosComoJson();
 }

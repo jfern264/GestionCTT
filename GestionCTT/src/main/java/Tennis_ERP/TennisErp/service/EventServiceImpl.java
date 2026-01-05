@@ -65,4 +65,50 @@ public class EventServiceImpl implements EventService {
 
         return calendario;
     }
+
+    @Override
+    public String obtenerEventosComoJson() {
+        List<Event> eventos = obtenerEventos();
+        
+        if (eventos == null || eventos.isEmpty()) {
+            return "[]";
+        }
+        
+        StringBuilder eventosJson = new StringBuilder("[");
+        for (int i = 0; i < eventos.size(); i++) {
+            Event e = eventos.get(i);
+            if (i > 0) eventosJson.append(",");
+            
+            eventosJson.append("{")
+                .append("\"id\":").append(e.getId()).append(",")
+                .append("\"title\":\"").append(escaparJson(e.getTitle())).append("\",")
+                .append("\"description\":\"").append(e.getDescription() != null ? escaparJson(e.getDescription()) : "").append("\",")
+                .append("\"date\":[").append(e.getDate().getYear()).append(",")
+                    .append(e.getDate().getMonthValue()).append(",")
+                    .append(e.getDate().getDayOfMonth()).append("],")
+                .append("\"time\":[").append(e.getTime().getHour()).append(",")
+                    .append(e.getTime().getMinute()).append("]");
+            
+            if (e.getPista() != null) {
+                eventosJson.append(",\"pista\":{\"id\":").append(e.getPista().getId());
+                if (e.getPista().getNombrePista() != null) {
+                    eventosJson.append(",\"nombre\":\"").append(escaparJson(e.getPista().getNombrePista())).append("\"");
+                }
+                eventosJson.append("}");
+            }
+            
+            eventosJson.append("}");
+        }
+        eventosJson.append("]");
+        
+        return eventosJson.toString();
+    }
+
+    private String escaparJson(String str) {
+        if (str == null) return "";
+        return str.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+    }
 }

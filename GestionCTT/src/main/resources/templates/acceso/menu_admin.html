@@ -21,6 +21,7 @@
             --color-roles: #f59e0b;     /* Ámbar */
             --color-ligas: #06b6d4;     /* Cian */
             --color-equipos: #f43f5e;   /* Rosa/Rojo */
+            --color-calendario: #10b981; /* Esmeralda */
         }
 
         body {
@@ -172,6 +173,12 @@
         .btn-equipos:hover .link-icon { background-color: var(--color-equipos); color: white; transform: rotate(-10deg); }
         .btn-equipos:hover .arrow-icon { color: var(--color-equipos); transform: translateX(5px); }
 
+        .btn-calendario:hover { border-color: var(--color-calendario); }
+        .btn-calendario:hover::before { background-color: var(--color-calendario); }
+        .btn-calendario:hover .link-text { color: var(--color-calendario); }
+        .btn-calendario:hover .link-icon { background-color: var(--color-calendario); color: white; transform: rotate(-10deg); }
+        .btn-calendario:hover .arrow-icon { color: var(--color-calendario); transform: translateX(5px); }
+
         .btn-back {
             margin-top: 30px;
             font-weight: 900;
@@ -246,6 +253,18 @@
                 <svg class="arrow-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" /></svg>
             </a>
 
+            <a href="/menu_admin/calendario" class="admin-link btn-calendario">
+                <div class="link-icon">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <span class="link-text ml-4">Calendario de Eventos</span>
+                <svg class="arrow-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+
         </div>
 
         <div class="flex justify-center">
@@ -254,6 +273,7 @@
                 Regresar al Sistema Principal
             </a>
         </div>
+        
 
     </main>
 

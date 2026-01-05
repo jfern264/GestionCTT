@@ -45,7 +45,7 @@ public class SecurityConfig {
                                                 .hasAnyAuthority("ROLE_ADMIN", "ROLE_JUGADOR", "ROL_EMPLEADO")
 
                                                 // 3. GESTIÓN: Solo Admin y Empleados autorizados
-                                                .requestMatchers("/menu_admin", "/adminpistas/**")
+                                                .requestMatchers("/menu_admin/**", "/adminpistas/**")
                                                 .hasAnyAuthority("ROLE_ADMIN", "ROL_EMPLEADO")
 
                                                 // 4. ALTA Y EDICIÓN CRÍTICA: Estrictamente ROLE_ADMIN
