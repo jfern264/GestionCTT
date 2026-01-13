@@ -45,19 +45,15 @@ public class UsuarioController {
     // ==========================================
     // 2. FORMULARIOS DE ALTA
     // ==========================================
-    @GetMapping("/usuarios/nuevo")
-    public String formularioNuevoUsuario(Model model) {
-        model.addAttribute("usuario", new Usuario());
-        model.addAttribute("roles", rolService.getAllRoles());
-        return "usuarios/gestion_usuario/usuarios_crear";
-    }
-
     @GetMapping("/jugadores/nuevo")
     public String formularioNuevoJugador(Model model) {
-        model.addAttribute("usuario", new Usuario()); // Unificado a "usuario" para el th:object
+
+        model.addAttribute("jugador", new Usuario());
         model.addAttribute("roles", rolService.getAllRoles());
+
         return "usuarios/gestion_jugadores/jugadores_crear";
     }
+
 
     // ==========================================
     // 3. FORMULARIOS DE EDICIÓN
