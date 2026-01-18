@@ -51,9 +51,19 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public Usuario saveUsuario(Usuario user) {
+        // 1. Encriptar contraseña si es necesario
         if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+
+        // 2. SINCRONIZAR ROLES (Solución al problema)
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            user.setRoles(user.getRoles().stream()
+                    .map(rol -> rolDAO.findById(rol.getId())
+                            .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + rol.getId())))
+                    .collect(Collectors.toSet()));
+        }
+
         return usuarioDAO.save(user);
     }
 
@@ -64,7 +74,14 @@ public class UsuarioServiceImpl implements UsuarioService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
-        // Si hay imagen, procesarla antes de guardar
+        // SINCRONIZAR ROLES
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            user.setRoles(user.getRoles().stream()
+                    .map(rol -> rolDAO.findById(rol.getId())
+                            .orElseThrow(() -> new RuntimeException("Rol no encontrado")))
+                    .collect(Collectors.toSet()));
+        }
+
         if (imageFile != null && !imageFile.isEmpty()) {
             handleUserImage(user, imageFile, null);
         }

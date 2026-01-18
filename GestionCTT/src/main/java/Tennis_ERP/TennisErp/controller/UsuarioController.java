@@ -108,11 +108,12 @@ public class UsuarioController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("roles", rolService.getAllRoles());
-            // Al devolver el string, Spring mantiene el objeto 'usuario' en el Model
             return "usuarios/gestion_usuario/usuarios_crear";
         }
 
         try {
+            // IMPORTANTE: Si el objeto 'usuario' ya trae los roles del formulario,
+            // a veces Hibernate necesita que los roles estén "atachados" a la sesión.
             if (imagen != null && !imagen.isEmpty()) {
                 usuarioService.saveUsuarioWithImage(usuario, imagen);
             } else {
@@ -120,7 +121,7 @@ public class UsuarioController {
             }
             return "redirect:/usuarios";
         } catch (Exception e) {
-            model.addAttribute("errorDni", "ERROR: DNI o Usuario duplicado.");
+            model.addAttribute("errorDni", "Error: " + e.getMessage());
             model.addAttribute("roles", rolService.getAllRoles());
             return "usuarios/gestion_usuario/usuarios_crear";
         }
