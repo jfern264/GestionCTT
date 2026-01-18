@@ -3,6 +3,10 @@ package Tennis_ERP.TennisErp.controller;
 import Tennis_ERP.TennisErp.domain.Usuario;
 import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
+
+import java.security.Principal;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,7 +58,7 @@ public class UsuarioController {
 
     @GetMapping("/jugadores/nuevo")
     public String formularioNuevoJugador(Model model) {
-        model.addAttribute("usuario", new Usuario()); // Unificado a "usuario" para el th:object
+        model.addAttribute("jugador", new Usuario()); // Unificado a "usuario" para el th:object
         model.addAttribute("roles", rolService.getAllRoles());
         return "usuarios/gestion_jugadores/jugadores_crear";
     }
@@ -145,4 +149,51 @@ public class UsuarioController {
         model.addAttribute("errorDni", "IDENTIDAD DUPLICADA: Verifique DNI, Email o Usuario.");
         model.addAttribute("rolesDisponibles", rolService.getAllRoles());
     }
+
+    @GetMapping("/perfil")
+    public String verPerfil(Model model, Principal principal) {
+        // 1. Obtenemos el username del usuario logueado
+        String username = principal.getName();
+
+        // 2. Buscamos los datos completos del socio en la BD
+        // Usamos .orElseThrow() para extraer el Usuario o lanzar un error si no existe
+        Usuario usuario = usuarioService.findByNombreUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
+
+        // 3. Ahora pasamos el objeto Usuario (ya no es un Optional)
+        model.addAttribute("usuario", usuario);
+
+        // 4. IMPORTANTE: He quitado el espacio extra al final de "perfil "
+        return "usuarios/gestion_usuario/perfil";
+    }
+    @PostMapping("/perfil/guardar")
+public String guardarPerfil(@ModelAttribute("usuario") Usuario datosActualizados, 
+                             Principal principal, 
+                             RedirectAttributes redirectAttributes) {
+    
+    // 1. Buscamos el usuario real en la BD usando el Principal por seguridad
+    Usuario usuarioBD = usuarioService.findByNombreUsuario(principal.getName())
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+    // 2. Actualizamos solo los campos permitidos (evitamos que cambien roles o ID)
+    usuarioBD.setNombre(datosActualizados.getNombre());
+    usuarioBD.setPrimerApellido(datosActualizados.getPrimerApellido());
+    usuarioBD.setSegundoApellido(datosActualizados.getSegundoApellido());
+    usuarioBD.setEmail(datosActualizados.getEmail());
+    usuarioBD.setTelefono(datosActualizados.getTelefono());
+
+    // 3. Gestión de la contraseña (solo si el usuario escribió algo)
+    if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().isEmpty()) {
+        // IMPORTANTE: Aquí deberías usar tu passwordEncoder si tienes uno configurado
+        // usuarioBD.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
+        usuarioBD.setPassword(datosActualizados.getPassword()); 
+    }
+
+    // 4. Guardamos los cambios
+    usuarioService.saveUsuario(usuarioBD);
+
+    // 5. Mensaje de éxito y redirección
+    redirectAttributes.addFlashAttribute("mensaje", "Perfil actualizado correctamente");
+    return "redirect:/perfil";
+}
 }

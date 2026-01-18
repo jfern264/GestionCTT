@@ -16,6 +16,11 @@
         .input-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid var(--ctt-acero-luz); border-radius: 12px; font-weight: 700; transition: 0.3s; }
         .input-tech:focus { outline: none; border-color: var(--accent); background: white; }
         .section-tag { font-size: 9px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid var(--ctt-acero-luz); padding-bottom: 5px; margin-bottom: 20px; grid-column: span 2; }
+        .select-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid var(--ctt-acero-luz); border-radius: 12px; font-weight: 700; transition: 0.3s; appearance: none; }
+        .select-tech:focus { outline: none; border-color: var(--accent); background: white; }
+        .file-input-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid var(--ctt-acero-luz); border-radius: 12px; font-weight: 700; transition: 0.3s; }
+        .file-input-tech:focus { outline: none; border-color: var(--accent); background: white; }
+        .avatar-preview { width: 100px; height: 100px; border-radius: 12px; object-fit: cover; border: 2px solid var(--ctt-acero-luz); }
     </style>
 </head>
 <body class="theme-admin">
@@ -24,7 +29,8 @@
 
         <div th:if="${errorDni}" class="p-4 mb-6 bg-red-900 border-l-8 border-red-500 text-red-100 font-bold uppercase text-[11px]" th:text="${errorDni}"></div>
 
-        <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post">
+        <!-- IMPORTANTE: añade enctype="multipart/form-data" para subir archivos -->
+        <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post" enctype="multipart/form-data">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="section-tag">Credenciales de Seguridad</div>
                 <div><label class="label-tech">Username *</label><input type="text" th:field="*{nombreUsuario}" class="input-tech" required></div>
@@ -33,17 +39,60 @@
                 <div class="section-tag">Datos Personales</div>
                 <div><label class="label-tech">Nombre</label><input type="text" th:field="*{nombre}" class="input-tech"></div>
                 <div><label class="label-tech">Primer Apellido</label><input type="text" th:field="*{primerApellido}" class="input-tech"></div>
+                <div><label class="label-tech">Segundo Apellido</label><input type="text" th:field="*{segundoApellido}" class="input-tech"></div>
                 <div><label class="label-tech">DNI / NIE *</label><input type="text" th:field="*{dni}" class="input-tech" required></div>
+                <div><label class="label-tech">DNI Familiar</label><input type="text" th:field="*{dniFamiliar}" class="input-tech"></div>
                 <div><label class="label-tech">Email Oficial *</label><input type="email" th:field="*{email}" class="input-tech" required></div>
                 <div><label class="label-tech">Teléfono *</label><input type="text" th:field="*{telefono}" class="input-tech" required></div>
                 <div><label class="label-tech">Fecha Nacimiento *</label><input type="date" th:field="*{fechaNacimiento}" class="input-tech" required></div>
-
-                <div class="section-tag">Asignación de Roles</div>
-                <div class="col-span-2 p-6 bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-wrap gap-6">
-                    <div th:each="rol : ${roles}" class="flex items-center gap-3">
-                        <input type="checkbox" th:value="${rol.id}" th:field="*{roles}" class="w-5 h-5 rounded text-black">
-                        <label class="text-[10px] font-black uppercase text-slate-500" th:text="${rol.nombreRol}"></label>
+                <div>
+                    <label class="label-tech">Género *</label>
+                    <select th:field="*{genero}" class="select-tech" required>
+                        <option value="">Seleccionar género</option>
+                        <option th:each="genero : ${generos}" 
+                                th:value="${genero}" 
+                                th:text="${genero}">
+                        </option>
+                    </select>
+                </div>
+                <div><label class="label-tech">Matrícula</label><input type="text" th:field="*{matricula}" class="input-tech"></div>
+                <div><label class="label-tech">Forma de Pago</label><input type="text" th:field="*{formaDePago}" class="input-tech"></div>
+                
+                <!-- CAMPO DE AVATAR MEJORADO -->
+                <div class="col-span-2">
+                    <label class="label-tech">Foto de Perfil (Avatar)</label>
+                    <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div class="flex-1">
+                            <input type="file" 
+                                   name="avatarFile" 
+                                   id="avatarFile" 
+                                   accept="image/*" 
+                                   class="file-input-tech"
+                                   onchange="previewImage(this)">
+                            <p class="text-xs text-slate-500 mt-2">Formatos: JPG, PNG, GIF. Máx. 5MB</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <img id="avatarPreview" 
+                                 src="https://via.placeholder.com/100x100/94a3b8/ffffff?text=Sin+imagen" 
+                                 alt="Vista previa" 
+                                 class="avatar-preview">
+                            <p class="text-[9px] text-slate-400 mt-2 font-bold uppercase">Vista previa</p>
+                        </div>
                     </div>
+                    <!-- Campo oculto para mantener compatibilidad con el modelo -->
+                    <input type="hidden" th:field="*{avatar}">
+                </div>
+
+                <div class="section-tag">Asignación de Rol</div>
+                <div>
+                    <label class="label-tech">Rol del Usuario *</label>
+                    <select th:field="*{roles}" class="select-tech" required>
+                        <option value="">Seleccionar un rol</option>
+                        <option th:each="rol : ${roles}" 
+                                th:value="${rol.id}" 
+                                th:text="${rol.nombreRol}">
+                        </option>
+                    </select>
                 </div>
             </div>
 
@@ -53,5 +102,23 @@
             </div>
         </form>
     </main>
+
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('avatarPreview');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = "https://via.placeholder.com/100x100/94a3b8/ffffff?text=Sin+imagen";
+            }
+        }
+    </script>
 </body>
 </html>

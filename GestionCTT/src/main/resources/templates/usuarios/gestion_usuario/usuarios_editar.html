@@ -17,6 +17,8 @@
         .input-tech:focus { outline: none; border-color: var(--accent); background: white; }
         .section-tag { font-size: 9px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid var(--ctt-acero-luz); padding-bottom: 5px; margin-bottom: 20px; grid-column: span 2; }
         .error-box { background: #450a0a; border-left: 6px solid #ef4444; color: #fee2e2; padding: 15px; border-radius: 15px; margin-bottom: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .select-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: 700; transition: 0.3s; appearance: none; }
+        .select-tech:focus { outline: none; border-color: var(--accent); background: white; }
         
         /* LINK TÉCNICO ESTÁTICO */
         .nav-link-tech {
@@ -84,11 +86,16 @@
                     </div>
 
                     <div class="section-tag">Nivel de Privilegios</div>
-                    <div class="col-span-2 p-6 bg-slate-50 rounded-2xl border-2 border-slate-100 flex flex-wrap gap-6">
-                        <div th:each="rol : ${rolesDisponibles}" class="flex items-center gap-3">
-                            <input type="checkbox" th:value="${rol.id}" th:field="*{roles}" class="w-5 h-5 rounded border-2 border-slate-300 text-black focus:ring-0">
-                            <label class="text-[10px] font-black uppercase text-slate-500" th:text="${rol.nombreRol.replace('ROLE_', '')}"></label>
-                        </div>
+                    <div>
+                        <label class="label-tech">Rol del Usuario *</label>
+                        <select name="rolId" class="select-tech" required>
+                            <option value="">Seleccionar un rol</option>
+                            <option th:each="rol : ${rolesDisponibles}" 
+                                    th:value="${rol.id}" 
+                                    th:selected="${usuario.roles != null and !usuario.roles.isEmpty() and usuario.roles.iterator().next().id == rol.id}"
+                                    th:text="${rol.nombreRol.replace('ROLE_', '')}">
+                            </option>
+                        </select>
                     </div>
                 </div>
 
