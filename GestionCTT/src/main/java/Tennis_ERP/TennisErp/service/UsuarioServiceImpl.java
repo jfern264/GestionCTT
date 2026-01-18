@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import Tennis_ERP.TennisErp.dao.CategoriaDAO;
 import Tennis_ERP.TennisErp.dao.RolDAO;
@@ -14,6 +15,9 @@ import Tennis_ERP.TennisErp.domain.Rol;
 import Tennis_ERP.TennisErp.domain.Usuario;
 import Tennis_ERP.TennisErp.domain.UsuarioCategoria;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +54,21 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        return usuarioDAO.save(user);
+    }
+
+    @Override
+    @Transactional
+    public Usuario saveUsuarioWithImage(Usuario user, MultipartFile imageFile) {
+        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        // Si hay imagen, procesarla antes de guardar
+        if (imageFile != null && !imageFile.isEmpty()) {
+            handleUserImage(user, imageFile, null);
+        }
+
         return usuarioDAO.save(user);
     }
 
@@ -95,6 +114,18 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .collect(Collectors.toList());
 
         usuarioCategoriaDAO.deleteAll(inscripciones);
+
+        // Eliminar también la imagen del avatar si existe
+        if (usuario.getAvatar() != null && !usuario.getAvatar().isEmpty()) {
+            String uploadDir = System.getProperty("user.dir") + "/uploads/";
+            try {
+                Files.deleteIfExists(Paths.get(uploadDir + usuario.getAvatar()));
+            } catch (IOException e) {
+                // Log de error pero no detenemos la operación
+                System.err.println("Error al eliminar imagen del avatar: " + e.getMessage());
+            }
+        }
+
         usuarioDAO.deleteById(id);
     }
 
@@ -120,7 +151,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public List<Usuario> getJugadoresDisponibles(Long categoriaId) {
-        // 1. Obtener el rol “Jugador”
+        // 1. Obtener el rol "Jugador"
         Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR")
                 .orElseThrow(() -> new IllegalStateException("No existe el rol 'ROLE_JUGADOR' en la base de datos"));
 
@@ -167,9 +198,97 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         // Lógica de contraseña: Solo si se escribe una nueva
         if (form.getPassword() != null && !form.getPassword().trim().isEmpty()) {
-            db.setPassword(form.getPassword());
+            db.setPassword(passwordEncoder.encode(form.getPassword()));
         }
 
         usuarioDAO.save(db);
+    }
+
+    @Override
+    @Transactional
+    public void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile) {
+        Usuario db = usuarioDAO.findById(id).orElseThrow(() -> new RuntimeException("No existe"));
+
+        if ("admin".equals(db.getNombreUsuario())) {
+            boolean tieneAdmin = form.getRoles().stream()
+                    .anyMatch(r -> r.getNombreRol().equals("ROLE_ADMIN"));
+
+            if (!tieneAdmin) {
+                throw new RuntimeException(
+                        "PROTECCIÓN DE CUENTA: No puedes quitar el rol ROLE_ADMIN al usuario principal.");
+            }
+        }
+        // Sincronización de todos los campos necesarios
+        db.setNombreUsuario(form.getNombreUsuario());
+        db.setNombre(form.getNombre());
+        db.setPrimerApellido(form.getPrimerApellido());
+        db.setSegundoApellido(form.getSegundoApellido());
+        db.setDni(form.getDni());
+        db.setEmail(form.getEmail());
+        db.setTelefono(form.getTelefono());
+        db.setRoles(form.getRoles());
+
+        // Lógica de contraseña: Solo si se escribe una nueva
+        if (form.getPassword() != null && !form.getPassword().trim().isEmpty()) {
+            db.setPassword(passwordEncoder.encode(form.getPassword()));
+        }
+
+        // Procesar imagen si se proporciona
+        handleUserImage(db, imageFile, db);
+
+        usuarioDAO.save(db);
+    }
+
+    private void handleUserImage(Usuario user, MultipartFile imageFile, Usuario existingUser) {
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/images/";
+
+                // Crear carpeta si no existe
+                java.io.File dir = new java.io.File(uploadDir);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+
+                // Eliminar imagen anterior si existe
+                if (existingUser != null && existingUser.getAvatar() != null && !existingUser.getAvatar().isEmpty()) {
+                    Files.deleteIfExists(Paths.get(uploadDir + existingUser.getAvatar()));
+                }
+
+                String fileName = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
+                Files.write(Paths.get(uploadDir + fileName), imageFile.getBytes());
+                user.setAvatar(fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
+            }
+        } else if (existingUser != null) {
+            // Mantener la imagen existente si no se sube una nueva
+            user.setAvatar(existingUser.getAvatar());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updatePerfil(String username, Usuario datosActualizados, MultipartFile imagen) {
+        Usuario usuarioBD = usuarioDAO.findByNombreUsuario(username);
+        if (usuarioBD == null) {
+            throw new RuntimeException("Usuario no encontrado: " + username);
+        }
+
+        // Actualizar campos básicos
+        usuarioBD.setNombre(datosActualizados.getNombre());
+        usuarioBD.setPrimerApellido(datosActualizados.getPrimerApellido());
+        usuarioBD.setEmail(datosActualizados.getEmail());
+        usuarioBD.setTelefono(datosActualizados.getTelefono());
+
+        // Actualizar contraseña si se proporciona
+        if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().trim().isEmpty()) {
+            usuarioBD.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
+        }
+
+        // Procesar imagen si se proporciona
+        handleUserImage(usuarioBD, imagen, usuarioBD);
+
+        usuarioDAO.save(usuarioBD);
     }
 }

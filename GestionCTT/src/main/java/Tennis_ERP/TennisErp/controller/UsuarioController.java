@@ -1,9 +1,16 @@
 package Tennis_ERP.TennisErp.controller;
 
 import Tennis_ERP.TennisErp.domain.Usuario;
+import Tennis_ERP.TennisErp.service.FileUploadService;
 import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.Optional;
 
@@ -11,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -21,6 +29,9 @@ public class UsuarioController {
 
     @Autowired
     private RolService rolService;
+
+    @Autowired
+    private FileUploadService fileUploadService;
 
     private Object flash;
 
@@ -51,13 +62,17 @@ public class UsuarioController {
     // ==========================================
     @GetMapping("/jugadores/nuevo")
     public String formularioNuevoJugador(Model model) {
-
         model.addAttribute("jugador", new Usuario());
         model.addAttribute("roles", rolService.getAllRoles());
-
         return "usuarios/gestion_jugadores/jugadores_crear";
     }
-
+    
+    @GetMapping("/usuarios/nuevo")
+    public String formularioNuevoUsuario(Model model) {
+        model.addAttribute("usuario", new Usuario());
+        model.addAttribute("roles", rolService.getAllRoles());
+        return "usuarios/gestion_usuario/usuarios_crear";
+    }
 
     // ==========================================
     // 3. FORMULARIOS DE EDICIÓN
@@ -82,11 +97,17 @@ public class UsuarioController {
     // ==========================================
     // 4. ACCIONES DE PERSISTENCIA
     // ==========================================
-
+    
     @PostMapping("/usuarios/guardar")
-    public String guardarUsuario(@ModelAttribute("usuario") Usuario usuario, Model model) {
+    public String guardarUsuario(@ModelAttribute("usuario") Usuario usuario, 
+                                @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+                                Model model) {
         try {
-            usuarioService.saveUsuario(usuario);
+            if (imagen != null && !imagen.isEmpty()) {
+                usuarioService.saveUsuarioWithImage(usuario, imagen);
+            } else {
+                usuarioService.saveUsuario(usuario);
+            }
             return "redirect:/usuarios";
         } catch (Exception e) {
             model.addAttribute("errorDni", "ERROR: DNI o Usuario duplicado.");
@@ -94,11 +115,36 @@ public class UsuarioController {
             return "usuarios/gestion_usuario/usuarios_crear";
         }
     }
+    
+    @PostMapping("/jugadores/guardar")
+    public String guardarJugador(@ModelAttribute("jugador") Usuario usuario,
+                                @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+                                Model model) {
+        try {
+            if (imagen != null && !imagen.isEmpty()) {
+                usuarioService.saveUsuarioWithImage(usuario, imagen);
+            } else {
+                usuarioService.saveUsuario(usuario);
+            }
+            return "redirect:/jugadores";
+        } catch (Exception e) {
+            model.addAttribute("errorDni", "ERROR: DNI o Usuario duplicado.");
+            model.addAttribute("roles", rolService.getAllRoles());
+            return "usuarios/gestion_jugadores/jugadores_crear";
+        }
+    }
 
     @PostMapping("/usuarios/actualizar/{id}")
-    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute("usuario") Usuario form, Model model) {
+    public String actualizarUsuario(@PathVariable Long id, 
+                                   @ModelAttribute("usuario") Usuario form,
+                                   @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+                                   Model model) {
         try {
-            usuarioService.updateUsuario(id, form);
+            if (imagen != null && !imagen.isEmpty()) {
+                usuarioService.updateUsuarioWithImage(id, form, imagen);
+            } else {
+                usuarioService.updateUsuario(id, form);
+            }
             return "redirect:/usuarios";
         } catch (Exception e) {
             prepararModeloError(model);
@@ -107,9 +153,16 @@ public class UsuarioController {
     }
 
     @PostMapping("/jugadores/actualizar/{id}")
-    public String actualizarJugador(@PathVariable Long id, @ModelAttribute("usuario") Usuario form, Model model) {
+    public String actualizarJugador(@PathVariable Long id, 
+                                   @ModelAttribute("usuario") Usuario form,
+                                   @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+                                   Model model) {
         try {
-            usuarioService.updateUsuario(id, form);
+            if (imagen != null && !imagen.isEmpty()) {
+                usuarioService.updateUsuarioWithImage(id, form, imagen);
+            } else {
+                usuarioService.updateUsuario(id, form);
+            }
             return "redirect:/jugadores";
         } catch (Exception e) {
             prepararModeloError(model);
@@ -162,34 +215,20 @@ public class UsuarioController {
         // 4. IMPORTANTE: He quitado el espacio extra al final de "perfil "
         return "usuarios/gestion_usuario/perfil";
     }
+
     @PostMapping("/perfil/guardar")
-public String guardarPerfil(@ModelAttribute("usuario") Usuario datosActualizados, 
-                             Principal principal, 
-                             RedirectAttributes redirectAttributes) {
-    
-    // 1. Buscamos el usuario real en la BD usando el Principal por seguridad
-    Usuario usuarioBD = usuarioService.findByNombreUsuario(principal.getName())
-                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public String guardarPerfil(@ModelAttribute("usuario") Usuario datosActualizados,
+            @RequestParam(value = "archivoImagen", required = false) MultipartFile imagen,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
 
-    // 2. Actualizamos solo los campos permitidos (evitamos que cambien roles o ID)
-    usuarioBD.setNombre(datosActualizados.getNombre());
-    usuarioBD.setPrimerApellido(datosActualizados.getPrimerApellido());
-    usuarioBD.setSegundoApellido(datosActualizados.getSegundoApellido());
-    usuarioBD.setEmail(datosActualizados.getEmail());
-    usuarioBD.setTelefono(datosActualizados.getTelefono());
-
-    // 3. Gestión de la contraseña (solo si el usuario escribió algo)
-    if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().isEmpty()) {
-        // IMPORTANTE: Aquí deberías usar tu passwordEncoder si tienes uno configurado
-        // usuarioBD.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
-        usuarioBD.setPassword(datosActualizados.getPassword()); 
+        try {
+            usuarioService.updatePerfil(principal.getName(), datosActualizados, imagen);
+            redirectAttributes.addFlashAttribute("mensaje", "Perfil actualizado con éxito");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al actualizar el perfil: " + e.getMessage());
+        }
+        
+        return "redirect:/perfil";
     }
-
-    // 4. Guardamos los cambios
-    usuarioService.saveUsuario(usuarioBD);
-
-    // 5. Mensaje de éxito y redirección
-    redirectAttributes.addFlashAttribute("mensaje", "Perfil actualizado correctamente");
-    return "redirect:/perfil";
-}
 }
