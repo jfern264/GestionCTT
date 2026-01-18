@@ -1,124 +1,351 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nuevo Usuario - CTT Steel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .theme-admin { --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%); --accent: #94a3b8; }
-        :root { --ctt-carbono: #1a1a1a; --ctt-gris-borde: #475569; --ctt-acero-luz: #e2e8f0; }
+      .theme-admin {
+        --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%);
+        --accent: #94a3b8;
+      }
+      :root {
+        --ctt-carbono: #1a1a1a;
+        --ctt-gris-borde: #475569;
+        --ctt-acero-luz: #e2e8f0;
+      }
 
-        body { font-family: 'Montserrat', sans-serif; background: var(--bg-page); min-height: 100vh; margin: 0; }
-        .form-container { max-width: 900px; margin: 50px auto; background: white; border-radius: 40px; padding: 60px; border: 6px solid var(--ctt-gris-borde); box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
-        .label-tech { display: block; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--ctt-gris-borde); margin-bottom: 8px; }
-        .input-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid var(--ctt-acero-luz); border-radius: 12px; font-weight: 700; transition: 0.3s; }
-        .input-tech:focus { outline: none; border-color: var(--accent); background: white; }
-        .section-tag { font-size: 9px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid var(--ctt-acero-luz); padding-bottom: 5px; margin-bottom: 20px; grid-column: span 2; }
-        .select-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid var(--ctt-acero-luz); border-radius: 12px; font-weight: 700; transition: 0.3s; appearance: none; }
-        .select-tech:focus { outline: none; border-color: var(--accent); background: white; }
-        .file-input-tech { width: 100%; padding: 12px 20px; background: #f8fafc; border: 2px solid var(--ctt-acero-luz); border-radius: 12px; font-weight: 700; transition: 0.3s; }
-        .file-input-tech:focus { outline: none; border-color: var(--accent); background: white; }
-        .avatar-preview { width: 100px; height: 100px; border-radius: 12px; object-fit: cover; border: 2px solid var(--ctt-acero-luz); }
+      body {
+        font-family: "Montserrat", sans-serif;
+        background: var(--bg-page);
+        min-height: 100vh;
+        margin: 0;
+      }
+      .form-container {
+        max-width: 900px;
+        margin: 50px auto;
+        background: white;
+        border-radius: 40px;
+        padding: 60px;
+        border: 6px solid var(--ctt-gris-borde);
+        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+      }
+      .label-tech {
+        display: block;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--ctt-gris-borde);
+        margin-bottom: 8px;
+      }
+      .input-tech {
+        width: 100%;
+        padding: 12px 20px;
+        background: #f8fafc;
+        border: 2px solid var(--ctt-acero-luz);
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.3s;
+      }
+      .input-tech:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: white;
+      }
+      .input-error {
+        border-color: #ef4444 !important;
+        background: #fef2f2;
+      }
+      .section-tag {
+        font-size: 9px;
+        font-weight: 900;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        border-bottom: 2px solid var(--ctt-acero-luz);
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+        grid-column: span 2;
+      }
+      .select-tech {
+        width: 100%;
+        padding: 12px 20px;
+        background: #f8fafc;
+        border: 2px solid var(--ctt-acero-luz);
+        border-radius: 12px;
+        font-weight: 700;
+        transition: 0.3s;
+        appearance: none;
+      }
+      .error-msg {
+        color: #ef4444;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-top: 4px;
+        letter-spacing: 1px;
+      }
+      .avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 2px solid var(--ctt-acero-luz);
+      }
     </style>
-</head>
-<body class="theme-admin">
+  </head>
+  <body class="theme-admin">
     <main class="form-container">
-        <h1 class="text-3xl font-black uppercase tracking-tighter text-black mb-10 text-center">Alta de Nuevo Maestro</h1>
+      <h1
+        class="text-3xl font-black uppercase tracking-tighter text-black mb-10 text-center"
+      >
+        Alta de Nuevo Maestro
+      </h1>
 
-        <div th:if="${errorDni}" class="p-4 mb-6 bg-red-900 border-l-8 border-red-500 text-red-100 font-bold uppercase text-[11px]" th:text="${errorDni}"></div>
+      <div
+        th:if="${errorDni}"
+        class="p-4 mb-6 bg-red-900 border-l-8 border-red-500 text-red-100 font-bold uppercase text-[11px]"
+        th:text="${errorDni}"
+      ></div>
 
-        <!-- IMPORTANTE: añade enctype="multipart/form-data" para subir archivos -->
-        <form th:action="@{/usuarios/guardar}" th:object="${usuario}" method="post" enctype="multipart/form-data">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="section-tag">Credenciales de Seguridad</div>
-                <div><label class="label-tech">Username *</label><input type="text" th:field="*{nombreUsuario}" class="input-tech" required></div>
-                <div><label class="label-tech">Password Provisional *</label><input type="password" th:field="*{password}" class="input-tech" required></div>
+      <form
+        th:action="@{/usuarios/guardar}"
+        th:object="${usuario}"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="section-tag">Credenciales de Seguridad</div>
 
-                <div class="section-tag">Datos Personales</div>
-                <div><label class="label-tech">Nombre</label><input type="text" th:field="*{nombre}" class="input-tech"></div>
-                <div><label class="label-tech">Primer Apellido</label><input type="text" th:field="*{primerApellido}" class="input-tech"></div>
-                <div><label class="label-tech">Segundo Apellido</label><input type="text" th:field="*{segundoApellido}" class="input-tech"></div>
-                <div><label class="label-tech">DNI / NIE *</label><input type="text" th:field="*{dni}" class="input-tech" required></div>
-                <div><label class="label-tech">DNI Familiar</label><input type="text" th:field="*{dniFamiliar}" class="input-tech"></div>
-                <div><label class="label-tech">Email Oficial *</label><input type="email" th:field="*{email}" class="input-tech" required></div>
-                <div><label class="label-tech">Teléfono *</label><input type="text" th:field="*{telefono}" class="input-tech" required></div>
-                <div><label class="label-tech">Fecha Nacimiento *</label><input type="date" th:field="*{fechaNacimiento}" class="input-tech" required></div>
-                <div>
-                    <label class="label-tech">Género *</label>
-                    <select th:field="*{genero}" class="select-tech" required>
-                        <option value="">Seleccionar género</option>
-                        <option th:each="genero : ${generos}" 
-                                th:value="${genero}" 
-                                th:text="${genero}">
-                        </option>
-                    </select>
-                </div>
-                <div><label class="label-tech">Matrícula</label><input type="text" th:field="*{matricula}" class="input-tech"></div>
-                <div><label class="label-tech">Forma de Pago</label><input type="text" th:field="*{formaDePago}" class="input-tech"></div>
-                
-                <!-- CAMPO DE AVATAR MEJORADO -->
-                <div class="col-span-2">
-                    <label class="label-tech">Foto de Perfil (Avatar)</label>
-                    <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                        <div class="flex-1">
-                            <input type="file" 
-                                   name="avatarFile" 
-                                   id="avatarFile" 
-                                   accept="image/*" 
-                                   class="file-input-tech"
-                                   onchange="previewImage(this)">
-                            <p class="text-xs text-slate-500 mt-2">Formatos: JPG, PNG, GIF. Máx. 5MB</p>
-                        </div>
-                        <div class="flex flex-col items-center">
-                            <img id="avatarPreview" 
-                                 src="https://via.placeholder.com/100x100/94a3b8/ffffff?text=Sin+imagen" 
-                                 alt="Vista previa" 
-                                 class="avatar-preview">
-                            <p class="text-[9px] text-slate-400 mt-2 font-bold uppercase">Vista previa</p>
-                        </div>
-                    </div>
-                    <!-- Campo oculto para mantener compatibilidad con el modelo -->
-                    <input type="hidden" th:field="*{avatar}">
-                </div>
+          <div>
+            <label class="label-tech">Username *</label>
+            <input
+              type="text"
+              th:field="*{nombreUsuario}"
+              class="input-tech"
+              required
+            />
+            <p
+              th:if="${#fields.hasErrors('nombreUsuario')}"
+              th:errors="*{nombreUsuario}"
+              class="error-msg"
+            ></p>
+          </div>
 
-                <div class="section-tag">Asignación de Rol</div>
-                <div>
-                    <label class="label-tech">Rol del Usuario *</label>
-                    <select th:field="*{roles}" class="select-tech" required>
-                        <option value="">Seleccionar un rol</option>
-                        <option th:each="rol : ${roles}" 
-                                th:value="${rol.id}" 
-                                th:text="${rol.nombreRol}">
-                        </option>
-                    </select>
-                </div>
+          <div>
+            <label class="label-tech">Password Provisional *</label>
+            <input
+              type="password"
+              th:field="*{password}"
+              th:value="*{password}"
+              class="input-tech"
+              required
+            />
+            <p
+              th:if="${#fields.hasErrors('password')}"
+              th:errors="*{password}"
+              class="error-msg"
+            ></p>
+          </div>
+
+          <div class="section-tag">Datos Personales</div>
+
+          <div>
+            <label class="label-tech">Nombre</label>
+            <input type="text" th:field="*{nombre}" class="input-tech" />
+          </div>
+
+          <div>
+            <label class="label-tech">Primer Apellido</label>
+            <input
+              type="text"
+              th:field="*{primerApellido}"
+              class="input-tech"
+            />
+          </div>
+
+          <div>
+            <label class="label-tech">Segundo Apellido</label>
+            <input
+              type="text"
+              th:field="*{segundoApellido}"
+              class="input-tech"
+            />
+          </div>
+
+          <div>
+            <label class="label-tech">DNI / NIE *</label>
+            <input
+              type="text"
+              th:field="*{dni}"
+              class="input-tech"
+              th:classappend="${#fields.hasErrors('dni')} ? 'input-error'"
+              required
+            />
+            <p
+              class="error-msg"
+              th:if="${#fields.hasErrors('dni')}"
+              th:errors="*{dni}"
+            ></p>
+          </div>
+
+          <div>
+            <label class="label-tech">Email Oficial *</label>
+            <input
+              type="email"
+              th:field="*{email}"
+              class="input-tech"
+              th:classappend="${#fields.hasErrors('email')} ? 'input-error'"
+              required
+            />
+            <p
+              class="error-msg"
+              th:if="${#fields.hasErrors('email')}"
+              th:errors="*{email}"
+            ></p>
+          </div>
+
+          <div>
+            <label class="label-tech">Teléfono *</label>
+            <input
+              type="text"
+              th:field="*{telefono}"
+              class="input-tech"
+              placeholder="9 dígitos"
+            />
+            <p
+              class="error-msg"
+              th:if="${#fields.hasErrors('telefono')}"
+              th:errors="*{telefono}"
+            ></p>
+          </div>
+
+          <div>
+            <label class="label-tech">Fecha Nacimiento *</label>
+            <input
+              type="date"
+              th:field="*{fechaNacimiento}"
+              class="input-tech"
+              required
+            />
+            <p
+              th:if="${#fields.hasErrors('fechaNacimiento')}"
+              th:errors="*{fechaNacimiento}"
+              class="error-msg"
+            ></p>
+          </div>
+
+          <div>
+            <label class="label-tech">Género *</label>
+            <select th:field="*{genero}" class="select-tech" required>
+              <option value="">Seleccionar género</option>
+              <option
+                th:each="g : ${T(Tennis_ERP.TennisErp.resources.Genero).values()}"
+                th:value="${g}"
+                th:text="${g}"
+              ></option>
+            </select>
+            <p
+              th:if="${#fields.hasErrors('genero')}"
+              th:errors="*{genero}"
+              class="error-msg"
+            ></p>
+          </div>
+
+          <div>
+            <label class="label-tech">Forma de Pago</label>
+            <select th:field="*{formaDePago}" class="select-tech">
+              <option value="">Seleccionar método</option>
+              <option value="Efectivo">Efectivo</option>
+              <option value="Transferencia">Transferencia</option>
+              <option value="Bizum">Bizum</option>
+            </select>
+          </div>
+
+          <div class="section-tag">Imagen y Rol</div>
+
+          <div class="col-span-2">
+            <label class="label-tech">Foto de Perfil (Avatar)</label>
+            <div
+              class="flex flex-col md:flex-row gap-6 items-start md:items-center"
+            >
+              <div class="flex-1">
+                <input
+                  type="file"
+                  name="imagen"
+                  id="avatarFile"
+                  accept="image/*"
+                  class="file-input-tech"
+                  onchange="previewImage(this)"
+                />
+                <p
+                  class="text-[10px] text-slate-500 mt-2 font-semibold uppercase tracking-wider"
+                >
+                  Formatos soportados: JPG, PNG o GIF. Máximo 5MB.
+                </p>
+              </div>
+              <div class="flex flex-col items-center">
+                <img
+                  id="avatarPreview"
+                  src="https://via.placeholder.com/100x100/94a3b8/ffffff?text=IMG"
+                  class="avatar-preview shadow-md"
+                />
+                <p class="text-[8px] font-bold text-slate-400 mt-2 uppercase">
+                  Previsualización
+                </p>
+              </div>
             </div>
+          </div>
 
-            <div class="mt-12 flex justify-between">
-                <a href="/usuarios" class="py-3 px-8 font-900 uppercase text-xs text-slate-400">Descartar</a>
-                <button type="submit" class="py-4 px-10 bg-black text-white rounded-2xl font-900 uppercase border-2 border-slate-400 hover:bg-slate-800 transition-all">Finalizar Registro</button>
-            </div>
-        </form>
+          <div>
+            <label class="label-tech">Rol del Usuario *</label>
+            <select th:field="*{roles}" class="select-tech" required>
+              <option value="">Seleccionar un rol</option>
+              <option
+                th:each="rol : ${roles}"
+                th:value="${rol.id}"
+                th:text="${rol.nombreRol}"
+              ></option>
+            </select>
+            <p
+              class="error-msg"
+              th:if="${#fields.hasErrors('roles')}"
+              th:errors="*{roles}"
+            ></p>
+          </div>
+        </div>
+
+        <div class="mt-12 flex justify-between items-center">
+          <a
+            href="/usuarios"
+            class="font-900 uppercase text-xs text-slate-400 hover:text-black transition-colors"
+            >Descartar</a
+          >
+          <button
+            type="submit"
+            class="py-4 px-10 bg-black text-white rounded-2xl font-900 uppercase border-2 border-slate-400 hover:bg-slate-800 transition-all shadow-lg"
+          >
+            Finalizar Registro
+          </button>
+        </div>
+      </form>
     </main>
 
     <script>
-        function previewImage(input) {
-            const preview = document.getElementById('avatarPreview');
-            
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                }
-                
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                preview.src = "https://via.placeholder.com/100x100/94a3b8/ffffff?text=Sin+imagen";
-            }
+      function previewImage(input) {
+        const preview = document.getElementById("avatarPreview");
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = (e) => (preview.src = e.target.result);
+          reader.readAsDataURL(input.files[0]);
         }
+      }
     </script>
-</body>
+  </body>
 </html>

@@ -4,6 +4,7 @@ import Tennis_ERP.TennisErp.domain.Usuario;
 import Tennis_ERP.TennisErp.service.FileUploadService;
 import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
+import jakarta.validation.Valid;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -66,7 +68,7 @@ public class UsuarioController {
         model.addAttribute("roles", rolService.getAllRoles());
         return "usuarios/gestion_jugadores/jugadores_crear";
     }
-    
+
     @GetMapping("/usuarios/nuevo")
     public String formularioNuevoUsuario(Model model) {
         model.addAttribute("usuario", new Usuario());
@@ -97,11 +99,19 @@ public class UsuarioController {
     // ==========================================
     // 4. ACCIONES DE PERSISTENCIA
     // ==========================================
-    
+
     @PostMapping("/usuarios/guardar")
-    public String guardarUsuario(@ModelAttribute("usuario") Usuario usuario, 
-                                @RequestParam(value = "imagen", required = false) MultipartFile imagen,
-                                Model model) {
+    public String guardarUsuario(@Valid @ModelAttribute("usuario") Usuario usuario,
+            BindingResult bindingResult,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile imagen,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("roles", rolService.getAllRoles());
+            // Al devolver el string, Spring mantiene el objeto 'usuario' en el Model
+            return "usuarios/gestion_usuario/usuarios_crear";
+        }
+
         try {
             if (imagen != null && !imagen.isEmpty()) {
                 usuarioService.saveUsuarioWithImage(usuario, imagen);
@@ -115,11 +125,11 @@ public class UsuarioController {
             return "usuarios/gestion_usuario/usuarios_crear";
         }
     }
-    
+
     @PostMapping("/jugadores/guardar")
     public String guardarJugador(@ModelAttribute("jugador") Usuario usuario,
-                                @RequestParam(value = "imagen", required = false) MultipartFile imagen,
-                                Model model) {
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            Model model) {
         try {
             if (imagen != null && !imagen.isEmpty()) {
                 usuarioService.saveUsuarioWithImage(usuario, imagen);
@@ -135,10 +145,10 @@ public class UsuarioController {
     }
 
     @PostMapping("/usuarios/actualizar/{id}")
-    public String actualizarUsuario(@PathVariable Long id, 
-                                   @ModelAttribute("usuario") Usuario form,
-                                   @RequestParam(value = "imagen", required = false) MultipartFile imagen,
-                                   Model model) {
+    public String actualizarUsuario(@PathVariable Long id,
+            @ModelAttribute("usuario") Usuario form,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            Model model) {
         try {
             if (imagen != null && !imagen.isEmpty()) {
                 usuarioService.updateUsuarioWithImage(id, form, imagen);
@@ -153,10 +163,10 @@ public class UsuarioController {
     }
 
     @PostMapping("/jugadores/actualizar/{id}")
-    public String actualizarJugador(@PathVariable Long id, 
-                                   @ModelAttribute("usuario") Usuario form,
-                                   @RequestParam(value = "imagen", required = false) MultipartFile imagen,
-                                   Model model) {
+    public String actualizarJugador(@PathVariable Long id,
+            @ModelAttribute("usuario") Usuario form,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            Model model) {
         try {
             if (imagen != null && !imagen.isEmpty()) {
                 usuarioService.updateUsuarioWithImage(id, form, imagen);
@@ -228,7 +238,7 @@ public class UsuarioController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al actualizar el perfil: " + e.getMessage());
         }
-        
+
         return "redirect:/perfil";
     }
 }
