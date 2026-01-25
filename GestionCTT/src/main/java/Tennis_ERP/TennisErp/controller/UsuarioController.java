@@ -1,6 +1,8 @@
 package Tennis_ERP.TennisErp.controller;
 
+import Tennis_ERP.TennisErp.dao.PistaDAO;
 import Tennis_ERP.TennisErp.domain.Usuario;
+import Tennis_ERP.TennisErp.dto.PistaOcupacionDTO;
 import Tennis_ERP.TennisErp.service.FileUploadService;
 import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
@@ -13,9 +15,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -241,5 +247,37 @@ public class UsuarioController {
         }
 
         return "redirect:/perfil";
+    }
+
+    @RestController
+    @RequestMapping("/api/dashboard")
+    public class DashboardController {
+
+        @Autowired
+        private PistaDAO pistaRepository;
+
+        @GetMapping("/ocupacion")
+        public List<PistaOcupacionDTO> getOcupacionPorDia(
+                @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+
+            return pistaRepository.findAll().stream().map(pista -> {
+                // Filtramos los eventos de esa pista para el día solicitado
+                List<Integer> horasOcupadas = pista.getEventos().stream()
+                        .filter(e -> e.getDate().equals(fecha))
+                        .map(e -> e.getTime().getHour())
+                        .distinct() // Evita duplicados si hay eventos solapados
+                        .sorted() // Envía las horas ordenadas
+                        .collect(Collectors.toList());
+
+                return new PistaOcupacionDTO(pista.getNombrePista(), horasOcupadas);
+            }).collect(Collectors.toList());
+        }
+
+        // NUEVO ENDPOINT PARA EL CONTADOR DE SOCIOS
+        @GetMapping("/total-socios")
+        public Long getTotalSocios() {
+            // Retorna el conteo total de registros en la tabla de jugadores
+            return usuarioService.getUsuariosPorRol("ROLE_JUGADOR").stream().count();
+        }
     }
 }

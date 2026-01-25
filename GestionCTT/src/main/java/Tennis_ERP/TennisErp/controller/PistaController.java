@@ -27,6 +27,18 @@ public class PistaController {
         return "pistas/gestion_pistas/adminpistas"; 
     }
 
+    @GetMapping("/adminpistas/addpista")
+    public String formularioNuevaPista(Model model) {
+        model.addAttribute("pista", new Pista());
+        return "pistas/gestion_pistas/addPistas";
+    }
+
+    @PostMapping("addPista")
+    public String guardarNuevaPista(@ModelAttribute("pista") Pista pista) {
+        pistaService.crearPista(pista);
+        return "redirect:/adminpistas";
+    }
+
     @GetMapping("/pistas")
     public String verPistas(Model model) {
         model.addAttribute("pistas", pistaService.obtenerTodasPistas());
