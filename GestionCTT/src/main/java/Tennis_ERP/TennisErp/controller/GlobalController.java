@@ -22,16 +22,20 @@ public class GlobalController {
 
     @ModelAttribute
     public void addAttributes(Model model, Principal principal) {
-        String username = principal.getName();
+        // 1. Verificamos SI existe el principal antes de hacer nada
+        if (principal != null) {
+            String username = principal.getName();
 
-        // 2. Buscamos los datos completos del socio en la BD
-        // Usamos .orElseThrow() para extraer el Usuario o lanzar un error si no existe
-        Usuario usuario = usuarioService.findByNombreUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
+            // 2. Buscamos los datos completos del socio en la BD
+            // Es buena práctica manejar el caso de que no exista en la BD sin romper la app
+            Usuario usuario = usuarioService.findByNombreUsuario(username).orElse(null);
 
-        // 3. Ahora pasamos el objeto Usuario (ya no es un Optional)
-        model.addAttribute("usuario", usuario);
-
+            if (usuario != null) {
+                model.addAttribute("usuario", usuario);
+            }
+        }
+        // Si principal es null, el método simplemente no hace nada y la página carga
+        // normal
     }
 
 }
