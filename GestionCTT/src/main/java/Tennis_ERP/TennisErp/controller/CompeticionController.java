@@ -109,7 +109,7 @@ public class CompeticionController {
     @GetMapping("/equipos/{categoriaId}/anadir-jugador")
     public String formularioAnadirJugador(@PathVariable Long categoriaId, Model model) {
         model.addAttribute("categoria", categoriaService.getCategoriaById(categoriaId).orElseThrow());
-        model.addAttribute("jugadoresDisponibles", usuarioService.getUsuariosPorRol("ROLE_JUGADOR"));
+        model.addAttribute("jugadoresDisponibles", usuarioService.getJugadoresConGenero(categoriaId));
         return "competicion/gestion_equipos/equipos_crear";
     }
 

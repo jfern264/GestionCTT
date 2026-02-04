@@ -308,4 +308,39 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuarioDAO.save(usuarioBD);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Usuario> getJugadoresConGenero(Long categoriaId) {
+        // 1. Obtener la categoría
+        Categoria categoria = categoriaDAO.findById(categoriaId)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada: " + categoriaId));
+
+        // 2. Obtener el rol "Jugador"
+        Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR")
+                .orElseThrow(() -> new IllegalStateException("No existe el rol 'ROLE_JUGADOR'"));
+
+        // 3. Obtener todos los usuarios con ese rol
+        List<Usuario> todosJugadores = usuarioDAO.findByRoles(rolJugador);
+
+        // 4. Obtener IDs de usuarios ya asignados
+        List<Long> idsYaAsignados = usuarioCategoriaDAO.findByCategoria_Id(categoriaId)
+                .stream()
+                .map(uc -> uc.getUsuario().getId())
+                .toList();
+
+        // 5. Filtrar con lógica para MIXTO
+        return todosJugadores.stream()
+                .filter(u -> !idsYaAsignados.contains(u.getId()))
+                .filter(u -> {
+                    // Si la categoría es MIXTA, permitimos todos los géneros
+                    if (categoria.getGenero().name().equalsIgnoreCase("MIXTO")) {
+                        return true;
+                    }
+                    // Si no es mixta, el género del jugador debe coincidir exactamente
+                    return u.getGenero() != null &&
+                            u.getGenero().name().equals(categoria.getGenero().name());
+                })
+                .toList();
+    }
 }

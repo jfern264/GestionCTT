@@ -21,4 +21,5 @@ public interface UsuarioService {
     void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile);
     void updatePerfil(String username, Usuario datosActualizados, MultipartFile imagen);
     String encodePassword(String rawPassword);
+    List<Usuario> getJugadoresConGenero(Long categoriaId);
 }
