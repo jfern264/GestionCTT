@@ -9,9 +9,9 @@
 
                         <div class="user-avatar-placeholder">
                             <img id="avatarPreview"
-                                th:src="${usuario.avatar != null && !usuario.avatar.isEmpty()} 
-              ? @{/images/{path}(path=${usuario.avatar})} 
-              : 'https://ui-avatars.com/api/?name=' + ${usuario.nombre} + '+' + ${usuario.primerApellido} + '&background=1a4731&color=fff&size=150'"
+                                th:src="${usuarioActual.avatar != null && !usuarioActual.avatar.isEmpty()} 
+              ? @{/images/{path}(path=${usuarioActual.avatar})} 
+              : 'https://ui-avatars.com/api/?name=' + ${usuarioActual.nombre} + '+' + ${usuarioActual.primerApellido} + '&background=1a4731&color=fff&size=150'"
                                 alt="Avatar"
                                 class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg object-cover">
 
@@ -20,7 +20,7 @@
                     </div>
 
                     <div class="user-info">
-                        <div class="user-name"><span th:text="${usuario.nombre}"></span></div>
+                        <div class="user-name"><span th:text="${usuarioActual.nombre}"></span></div>
                         <div class="user-role">
                             <span class="user-role-badge">Full Access</span>
                         </div>

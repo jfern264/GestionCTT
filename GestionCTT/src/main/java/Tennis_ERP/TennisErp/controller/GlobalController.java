@@ -28,10 +28,10 @@ public class GlobalController {
 
             // 2. Buscamos los datos completos del socio en la BD
             // Es buena práctica manejar el caso de que no exista en la BD sin romper la app
-            Usuario usuario = usuarioService.findByNombreUsuario(username).orElse(null);
+            Usuario usuarioActual = usuarioService.findByNombreUsuario(username).orElse(null);
 
-            if (usuario != null) {
-                model.addAttribute("usuario", usuario);
+            if (usuarioActual != null) {
+                model.addAttribute("usuarioActual", usuarioActual);
             }
         }
         // Si principal es null, el método simplemente no hace nada y la página carga
