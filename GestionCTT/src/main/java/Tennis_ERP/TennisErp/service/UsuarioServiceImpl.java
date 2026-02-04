@@ -23,8 +23,11 @@ import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -191,51 +194,57 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public void updateUsuario(Long id, Usuario form) {
-        Usuario db = usuarioDAO.findById(id).orElseThrow(() -> new RuntimeException("No existe"));
+    public void updateUsuario(Long id, Usuario form, Long rolId) {
+        // 1. Buscamos el usuario real en la DB
+        Usuario db = usuarioDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
 
-        if ("admin".equals(db.getNombreUsuario())) {
-            boolean tieneAdmin = form.getRoles().stream()
-                    .anyMatch(r -> r.getNombreRol().equals("ROLE_ADMIN"));
-
-            if (!tieneAdmin) {
-                throw new RuntimeException(
-                        "PROTECCIÓN DE CUENTA: No puedes quitar el rol ROLE_ADMIN al usuario principal.");
-            }
+        // 2. Protegemos al Admin principal (opcional)
+        if ("admin".equals(db.getNombreUsuario()) && rolId == null) {
+            throw new RuntimeException("El administrador principal debe tener un rol asignado.");
         }
-        // Sincronización de todos los campos necesarios
+
+        // 3. Sincronizamos campos básicos y los nuevos que añadiste
         db.setNombreUsuario(form.getNombreUsuario());
         db.setNombre(form.getNombre());
         db.setPrimerApellido(form.getPrimerApellido());
         db.setSegundoApellido(form.getSegundoApellido());
         db.setDni(form.getDni());
+        db.setDniFamiliar(form.getDniFamiliar());
+        db.setGenero(form.getGenero());
+        db.setFechaNacimiento(form.getFechaNacimiento());
+        db.setMatricula(form.getMatricula());
+        db.setFormaDePago(form.getFormaDePago());
+        db.setAvatar(form.getAvatar());
         db.setEmail(form.getEmail());
         db.setTelefono(form.getTelefono());
-        db.setRoles(form.getRoles());
 
-        // Lógica de contraseña: Solo si se escribe una nueva
+        // 4. ACTUALIZACIÓN DE ROL: Buscamos el Rol por ID y lo asignamos
+        if (rolId != null) {
+            Rol rolSeleccionado = rolDAO.findById(rolId)
+                    .orElseThrow(() -> new RuntimeException("El Rol seleccionado no existe"));
+
+            Set<Rol> nuevosRoles = new HashSet<>();
+            nuevosRoles.add(rolSeleccionado);
+            db.setRoles(nuevosRoles);
+        }
+
+        // 5. Gestión de Password (solo si el usuario escribió algo en el campo)
         if (form.getPassword() != null && !form.getPassword().trim().isEmpty()) {
             db.setPassword(passwordEncoder.encode(form.getPassword()));
         }
 
+        // 6. Guardamos los cambios
         usuarioDAO.save(db);
     }
 
     @Override
     @Transactional
-    public void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile) {
+    public void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile, Long rolId) {
+        // 1. Buscar usuario existente
         Usuario db = usuarioDAO.findById(id).orElseThrow(() -> new RuntimeException("No existe"));
 
-        if ("admin".equals(db.getNombreUsuario())) {
-            boolean tieneAdmin = form.getRoles().stream()
-                    .anyMatch(r -> r.getNombreRol().equals("ROLE_ADMIN"));
-
-            if (!tieneAdmin) {
-                throw new RuntimeException(
-                        "PROTECCIÓN DE CUENTA: No puedes quitar el rol ROLE_ADMIN al usuario principal.");
-            }
-        }
-        // Sincronización de todos los campos necesarios
+        // 2. Sincronización de campos básicos (DNI, Email, Teléfono, etc.)
         db.setNombreUsuario(form.getNombreUsuario());
         db.setNombre(form.getNombre());
         db.setPrimerApellido(form.getPrimerApellido());
@@ -243,15 +252,49 @@ public class UsuarioServiceImpl implements UsuarioService {
         db.setDni(form.getDni());
         db.setEmail(form.getEmail());
         db.setTelefono(form.getTelefono());
-        db.setRoles(form.getRoles());
 
-        // Lógica de contraseña: Solo si se escribe una nueva
+        // CAMPOS ADICIONALES DE TU FORMULARIO
+        db.setDniFamiliar(form.getDniFamiliar());
+        db.setGenero(form.getGenero());
+        db.setFechaNacimiento(form.getFechaNacimiento());
+        db.setMatricula(form.getMatricula());
+        db.setFormaDePago(form.getFormaDePago());
+
+        // 3. Lógica de ROL (Evita que se pierda)
+        if (rolId != null) {
+            Rol rolSeleccionado = rolDAO.findById(rolId)
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+
+            // Verificación de seguridad para ADMIN
+            if ("admin".equals(db.getNombreUsuario()) && !rolSeleccionado.getNombreRol().equals("ROLE_ADMIN")) {
+                throw new RuntimeException("PROTECCIÓN: No puedes quitar el rol ROLE_ADMIN al usuario principal.");
+            }
+
+            Set<Rol> nuevosRoles = new HashSet<>();
+            nuevosRoles.add(rolSeleccionado);
+            db.setRoles(nuevosRoles);
+        }
+
+        // 4. Lógica de contraseña
         if (form.getPassword() != null && !form.getPassword().trim().isEmpty()) {
             db.setPassword(passwordEncoder.encode(form.getPassword()));
         }
 
-        // Procesar imagen si se proporciona
-        handleUserImage(db, imageFile, db);
+        // 5. Procesar imagen
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                // Suponiendo que handleUserImage sube la foto y devuelve la URL o la asigna al
+                // objeto
+                // Si handleUserImage ya hace db.setAvatar(url), déjalo así:
+                handleUserImage(db, imageFile, db);
+            } catch (Exception e) {
+                throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
+            }
+        } else {
+            // Si no sube imagen nueva, mantenemos la que ya tenía (form.getAvatar() o
+            // db.getAvatar())
+            db.setAvatar(form.getAvatar());
+        }
 
         usuarioDAO.save(db);
     }

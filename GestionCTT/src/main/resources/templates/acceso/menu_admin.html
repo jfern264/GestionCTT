@@ -764,8 +764,7 @@
                     </p>
                 </div>
                 <input type="date" id="fechaFiltro"
-                    class="bg-slate-100 border-2 border-slate-200 text-slate-700 font-bold rounded-xl p-3 outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all cursor-pointer"
-                    value="2026-01-25">
+                    class="bg-slate-100 border-2 border-slate-200 text-slate-700 font-bold rounded-xl p-3 outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all cursor-pointer">
             </div>
 
             <div id="pistasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -810,6 +809,24 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Obtener la fecha actual en formato local
+            const hoy = new Date();
+
+            // 2. Ajustar el formato a YYYY-MM-DD (necesario para el input type="date")
+            const year = hoy.getFullYear();
+            const month = String(hoy.getMonth() + 1).padStart(2, '0');
+            const day = String(hoy.getDate()).padStart(2, '0');
+
+            const fechaFormateada = `${year}-${month}-${day}`;
+
+            // 3. Asignar la fecha al input
+            const inputFecha = document.getElementById('fechaFiltro');
+            inputFecha.value = fechaFormateada;
+
+            // 4. Cargar los datos por primera vez
+            cargarDatosDashboard();
+        });
         async function cargarDatosDashboard() {
             const fecha = document.getElementById('fechaFiltro').value;
 

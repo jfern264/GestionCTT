@@ -17,8 +17,8 @@ public interface UsuarioService {
     List<Usuario> getUsuariosPorRol(String nombreRol);
     Optional<Usuario> findByDni(String dni);
     List<Usuario> getJugadoresDisponibles(Long categoriaId);
-    void updateUsuario(Long id, Usuario form);
-    void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile);
+    void updateUsuario(Long id, Usuario form, Long rolId);
+    void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile, Long rolId);
     void updatePerfil(String username, Usuario datosActualizados, MultipartFile imagen);
     String encodePassword(String rawPassword);
     List<Usuario> getJugadoresConGenero(Long categoriaId);

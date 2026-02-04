@@ -154,38 +154,24 @@ public class UsuarioController {
     @PostMapping("/usuarios/actualizar/{id}")
     public String actualizarUsuario(@PathVariable Long id,
             @ModelAttribute("usuario") Usuario form,
+            @RequestParam("rolId") Long rolId, // Capturamos el ID del select
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
             Model model) {
         try {
+            // Pasamos el rolId como un tercer parámetro
             if (imagen != null && !imagen.isEmpty()) {
-                usuarioService.updateUsuarioWithImage(id, form, imagen);
+                usuarioService.updateUsuarioWithImage(id, form, imagen, rolId);
             } else {
-                usuarioService.updateUsuario(id, form);
+                usuarioService.updateUsuario(id, form, rolId);
             }
             return "redirect:/usuarios";
         } catch (Exception e) {
+            // En caso de error, volvemos a cargar los datos necesarios para la vista
             prepararModeloError(model);
             return "usuarios/gestion_usuario/usuarios_editar";
         }
     }
 
-    @PostMapping("/jugadores/actualizar/{id}")
-    public String actualizarJugador(@PathVariable Long id,
-            @ModelAttribute("usuario") Usuario form,
-            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
-            Model model) {
-        try {
-            if (imagen != null && !imagen.isEmpty()) {
-                usuarioService.updateUsuarioWithImage(id, form, imagen);
-            } else {
-                usuarioService.updateUsuario(id, form);
-            }
-            return "redirect:/jugadores";
-        } catch (Exception e) {
-            prepararModeloError(model);
-            return "usuarios/gestion_jugadores/jugadores_editar";
-        }
-    }
 
     @GetMapping("/usuarios/eliminar/{id}")
     public String eliminarUsuario(@PathVariable Long id, RedirectAttributes flash) {

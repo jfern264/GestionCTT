@@ -182,7 +182,7 @@
     <main class="form-container">
     <h1 class="text-3xl font-black uppercase tracking-tighter text-black mb-10 text-center">Editar Perfil Jugador</h1>
 
-    <form th:action="@{'/jugadores/actualizar/' + ${usuario.id}}" th:object="${usuario}" method="post">
+    <form th:action="@{'/usuarios/actualizar/' + ${usuario.id}}" th:object="${usuario}" method="post">
         <input type="hidden" th:field="*{id}" />
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
