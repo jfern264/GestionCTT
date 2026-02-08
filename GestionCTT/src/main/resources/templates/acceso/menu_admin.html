@@ -770,6 +770,37 @@
             <div id="pistasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             </div>
         </div>
+        <div class="w-full max-w-[800px] mx-auto mb-6 mt-6">
+            <div class="p-8 bg-slate-900 rounded-3xl border-4 border-slate-700 shadow-2xl relative overflow-hidden">
+                <div class="z-10 relative">
+                    <p class="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-1">Comunicación Global</p>
+                    <h3 class="text-white font-black uppercase text-2xl tracking-tight mb-6">Enviar Mail a todos los usuarios
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-slate-400 text-[10px] font-bold uppercase ml-2">Asunto</label>
+                            <input type="text" id="asuntoMail" placeholder="Título del correo..."
+                                class="w-full bg-slate-800 border-2 border-slate-600 text-white font-bold rounded-xl p-3 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                        </div>
+
+                        <div>
+                            <label class="text-slate-400 text-[10px] font-bold uppercase ml-2">Mensaje</label>
+                            <textarea id="contenidoMail" rows="4"
+                                class="w-full bg-slate-800 border-2 border-slate-600 text-white font-medium rounded-xl p-4 outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                placeholder="Escribe el comunicado aquí..."></textarea>
+                        </div>
+
+                        <button type="button" onclick="enviarComunicado()" id="btnEnviarMail"
+                            class="w-full bg-white hover:bg-emerald-500 hover:text-white text-slate-900 font-black uppercase tracking-widest py-4 rounded-2xl transition-all shadow-xl active:scale-95">
+                            Enviar a todos los usuarios
+                        </button>
+                    </div>
+                </div>
+                <i class="fas fa-envelope-open-text absolute -right-4 -bottom-4 text-9xl text-white/5 -rotate-12"></i>
+            </div>
+        </div>
+
 
         <a href="/menu_principal" class="btn-back w-full max-w-xs flex justify-center items-center gap-3">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -806,6 +837,7 @@
                 </button>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -904,6 +936,44 @@
         window.onclick = (e) => { if (e.target.id === 'modalEventos') cerrarModal(); }
         document.addEventListener('DOMContentLoaded', cargarDatosDashboard);
         document.getElementById('fechaFiltro').addEventListener('change', cargarDatosDashboard);
+
+
+        async function enviarComunicado() {
+            const subject = document.getElementById('asuntoMail').value;
+            const content = document.getElementById('contenidoMail').value;
+            const btn = document.getElementById('btnEnviarMail');
+
+            if (!subject || !content) {
+                alert("Por favor, rellena todos los campos.");
+                return;
+            }
+
+            try {
+                btn.innerText = "ENVIANDO... ";
+                btn.style.opacity = "0.5";
+                btn.disabled = true;
+
+                const response = await fetch('/api/mail/send-massive', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, content })
+                });
+
+                if (response.ok) {
+                    alert(" ¡Proceso de envío iniciado! Los socios recibirán el mail pronto.");
+                    document.getElementById('asuntoMail').value = "";
+                    document.getElementById('contenidoMail').value = "";
+                } else {
+                    alert(" Error en el servidor al intentar enviar.");
+                }
+            } catch (error) {
+                alert(" Error de conexión.");
+            } finally {
+                btn.innerText = " Enviar a toda la base de datos";
+                btn.style.opacity = "1";
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 
