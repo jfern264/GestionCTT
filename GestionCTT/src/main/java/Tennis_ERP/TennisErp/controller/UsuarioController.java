@@ -8,16 +8,9 @@ import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
 import jakarta.validation.Valid;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +34,6 @@ public class UsuarioController {
     @Autowired
     private FileUploadService fileUploadService;
 
-    private Object flash;
-
     // ==========================================
     // 1. LISTADOS
     // ==========================================
@@ -60,7 +51,6 @@ public class UsuarioController {
 
     @GetMapping("/trabajadores")
     public String listarTrabajadores(Model model) {
-        // Asegúrate de que el rol se llame exactamente así en tu DB
         model.addAttribute("trabajadores", usuarioService.getUsuariosPorRol("ROLE_TRABAJADOR"));
         return "usuarios/gestion_trabajador/trabajadores_lista";
     }
@@ -96,7 +86,6 @@ public class UsuarioController {
     @GetMapping("/jugadores/editar/{id}")
     public String formularioEditarJugador(@PathVariable Long id, Model model) {
         Usuario user = usuarioService.getUsuarioById(id).orElseThrow();
-        // Unificado a "usuario" para que los campos del HTML carguen correctamente
         model.addAttribute("usuario", user);
         model.addAttribute("rolesDisponibles", rolService.getAllRoles());
         return "usuarios/gestion_jugadores/jugadores_editar";
@@ -118,8 +107,6 @@ public class UsuarioController {
         }
 
         try {
-            // IMPORTANTE: Si el objeto 'usuario' ya trae los roles del formulario,
-            // a veces Hibernate necesita que los roles estén "atachados" a la sesión.
             if (imagen != null && !imagen.isEmpty()) {
                 usuarioService.saveUsuarioWithImage(usuario, imagen);
             } else {
@@ -154,32 +141,33 @@ public class UsuarioController {
     @PostMapping("/usuarios/actualizar/{id}")
     public String actualizarUsuario(@PathVariable Long id,
             @ModelAttribute("usuario") Usuario form,
-            @RequestParam("rolId") Long rolId, // Capturamos el ID del select
+            @RequestParam(value = "rolId", required = false) Long rolId, // Capturamos ID por si acaso, pero no lo usamos
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
             Model model) {
         try {
-            // Pasamos el rolId como un tercer parámetro
+            // ✅ CORREGIDO: Ya no pasamos "rolId" al servicio. 
+            // El servicio coge los roles directamente de "form.getRoles()"
             if (imagen != null && !imagen.isEmpty()) {
-                usuarioService.updateUsuarioWithImage(id, form, imagen, rolId);
+                usuarioService.updateUsuarioWithImage(id, form, imagen);
             } else {
-                usuarioService.updateUsuario(id, form, rolId);
+                usuarioService.updateUsuario(id, form);
             }
             return "redirect:/usuarios";
         } catch (Exception e) {
-            // En caso de error, volvemos a cargar los datos necesarios para la vista
-            prepararModeloError(model);
+            model.addAttribute("error", "Error al actualizar: " + e.getMessage());
+            Usuario original = usuarioService.getUsuarioById(id).orElse(new Usuario());
+            model.addAttribute("usuario", original); // Recargamos para que no se rompa la vista
+            model.addAttribute("rolesDisponibles", rolService.getAllRoles());
             return "usuarios/gestion_usuario/usuarios_editar";
         }
     }
-
 
     @GetMapping("/usuarios/eliminar/{id}")
     public String eliminarUsuario(@PathVariable Long id, RedirectAttributes flash) {
         try {
             usuarioService.deleteUsuario(id);
-            flash.addFlashAttribute("success", "Usuario maestro eliminado correctamente.");
+            flash.addFlashAttribute("success", "Usuario eliminado correctamente.");
         } catch (RuntimeException e) {
-            // Aquí capturamos el mensaje de "OPERACIÓN DENEGADA" del servicio
             flash.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/usuarios";
@@ -196,26 +184,12 @@ public class UsuarioController {
         return "redirect:/jugadores";
     }
 
-    // Helper para no repetir código en los catch de actualización
-    private void prepararModeloError(Model model) {
-        model.addAttribute("errorDni", "IDENTIDAD DUPLICADA: Verifique DNI, Email o Usuario.");
-        model.addAttribute("rolesDisponibles", rolService.getAllRoles());
-    }
-
     @GetMapping("/perfil")
     public String verPerfil(Model model, Principal principal) {
-        // 1. Obtenemos el username del usuario logueado
         String username = principal.getName();
-
-        // 2. Buscamos los datos completos del socio en la BD
-        // Usamos .orElseThrow() para extraer el Usuario o lanzar un error si no existe
         Usuario usuario = usuarioService.findByNombreUsuario(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + username));
-
-        // 3. Ahora pasamos el objeto Usuario (ya no es un Optional)
         model.addAttribute("usuario", usuario);
-
-        // 4. IMPORTANTE: He quitado el espacio extra al final de "perfil "
         return "usuarios/gestion_usuario/perfil";
     }
 
@@ -235,6 +209,9 @@ public class UsuarioController {
         return "redirect:/perfil";
     }
 
+    // ==========================================
+    // 5. REST CONTROLLER INTERNO (Dashboard)
+    // ==========================================
     @RestController
     @RequestMapping("/api/dashboard")
     public class DashboardController {
@@ -247,22 +224,19 @@ public class UsuarioController {
                 @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
             return pistaRepository.findAll().stream().map(pista -> {
-                // Filtramos los eventos de esa pista para el día solicitado
                 List<Integer> horasOcupadas = pista.getEventos().stream()
                         .filter(e -> e.getDate().equals(fecha))
                         .map(e -> e.getTime().getHour())
-                        .distinct() // Evita duplicados si hay eventos solapados
-                        .sorted() // Envía las horas ordenadas
+                        .distinct()
+                        .sorted()
                         .collect(Collectors.toList());
 
                 return new PistaOcupacionDTO(pista.getNombrePista(), horasOcupadas);
             }).collect(Collectors.toList());
         }
 
-        // NUEVO ENDPOINT PARA EL CONTADOR DE SOCIOS
         @GetMapping("/total-socios")
         public Long getTotalSocios() {
-            // Retorna el conteo total de registros en la tabla de jugadores
             return usuarioService.getUsuariosPorRol("ROLE_JUGADOR").stream().count();
         }
     }

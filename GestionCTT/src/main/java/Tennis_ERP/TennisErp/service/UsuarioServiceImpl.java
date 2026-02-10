@@ -123,9 +123,11 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // BLOQUEO DE SEGURIDAD: No borrar al superadmin
-        if ("admin".equals(usuario.getNombreUsuario())) {
-            throw new RuntimeException(
-                    "OPERACIÓN DENEGADA: El usuario 'admin' es vital para el sistema y no puede ser eliminado.");
+        boolean esAdmin = usuario.getRoles().stream()
+                .anyMatch(r -> r.getNombreRol().equals("ROLE_ADMIN"));
+
+        if (esAdmin) {
+            throw new RuntimeException("OPERACIÓN DENEGADA: No se puede eliminar/modificar a un Administrador.");
         }
 
         // Si no es admin, procedemos con el borrado de inscripciones y luego el usuario
@@ -171,25 +173,20 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public List<Usuario> getJugadoresDisponibles(Long categoriaId) {
-        // 1. Obtener el rol "Jugador"
-        Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR")
-                .orElseThrow(() -> new IllegalStateException("No existe el rol 'ROLE_JUGADOR' en la base de datos"));
-
-        // 2. Todos los usuarios con ese rol
-        List<Usuario> todosJugadores = usuarioDAO.findByRoles(rolJugador);
-
-        // 3. Filtrar aquellos que ya estén en la categoría
-        List<Long> idsYaAsignados = usuarioCategoriaDAO
-                .findByCategoria_Id(categoriaId)
+        // 1. Obtener IDs de los que YA están en la categoría
+        List<Long> idsYaAsignados = usuarioCategoriaDAO.findByCategoria_Id(categoriaId)
                 .stream()
-                .map(UsuarioCategoria::getUsuario)
-                .map(Usuario::getId)
+                .map(uc -> uc.getUsuario().getId())
                 .toList();
 
-        // 4. Quedarse solo con los que NO están en idsYaAsignados
-        return todosJugadores.stream()
-                .filter(u -> !idsYaAsignados.contains(u.getId()))
-                .toList();
+        // 2. Si la lista está vacía, la consulta fallaría, así que devolvemos todos
+        if (idsYaAsignados.isEmpty()) {
+            Rol rolJugador = rolDAO.findByNombreRol("ROLE_JUGADOR").orElseThrow();
+            return usuarioDAO.findByRoles(rolJugador);
+        }
+
+        // 3. Ejecutamos la consulta optimizada (Rápido y eficiente)
+        return usuarioDAO.findJugadoresDisponibles(idsYaAsignados);
     }
 
     @Override
@@ -226,7 +223,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
             Set<Rol> nuevosRoles = new HashSet<>();
             nuevosRoles.add(rolSeleccionado);
-            db.setRoles(nuevosRoles);
+            if (form.getRoles() != null && !form.getRoles().isEmpty()) {
+                db.setRoles(form.getRoles().stream()
+                        .map(rol -> rolDAO.findById(rol.getId())
+                                .orElseThrow(() -> new RuntimeException("Rol no encontrado")))
+                        .collect(Collectors.toSet()));
+            }
         }
 
         // 5. Gestión de Password (solo si el usuario escribió algo en el campo)
@@ -272,7 +274,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
             Set<Rol> nuevosRoles = new HashSet<>();
             nuevosRoles.add(rolSeleccionado);
-            db.setRoles(nuevosRoles);
+            if (form.getRoles() != null && !form.getRoles().isEmpty()) {
+                db.setRoles(form.getRoles().stream()
+                        .map(rol -> rolDAO.findById(rol.getId())
+                                .orElseThrow(() -> new RuntimeException("Rol no encontrado")))
+                        .collect(Collectors.toSet()));
+            }
         }
 
         // 4. Lógica de contraseña
@@ -302,7 +309,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private void handleUserImage(Usuario user, MultipartFile imageFile, Usuario existingUser) {
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
-                String uploadDir = System.getProperty("user.dir") + "/src/main/resources/static/images/";
+                String uploadDir = System.getProperty("user.dir") + "/uploads/";
 
                 // Crear carpeta si no existe
                 java.io.File dir = new java.io.File(uploadDir);

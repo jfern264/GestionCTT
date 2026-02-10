@@ -17,9 +17,16 @@ public interface UsuarioService {
     List<Usuario> getUsuariosPorRol(String nombreRol);
     Optional<Usuario> findByDni(String dni);
     List<Usuario> getJugadoresDisponibles(Long categoriaId);
-    void updateUsuario(Long id, Usuario form, Long rolId);
-    void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile, Long rolId);
+
+    // ✅ CORREGIDO: Se ha eliminado "Long rolId" para coincidir con tu UsuarioServiceImpl
+    void updateUsuario(Long id, Usuario form);
+    
+    // ✅ CORREGIDO: Se ha eliminado "Long rolId" aquí también
+    void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile);
+
     void updatePerfil(String username, Usuario datosActualizados, MultipartFile imagen);
     String encodePassword(String rawPassword);
-    List<Usuario> getJugadoresConGenero(Long categoriaId);
+
+    // ⚠️ NOTA: Si este método no está en tu UsuarioServiceImpl, bórralo de aquí o dará error también:
+     List<Usuario> getJugadoresConGenero(Long categoriaId);
 }
