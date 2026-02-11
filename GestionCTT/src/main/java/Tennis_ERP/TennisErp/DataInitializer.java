@@ -93,7 +93,7 @@ public class DataInitializer implements CommandLineRunner {
     private void crearAdministrador() {
         Usuario admin = new Usuario();
         admin.setNombreUsuario("admin");
-        admin.setPassword(passwordEncoder.encode("admin123"));
+        admin.setPassword(passwordEncoder.encode("1"));
         admin.setDni("10000000T");
         admin.setEmail("admin@cttplatinum.com");
         admin.setNombre("Administrador");
