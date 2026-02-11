@@ -25,6 +25,25 @@ public class EmailServiceImpl implements EmailService {
      * Envía un correo individual envolviéndolo en una plantilla profesional.
      */
     @Override
+    public void sendMailById(Long userid, String subject, String body) throws MessagingException {
+
+        Usuario user = userRepository.getReferenceById(userid);
+        String to = user.getEmail();
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        
+        // Llamamos a la nueva función que da formato
+        String formattedBody = wrapHtmlContent(body);
+        
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(formattedBody, true); // true indica que es HTML
+        
+        mailSender.send(message);
+    }
+
+
+    @Override
     public void sendSingleEmail(String to, String subject, String body) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

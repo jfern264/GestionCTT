@@ -57,16 +57,168 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        /* Estilos del calendario (Reutilizados) */
-        .calendar-header { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-        .month-year { font-size: 1.5em; font-weight: 800; color: var(--ctt-verde); text-transform: uppercase; }
-        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 0 40px 40px 40px; }
-        .day-header { text-align: center; font-weight: 700; color: var(--ctt-arcilla); text-transform: uppercase; font-size: 0.8em; }
-        .day-cell { min-height: 100px; border: 2px solid var(--ctt-gris-suave); border-radius: 15px; padding: 10px; }
-        .day-number { font-weight: 700; color: var(--ctt-verde); }
-        .event { background: var(--ctt-verde); color: white; padding: 4px 8px; border-radius: 8px; font-size: 0.75em; margin-top: 5px; border-left: 3px solid var(--ctt-arcilla); cursor: pointer; }
+        /* Estilos del calendario */
+        .calendar-header { 
+            padding: 20px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #fff; 
+        }
+        
+        .month-year { 
+            font-size: 1.5em; 
+            font-weight: 800; 
+            color: var(--ctt-verde); 
+            text-transform: uppercase; 
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            background: var(--ctt-gris-suave);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: var(--ctt-verde);
+            font-weight: 700;
+            transition: 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: var(--ctt-verde-claro);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .today-btn {
+            background-color: var(--ctt-verde);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-left: 10px;
+            width: auto;
+            height: 40px;
+        }
+        
+        .today-btn:hover {
+            background-color: var(--ctt-verde-claro);
+            transform: translateY(-2px);
+        }
+        
+        .calendar { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 10px; 
+            padding: 0 40px 40px 40px; 
+        }
+        
+        .day-header { 
+            text-align: center; 
+            font-weight: 700; 
+            color: var(--ctt-arcilla); 
+            text-transform: uppercase; 
+            font-size: 0.8em; 
+            padding: 10px 0;
+        }
+        
+        .day-cell { 
+            min-height: 100px; 
+            border: 2px solid var(--ctt-gris-suave); 
+            border-radius: 15px; 
+            padding: 10px; 
+            transition: 0.3s;
+        }
+        
+        .day-cell:hover {
+            border-color: var(--ctt-arcilla);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .day-number { 
+            font-weight: 700; 
+            color: var(--ctt-verde); 
+            margin-bottom: 8px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ESTILOS PARA EL DÍA DE HOY */
+        .day-cell.today {
+            background-color: rgba(204, 82, 51, 0.1);
+            border: 2px solid var(--ctt-arcilla);
+            position: relative;
+        }
 
-        @media (max-width: 1100px) { .admin-layout { grid-template-columns: 1fr; } }
+        .day-cell.today .day-number {
+            background-color: var(--ctt-arcilla);
+            color: white;
+            border-radius: 50%;
+        }
+
+        .day-cell.other-month.today {
+            opacity: 0.7;
+            background-color: rgba(204, 82, 51, 0.05);
+            border: 2px dashed var(--ctt-arcilla);
+        }
+        
+        .event { 
+            background: var(--ctt-verde); 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            font-size: 0.75em; 
+            margin-top: 5px; 
+            border-left: 3px solid var(--ctt-arcilla); 
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .event:hover {
+            background: var(--ctt-arcilla);
+            transform: translateX(3px);
+        }
+        
+        .event-count {
+            background: var(--ctt-gris-suave);
+            color: var(--ctt-verde);
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin-top: 5px;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .other-month {
+            opacity: 0.5;
+            background-color: #f9f9f9;
+        }
+
+        @media (max-width: 1100px) { 
+            .admin-layout { 
+                grid-template-columns: 1fr; 
+            } 
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -87,7 +239,44 @@
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 20px; border-bottom: 2px solid var(--ctt-gris-suave); padding-bottom: 15px;
         }
-        .close-btn { background: none; border: none; font-size: 32px; cursor: pointer; color: var(--ctt-verde); }
+        .modal-title {
+            color: var(--ctt-verde);
+            font-size: 1.5em;
+            margin: 0;
+        }
+        .close-btn { 
+            background: none; 
+            border: none; 
+            font-size: 32px; 
+            cursor: pointer; 
+            color: var(--ctt-verde);
+            transition: 0.3s;
+        }
+        .close-btn:hover {
+            color: var(--ctt-arcilla);
+            transform: scale(1.1);
+        }
+        
+        .event-detail {
+            padding: 20px 0;
+        }
+        
+        .event-detail h3 {
+            color: var(--ctt-arcilla);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .event-detail p {
+            margin: 10px 0;
+            color: var(--ctt-verde);
+            line-height: 1.6;
+        }
+        
+        .event-detail strong {
+            color: var(--ctt-verde-claro);
+        }
     </style>
 </head>
 <body>
@@ -137,21 +326,24 @@
                 <div class="nav-buttons">
                     <button class="nav-btn" onclick="previousMonth()">←</button>
                     <button class="nav-btn" onclick="nextMonth()">→</button>
+                    <button class="nav-btn today-btn" onclick="goToToday()">Hoy</button>
                 </div>
             </div>
             <div class="calendar" id="calendarGrid"></div>
         </div>
     </div>
+    
     <div class="modal" id="eventModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Detalles de la Actividad</h2>
-            <button class="close-btn" onclick="closeModal()">×</button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Detalles de la Actividad</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div id="eventDetails"></div>
         </div>
-        <div id="eventDetails"></div> </div>
-</div>
+    </div>
 
-<script th:inline="javascript">
+    <script th:inline="javascript">
         // Datos de eventos desde el servidor
         let eventsData = /*[[${eventosJson}]]*/ '[]';
         let events = [];
@@ -168,8 +360,9 @@
         
         console.log('Eventos cargados:', events);
         
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
 
         function parseEventDate(dateArray) {
             if (Array.isArray(dateArray)) {
@@ -216,13 +409,14 @@
             for (let i = firstDayIndex - 1; i >= 0; i--) {
                 const day = prevLastDayDate - i;
                 const date = new Date(currentYear, currentMonth - 1, day);
-                html += createDayCell(day, date, true, false);
+                const isToday = date.toDateString() === today.toDateString();
+                html += createDayCell(day, date, true, isToday);
             }
             
             // Días del mes actual
             for (let day = 1; day <= lastDayDate; day++) {
                 const date = new Date(currentYear, currentMonth, day);
-                const isToday = date.toDateString() === new Date().toDateString();
+                const isToday = date.toDateString() === today.toDateString();
                 html += createDayCell(day, date, false, isToday);
             }
             
@@ -230,7 +424,8 @@
             const remainingCells = 42 - (firstDayIndex + lastDayDate);
             for (let day = 1; day <= remainingCells; day++) {
                 const date = new Date(currentYear, currentMonth + 1, day);
-                html += createDayCell(day, date, true, false);
+                const isToday = date.toDateString() === today.toDateString();
+                html += createDayCell(day, date, true, isToday);
             }
             
             calendarGrid.innerHTML = html;
@@ -284,6 +479,12 @@
                 currentMonth = 0;
                 currentYear++;
             }
+            updateCalendar();
+        }
+        
+        function goToToday() {
+            currentMonth = today.getMonth();
+            currentYear = today.getFullYear();
             updateCalendar();
         }
 
