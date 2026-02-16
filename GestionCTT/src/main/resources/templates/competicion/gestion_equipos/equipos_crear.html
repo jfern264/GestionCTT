@@ -24,7 +24,7 @@
                 <option value="" disabled selected>Selecciona un deportista...</option>
                 <option th:each="jugador : ${jugadoresDisponibles}" 
                         th:value="${jugador.id}" 
-                        th:text="${jugador.nombre + ' ' + jugador.primerApellido + ' (DNI: ' + jugador.dni + ')'}">
+                        th:text="${jugador.nombre + ' ' + jugador.primerApellido + ' (' + jugador.edad + ' años)'}">
                 </option>
             </select>
 
