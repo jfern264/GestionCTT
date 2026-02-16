@@ -31,6 +31,33 @@ public class MailRestController {
         return ResponseEntity.ok("Proceso de envío iniciado");
     }
 
+    @PostMapping("/send-to-category")
+    public ResponseEntity<?> sendToCategory(@RequestBody Map<String, Object> request) {
+        try {
+            String subject = (String) request.get("subject");
+            String content = (String) request.get("content");
+            Long categoriaId = Long.parseLong(request.get("categoriaId").toString());
+
+            emailService.sendMailByCategory(categoriaId, subject, content);
+            return ResponseEntity.ok(Map.of(
+                    "mensaje", "Correo enviado correctamente a la categoría",
+                    "estado", "exito"));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "mensaje", "ID de categoría inválido",
+                    "estado", "error"));
+        } catch (MessagingException e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "mensaje", "Error al enviar el correo: " + e.getMessage(),
+                    "estado", "error"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "mensaje", "Error interno del servidor",
+                    "estado", "error"));
+        }
+    }
+
+
     @PostMapping("/send-to-user")
     public ResponseEntity<?> sendtoaUser(@RequestBody Map<String, Object> request) {
         try {

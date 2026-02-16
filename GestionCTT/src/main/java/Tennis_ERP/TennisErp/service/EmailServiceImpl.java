@@ -58,6 +58,18 @@ public class EmailServiceImpl implements EmailService {
         mailSender.send(message);
     }
 
+    @Override 
+    public void sendMailByCategory(Long categoriaId, String subject, String body) throws MessagingException {
+        List<Usuario> users = userRepository.findByUsuarioCategorias_Categoria_Id(categoriaId);
+        for (Usuario user : users) {
+            try {
+                this.sendSingleEmail(user.getEmail(), subject, body);
+            } catch (MessagingException e) {
+                System.err.println("Error enviando a " + user.getEmail() + ": " + e.getMessage());
+            }
+        }
+    }
+
     /**
      * Función privada para dar formato "Steel Edition" al mensaje.
      */

@@ -24,4 +24,6 @@ public interface UsuarioDAO extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByDni(String dni);
 
+    List<Usuario> findByUsuarioCategorias_Categoria_Id(Long categoriaId);
+
 }
