@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
-@Data // Genera Getters, Setters, toString, etc.
-@AllArgsConstructor // Genera el constructor PistaOcupacionDTO(String, List<Integer>)
-@NoArgsConstructor  // Constructor vacío necesario para frameworks de serialización
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PistaOcupacionDTO {
     private String nombrePista;
-    private List<Integer> horasOcupadas;
+    private List<String> horasOcupadas;
 }

@@ -257,11 +257,12 @@ public class UsuarioController {
                 @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
             return pistaRepository.findAll().stream().map(pista -> {
-                List<Integer> horasOcupadas = pista.getEventos().stream()
-                        .filter(e -> e.getDate().equals(fecha))
-                        .map(e -> e.getTime().getHour())
+                // ✅ CAMBIADO: Ahora sacamos la hora exacta con formato "HH:mm"
+                List<String> horasOcupadas = pista.getEventos().stream()
+                        .filter(e -> e.getDate().equals(fecha) && e.getTime() != null)
+                        .map(e -> String.format("%02d:%02d", e.getTime().getHour(), e.getTime().getMinute()))
                         .distinct()
-                        .sorted()
+                        .sorted() // Como ahora son Strings con formato HH:mm, se ordenan alfabéticamente de forma perfecta
                         .collect(Collectors.toList());
 
                 return new PistaOcupacionDTO(pista.getNombrePista(), horasOcupadas);
