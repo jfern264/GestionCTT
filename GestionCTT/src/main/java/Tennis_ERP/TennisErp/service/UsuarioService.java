@@ -2,7 +2,6 @@ package Tennis_ERP.TennisErp.service;
 
 import Tennis_ERP.TennisErp.domain.Usuario;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +21,6 @@ public interface UsuarioService {
     void updatePerfil(String username, Usuario datosActualizados, MultipartFile imagen);
     String encodePassword(String rawPassword);
     List<Usuario> getJugadoresConGenero(Long categoriaId);
+    void eliminarAvatar(Long id);
+    void eliminarAvatarPorUsername(String username);
 }

@@ -63,6 +63,10 @@ public class Usuario {
 
     private String avatar;
 
+    // ✅ CAMPO NUEVO AÑADIDO PARA EL CAPITÁN
+    @Column(columnDefinition = "boolean default false")
+    private boolean capitan = false;
+
     @NotNull(message = "Debe seleccionar un género", groups = {OnCreate.class, OnUpdate.class})
     @Enumerated(EnumType.STRING)
     private Genero genero;

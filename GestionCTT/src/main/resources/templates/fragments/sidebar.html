@@ -1,17 +1,93 @@
 <div th:fragment="sidebar">
+    <style>
+        /* 1. ANTI-SALTO (EVITA LA MOVIDA AL CAMBIAR DE PÁGINA) */
+        body { overflow-y: scroll; } 
+
+        /* 2. VARIABLES GLOBALES SIDEBAR */
+        :root {
+            --ctt-carbono: #1a1a1a;
+            --ctt-pizarra: #334155;
+            --ctt-plata: #94a3b8;
+            --ctt-acero-luz: #e2e8f0;
+            --ctt-negro-puro: #000000;
+            --ctt-gris-borde: #475569;
+            --color-perfil: #8b5cf6;
+            --color-jugadores: #3b82f6;
+            --color-usuarios: #8b5cf6;
+            --color-roles: #f59e0b;
+            --color-ligas: #06b6d4;
+            --color-equipos: #f43f5e;
+            --color-calendario: #10b981;
+        }
+
+        /* 3. ESTRUCTURA BARRA LATERAL */
+        .sidebar { width: 280px; background: rgba(0, 0, 0, 0.85); border-right: 3px solid var(--ctt-gris-borde); padding: 30px 0; position: fixed; top: 0; left: 0; height: 100vh; overflow: hidden; z-index: 100; backdrop-filter: blur(10px); box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
+        .sidebar-content { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        
+        /* 4. PERFIL E IMAGEN PERFECTA (NO SE DEFORMA) */
+        .user-profile-section { padding: 0 25px 25px 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; flex-shrink: 0; }
+        .user-profile-link { display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; text-decoration: none; transition: all 0.3s ease; border: 1px solid transparent; position: relative; overflow: hidden; }
+        .user-profile-link:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--color-perfil); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); }
+        .user-profile-link:hover::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--color-perfil); }
+        
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); flex-shrink: 0; position: relative; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; } /* <-- ESTO EVITA LA DEFORMACIÓN */
+        
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { color: white; font-weight: 700; font-size: 1rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { color: var(--ctt-plata); font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+        .user-role-badge { background: rgba(139, 92, 246, 0.2); color: var(--color-perfil); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+        .profile-arrow { color: var(--ctt-plata); transition: transform 0.3s ease; }
+        .user-profile-link:hover .profile-arrow { color: var(--color-perfil); transform: translateX(3px); }
+        
+        /* 5. MENÚS Y HOVERS */
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1; overflow-y: auto; }
+        .sidebar-menu::-webkit-scrollbar { display: none; }
+        .sidebar-link { display: flex; align-items: center; gap: 15px; padding: 16px 20px; color: var(--ctt-plata); text-decoration: none; border-radius: 12px; transition: all 0.3s ease; font-weight: 600; font-size: 0.95rem; position: relative; overflow: hidden; flex-shrink: 0; }
+        .sidebar-link::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: rgba(255, 255, 255, 0.05); transition: width 0.3s ease; }
+        .sidebar-link:hover::before { width: 100%; }
+        .sidebar-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; z-index: 1; transition: transform 0.3s ease; }
+        .sidebar-link:hover .sidebar-icon { transform: scale(1.1); }
+        .sidebar-link:hover { color: white; transform: translateX(5px); }
+        
+        .sidebar-jugadores:hover { color: var(--color-jugadores); }
+        .sidebar-usuarios:hover { color: var(--color-usuarios); }
+        .sidebar-roles:hover { color: var(--color-roles); }
+        .sidebar-ligas:hover { color: var(--color-ligas); }
+        .sidebar-equipos:hover { color: var(--color-equipos); }
+        .sidebar-calendario:hover { color: var(--color-calendario); }
+        
+        .sidebar-divider { height: 1px; background: rgba(255, 255, 255, 0.1); margin: 15px 20px; flex-shrink: 0; }
+        
+        /* 6. LAYOUT INTELIGENTE (ADMIN VS JUGADOR) */
+        body.admin-layout .main-content { margin-left: 280px; width: calc(100% - 280px); }
+        body.player-layout .main-content { margin-left: 0; width: 100%; }
+
+        @media (max-width: 1200px) {
+            .sidebar { width: 240px; }
+            .user-name { font-size: 0.9rem; }
+            body.admin-layout .main-content { margin-left: 240px; width: calc(100% - 240px); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 20px 0; }
+            .user-profile-section, .sidebar-link span, .sidebar-divider { display: none; }
+            .user-profile-link { justify-content: center; padding: 15px 10px; margin: 0 10px 15px 10px; }
+            .user-avatar { width: 40px; height: 40px; }
+            .sidebar-menu { padding: 0 15px; align-items: center; }
+            .sidebar-link { padding: 15px; justify-content: center; }
+            body.admin-layout .main-content { margin-left: 70px; width: calc(100% - 70px); }
+        }
+    </style>
+
     <aside class="sidebar">
         <div class="sidebar-content">
             <div class="user-profile-section">
                 <a href="/perfil" class="user-profile-link">
                     <div class="user-avatar">
-                        <div class="user-avatar-placeholder">
-                            <img id="avatarPreview"
-                                th:src="${usuarioActual.avatar != null && !usuarioActual.avatar.isEmpty()} 
-              ? @{/images/{path}(path=${usuarioActual.avatar})} 
-              : 'https://ui-avatars.com/api/?name=' + ${usuarioActual.nombre} + '+' + ${usuarioActual.primerApellido} + '&background=1a4731&color=fff&size=150'"
-                                alt="Avatar"
-                                class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg object-cover">
-                        </div>
+                        <img th:src="${usuarioActual.avatar != null && !usuarioActual.avatar.isEmpty()} 
+                            ? @{/images/{path}(path=${usuarioActual.avatar})} 
+                            : 'https://ui-avatars.com/api/?name=' + ${usuarioActual.nombre} + '+' + ${usuarioActual.primerApellido} + '&background=1a4731&color=fff&size=150'"
+                            alt="Avatar">
                     </div>
                     <div class="user-info">
                         <div class="user-name"><span th:text="${usuarioActual.nombre}"></span></div>
@@ -93,7 +169,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
                     </div>
-                    <span>Modo Socio</span>
+                    <span>Modo Jugador</span>
                 </a>
                 <a href="/logout" class="sidebar-link" style="color: #f87171;">
                     <div class="sidebar-icon">

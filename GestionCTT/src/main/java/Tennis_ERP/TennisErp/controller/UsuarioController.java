@@ -227,6 +227,24 @@ public class UsuarioController {
         return "redirect:/perfil";
     }
 
+    @GetMapping("/perfil/eliminar-avatar")
+    public String eliminarAvatarPerfil(Principal principal, RedirectAttributes flash) {
+        usuarioService.eliminarAvatarPorUsername(principal.getName());
+        flash.addFlashAttribute("mensaje", "Foto de perfil eliminada correctamente.");
+        return "redirect:/perfil";
+    }
+
+    @GetMapping("/usuarios/eliminar-avatar/{id}")
+    public String eliminarAvatarUsuario(@PathVariable Long id, @RequestParam(value="from", required=false, defaultValue="usuarios") String from, RedirectAttributes flash) {
+        usuarioService.eliminarAvatar(id);
+        flash.addFlashAttribute("success", "Foto eliminada.");
+        // Devuelve a la ruta de edición correcta según el origen
+        if ("jugadores".equals(from)) {
+            return "redirect:/jugadores/editar/" + id;
+        }
+        return "redirect:/usuarios/editar/" + id;
+    }
+
     @RestController
     @RequestMapping("/api/dashboard")
     public class DashboardController {

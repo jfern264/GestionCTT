@@ -1,304 +1,151 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edición - CTT Steel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap"
-        rel="stylesheet">
+    <title>Editar - CTT Steel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .theme-admin {
-            --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%);
-            --accent: #94a3b8;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background-attachment: fixed; min-height: 100vh; overflow-y: scroll;}
+        .theme-admin { --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%); --accent: #94a3b8; }
+        body { background: var(--bg-page); }
 
-        :root {
-            --ctt-carbono: #1a1a1a;
-            --ctt-gris-borde: #475569;
-            --ctt-acero-luz: #e2e8f0;
-        }
+        :root { --color-perfil: #8b5cf6; --color-jugadores: #3b82f6; --color-usuarios: #8b5cf6; --color-roles: #f59e0b; --color-ligas: #06b6d4; --color-equipos: #f43f5e; --color-calendario: #10b981; --ctt-gris-borde: #475569; --ctt-plata: #94a3b8; --ctt-pizarra: #334155; }
+        .sidebar { width: 280px; background: rgba(0, 0, 0, 0.85); border-right: 3px solid var(--ctt-gris-borde); padding: 30px 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; backdrop-filter: blur(10px); display: flex; flex-direction: column; box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5); }
+        .sidebar-content { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .user-profile-section { padding: 0 25px 25px 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; flex-shrink: 0; }
+        .user-profile-link { display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 15px; text-decoration: none; transition: 0.3s; border: 1px solid transparent; position: relative; overflow: hidden; }
+        .user-profile-link:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--color-perfil); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); }
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); flex-shrink: 0; position: relative; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { color: white; font-weight: 700; font-size: 1rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { color: var(--ctt-plata); font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+        .user-role-badge { background: rgba(139, 92, 246, 0.2); color: var(--color-perfil); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1; }
+        .sidebar-link { display: flex; align-items: center; gap: 15px; padding: 16px 20px; color: var(--ctt-plata); text-decoration: none; border-radius: 12px; transition: 0.3s; font-weight: 600; font-size: 0.95rem; position: relative; overflow: hidden; flex-shrink: 0; }
+        .sidebar-link::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: rgba(255, 255, 255, 0.05); transition: width 0.3s ease; }
+        .sidebar-link:hover::before { width: 100%; }
+        .sidebar-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; transition: 0.3s; z-index: 1; }
+        .sidebar-link:hover { color: white; transform: translateX(5px); }
+        .sidebar-link:hover .sidebar-icon { transform: scale(1.1); }
+        .sidebar-divider { height: 1px; background: rgba(255, 255, 255, 0.1); margin: 15px 20px; flex-shrink: 0; }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg-page);
-            min-height: 100vh;
-            margin: 0;
-            background-attachment: fixed;
-        }
+        body.admin-layout .main-content { margin-left: 280px; width: calc(100% - 280px); }
+        body.player-layout .main-content { margin-left: 0; width: 100%; }
+        .main-content { flex: 1; display: flex; flex-direction: column; }
 
-        .form-container {
-            max-width: 950px;
-            margin: 40px auto 80px auto;
-            background: white;
-            border-radius: 40px;
-            padding: 60px;
-            border: 6px solid var(--ctt-gris-borde);
-            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
-        }
-
-        .label-tech {
-            display: block;
-            font-size: 10px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--ctt-gris-borde);
-            margin-bottom: 8px;
-        }
-
-        .input-tech {
-            width: 100%;
-            padding: 12px 20px;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-weight: 700;
-            transition: 0.3s;
-        }
-
-        .input-tech:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: white;
-        }
-
-        .section-tag {
-            font-size: 9px;
-            font-weight: 900;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            border-bottom: 2px solid var(--ctt-acero-luz);
-            padding-bottom: 5px;
-            margin-bottom: 20px;
-            grid-column: span 2;
-        }
-
-        .error-box {
-            background: #450a0a;
-            border-left: 6px solid #ef4444;
-            color: #fee2e2;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .select-tech {
-            width: 100%;
-            padding: 12px 20px;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-weight: 700;
-            transition: 0.3s;
-            appearance: none;
-        }
-
-        .select-tech:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: white;
-        }
-
-        /* LINK TÉCNICO ESTÁTICO */
-        .nav-link-tech {
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 3px;
-            color: #f1f5f9;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            margin-bottom: 20px;
-        }
-
-        /* --- Estilos para los Checkboxes de Roles --- */
-        .role-card {
-            background: #f8fafc;
-            border: 2px solid var(--ctt-acero-luz);
-            border-radius: 12px;
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        .form-container { max-width: 950px; margin: 40px auto; background: white; border-radius: 40px; padding: 60px; box-shadow: 0 50px 100px rgba(0,0,0,0.5); border: 6px solid #475569;}
+        .input-tech { width: 100%; padding: 12px 16px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; font-weight: 700; outline: none; transition: 0.3s;}
+        .input-tech:focus { border-color: var(--accent); background: white;}
+        .section-tag { font-size: 9px; font-weight: 900; color: var(--accent); text-transform: uppercase; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; grid-column: span 2; }
+        .role-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.3s;}
+        .role-card:hover { border-color: var(--accent); background: white;}
         
-        .role-card:hover {
-            border-color: var(--accent);
-            background: white;
-        }
+        .captain-card { background: #fffbeb; border: 2px solid #fde68a; }
+        .captain-card:hover { border-color: #f59e0b; background: white; }
 
-        .checkbox-tech {
-            width: 1.2rem;
-            height: 1.2rem;
-            cursor: pointer;
-            accent-color: var(--ctt-carbono);
-        }
+        @media (max-width: 1200px) { .sidebar { width: 240px; } body.admin-layout .main-content { margin-left: 240px; width: calc(100% - 240px); } }
+        @media (max-width: 768px) { .sidebar { width: 70px; padding: 20px 0;} .user-profile-section, .sidebar-link span, .sidebar-divider { display: none; } .user-profile-link { justify-content: center; padding: 15px 10px; margin: 0 10px 15px 10px; } .user-avatar { width: 40px; height: 40px; } .sidebar-menu { padding: 0 15px; align-items: center;} .sidebar-link { padding: 15px; justify-content: center;} body.admin-layout .main-content { margin-left: 70px; width: calc(100% - 70px); } }
     </style>
 </head>
+<body class="theme-admin admin-layout">
+    <div th:replace="fragments/sidebar :: sidebar"></div>
 
-<body class="theme-admin">
-    <div class="max-w-[950px] mx-auto pt-10">
-        
-        <a href="javascript:history.back()" class="nav-link-tech">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <b>Control de Usuarios</b>
-        </a>
-
-        <main class="form-container">
-            <h1 class="text-3xl font-black uppercase tracking-tighter text-black mb-10 text-center">Editar Perfil</h1>
-
-            <div th:if="${errorDni}" class="error-box" th:text="${errorDni}"></div>
-
-            <form th:action="@{'/usuarios/actualizar/' + ${usuario.id}}" th:object="${usuario}" method="post"
-                enctype="multipart/form-data">
+    <div class="main-content">
+        <div class="w-full px-4 pt-10">
+            <main class="form-container">
+                <a th:href="@{'/' + ${origen != null ? origen : 'usuarios'}}" class="text-slate-400 hover:text-black font-black uppercase text-[10px] tracking-widest mb-6 inline-block"><i class="fas fa-arrow-left"></i> Volver a Lista</a>
                 
-                <input type="hidden" th:field="*{id}" />
-                
-                <input type="hidden" name="origen" th:value="${origen}" />
+                <h1 class="text-3xl font-black uppercase text-center mb-10 text-slate-800">Editar Ficha</h1>
 
-                <div class="section-tag">Gestión Administrativa e Imagen</div>
+                <div th:if="${errorDni}" class="bg-red-900 text-red-100 p-4 rounded-xl mb-6 font-bold uppercase text-xs" th:text="${errorDni}"></div>
 
-                <div class="flex items-center gap-6 bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
-                    <div class="relative group">
-                        <img id="preview"
-                            th:src="${usuario.avatar != null && !usuario.avatar.isEmpty()} 
-              ? @{/images/{path}(path=${usuario.avatar})} 
-              : 'https://ui-avatars.com/api/?name=' + ${usuario.nombre} + '+' + ${usuario.primerApellido} + '&background=1a4731&color=fff&size=150'"
-                            class="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-xl bg-white"
-                            alt="Avatar">
-                        <div
-                            class="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[8px] font-black uppercase pointer-events-none">
-                            Vista Previa
+                <form th:action="@{'/usuarios/actualizar/' + ${usuario.id}}" th:object="${usuario}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" th:field="*{id}" />
+                    <input type="hidden" name="origen" th:value="${origen}" />
+
+                    <div class="flex flex-col md:flex-row items-center gap-6 bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200 mb-8">
+                        <div class="relative group cursor-pointer" onclick="openImagePreview(this.querySelector('img').src)">
+                            <img id="preview" th:src="${usuario.avatar != null && !usuario.avatar.isEmpty()} ? @{/images/{path}(path=${usuario.avatar})} : 'https://ui-avatars.com/api/?name=' + ${usuario.nombre} + '&background=1a1a1a&color=fff'" class="w-32 h-32 rounded-full object-cover shadow-md border-4 border-white">
+                        </div>
+                        <div class="flex-1 space-y-3 w-full">
+                            <label class="block w-full text-center bg-black hover:bg-slate-800 text-white text-[10px] font-black uppercase py-3 rounded-xl cursor-pointer transition">
+                                <i class="fas fa-upload mr-1"></i> Cambiar Foto
+                                <input type="file" name="imagen" id="file-input" accept="image/*" class="hidden">
+                            </label>
+                            <a th:if="${usuario.avatar != null && !usuario.avatar.isEmpty()}" 
+                               href="javascript:void(0)" 
+                               th:attr="onclick=|openDeleteModal('/usuarios/eliminar-avatar/${usuario.id}?from=${origen}')|"
+                               class="block w-full text-center bg-red-50 hover:bg-red-500 hover:text-white text-red-600 border border-red-200 text-[10px] font-black uppercase py-3 rounded-xl transition">
+                                <i class="fas fa-trash-alt mr-1"></i> Eliminar Foto
+                            </a>
                         </div>
                     </div>
-                    <div class="flex-1">
-                        <label class="label-tech">Cambiar Foto de Perfil</label>
-                        <input type="file" name="imagen" id="file-input" accept="image/*" class="block w-full text-sm text-slate-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-xs file:font-black file:uppercase
-                      file:bg-black file:text-white
-                      hover:file:bg-slate-800 cursor-pointer">
-                        <p class="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-widest">Formatos: JPG, PNG
-                            • Máx: 2MB</p>
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <div class="section-tag">Identidad y Acceso</div>
+                        <div><label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Username</label><input type="text" th:field="*{nombreUsuario}" class="input-tech" required></div>
+                        <div><label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Contraseña (opcional)</label><input type="password" th:field="*{password}" class="input-tech" placeholder="••••••••"></div>
+                        <div><label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Nombre</label><input type="text" th:field="*{nombre}" class="input-tech" required></div>
+                        <div><label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Apellidos</label><input type="text" th:field="*{primerApellido}" class="input-tech" required></div>
+                        <div><label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">DNI</label><input type="text" th:field="*{dni}" class="input-tech" required></div>
+                        
+                        <div><label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Nacimiento</label>
+                            <input type="date" name="fechaNacimiento" th:value="${usuario.fechaNacimiento}" class="input-tech">
+                        </div>
 
-                    <div class="section-tag">Credenciales de Acceso</div>
-                    <div>
-                        <label class="label-tech">Username</label>
-                        <input type="text" th:field="*{nombreUsuario}" class="input-tech" required>
-                    </div>
-                    <div>
-                        <label class="label-tech">Nueva Clave (Opcional)</label>
-                        <input type="password" th:field="*{password}" class="input-tech" placeholder="••••••••">
-                    </div>
+                        <div><label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Email</label><input type="email" th:field="*{email}" class="input-tech" required></div>
+                        
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-500 ml-1 mb-1 block">Género</label>
+                            <select th:field="*{genero}" class="input-tech" required>
+                                <option value="" disabled selected>Seleccione género...</option>
+                                <option value="MASCULINO">Masculino</option>
+                                <option value="FEMENINO">Femenino</option>
+                                <option value="MIXTO">Mixto/Unisex</option>
+                            </select>
+                        </div>
 
-                    <div class="section-tag">Datos de Identidad</div>
-                    <div>
-                        <label class="label-tech">Nombre</label>
-                        <input type="text" th:field="*{nombre}" class="input-tech" required>
-                    </div>
-                    <div>
-                        <label class="label-tech">Primer Apellido</label>
-                        <input type="text" th:field="*{primerApellido}" class="input-tech" required>
-                    </div>
-                    <div>
-                        <label class="label-tech">Segundo Apellido</label>
-                        <input type="text" th:field="*{segundoApellido}" class="input-tech">
-                    </div>
-                    <div>
-                        <label class="label-tech">DNI / Identificación</label>
-                        <input type="text" th:field="*{dni}" class="input-tech" required>
-                    </div>
-                    <div>
-                        <label class="label-tech">DNI Familiar (Responsable)</label>
-                        <input type="text" th:field="*{dniFamiliar}" class="input-tech">
-                    </div>
-                    <div>
-                        <label class="label-tech">Género</label>
-                        <select th:field="*{genero}" class="select-tech">
-                            <option value="MASCULINO">Masculino</option>
-                            <option value="FEMENINO">Femenino</option>
-                            <option value="MIXTO">Mixto</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="label-tech">Fecha de Nacimiento</label>
-                        <input type="date" th:field="*{fechaNacimiento}" class="input-tech">
+                        <div class="section-tag">Privilegios y Roles</div>
+                        
+                        <div class="md:col-span-2 mb-2">
+                            <label class="role-card captain-card">
+                                <input type="checkbox" th:field="*{capitan}" class="w-4 h-4 accent-amber-500 cursor-pointer">
+                                <span class="text-[11px] font-black uppercase text-amber-600"><i class="fas fa-star mr-1"></i> Es Capitán de Equipo</span>
+                            </label>
+                        </div>
+
+                        <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <label th:each="rol : ${rolesDisponibles}" class="role-card">
+                                <input type="checkbox" th:field="*{roles}" th:value="${rol.id}" class="w-4 h-4 accent-black cursor-pointer">
+                                <span class="text-[11px] font-bold uppercase text-slate-700" th:text="${rol.nombreRol.replace('ROLE_', '')}"></span>
+                            </label>
+                        </div>
                     </div>
 
-                    <div class="section-tag">Gestión Administrativa</div>
-
-                    <div>
-                        <label class="label-tech">Forma de Pago</label>
-                        <select th:field="*{formaDePago}" class="select-tech">
-                            <option value="EFECTIVO">Efectivo</option>
-                            <option value="TRANSFERENCIA">Transferencia</option>
-                            <option value="DOMICILIACION">Domiciliación</option>
-                        </select>
+                    <div class="mt-12 flex justify-between items-center pt-8 border-t border-slate-100">
+                        <a th:href="@{'/' + ${origen != null ? origen : 'usuarios'}}" class="text-slate-400 font-bold uppercase text-xs hover:text-black">Cancelar</a>
+                        <button type="submit" class="bg-black text-white px-10 py-4 rounded-2xl font-black uppercase hover:bg-slate-800 transition shadow-lg">Sincronizar</button>
                     </div>
-
-                    <div class="section-tag">Información de Contacto</div>
-                    <div>
-                        <label class="label-tech">Email Oficial</label>
-                        <input type="email" th:field="*{email}" class="input-tech" required>
-                    </div>
-                    <div>
-                        <label class="label-tech">Teléfono</label>
-                        <input type="text" th:field="*{telefono}" class="input-tech">
-                    </div>
-
-                    <div class="section-tag">Nivel de Privilegios (Múltiples Roles)</div>
-                    <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <label th:each="rol : ${rolesDisponibles}" class="role-card">
-                            <input type="checkbox" th:field="*{roles}" th:value="${rol.id}" class="checkbox-tech">
-                            <span class="text-[11px] font-bold uppercase text-gray-700 tracking-wider" 
-                                  th:text="${#strings.replace(rol.nombreRol, 'ROLE_', '')}">ROL</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="mt-12 flex justify-between items-center border-t-2 border-slate-50 pt-8">
-                    <a href="javascript:history.back()"
-                        class="font-900 uppercase text-[10px] tracking-[3px] text-slate-400 hover:text-black transition">Descartar
-                        Cambios</a>
-                    <button type="submit"
-                        class="py-4 px-10 bg-black text-white rounded-2xl font-900 uppercase border-2 border-slate-400 hover:bg-slate-800 transition-all shadow-lg">
-                        Sincronizar
-                    </button>
-                </div>
-            </form>
-        </main>
+                </form>
+            </main>
+        </div>
     </div>
-</body>
-<script>
-    document.getElementById('file-input').onchange = function (evt) {
-        const [file] = this.files;
-        if (file) {
-            // Validar tamaño (2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert("La imagen es demasiado grande. Máximo 2MB.");
-                this.value = "";
-                return;
-            }
-            document.getElementById('preview').src = URL.createObjectURL(file);
-        }
-    }
-</script>
 
+    <div id="imagePreviewModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center bg-black/90 backdrop-blur-sm" onclick="closeImagePreview()"><img id="modalPreviewImg" class="max-w-[90%] max-h-[90%] rounded-2xl border-4 border-white shadow-2xl object-cover transform scale-95 transition-transform duration-300"></div>
+    <div id="deleteModal" class="fixed inset-0 z-[500] hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl"><div class="text-center"><div class="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-6"><i class="fas fa-exclamation-triangle text-4xl text-red-500"></i></div><h3 class="text-2xl font-black uppercase text-slate-800 mb-3">¿Borrar foto?</h3><div class="flex gap-4 justify-center mt-6"><button onclick="closeDeleteModal()" class="w-full py-3 rounded-xl font-bold uppercase text-slate-500 bg-slate-100 text-xs">Cancelar</button><a id="confirmDeleteBtn" href="#" class="w-full py-3 rounded-xl font-bold uppercase text-white bg-red-500 shadow-lg text-xs flex items-center justify-center">Sí, Eliminar</a></div></div></div>
+    </div>
+
+    <script>
+        document.getElementById('file-input').onchange = function (evt) { const [file] = this.files; if (file) { document.getElementById('preview').src = URL.createObjectURL(file); } }
+        function openImagePreview(src) { document.getElementById('modalPreviewImg').src = src; document.getElementById('imagePreviewModal').classList.remove('hidden'); setTimeout(() => document.getElementById('modalPreviewImg').classList.replace('scale-95', 'scale-100'), 10); }
+        function closeImagePreview() { document.getElementById('modalPreviewImg').classList.replace('scale-100', 'scale-95'); setTimeout(() => document.getElementById('imagePreviewModal').classList.add('hidden'), 300); }
+        function openDeleteModal(url) { document.getElementById('confirmDeleteBtn').href = url; document.getElementById('deleteModal').classList.remove('hidden'); }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.add('hidden'); }
+    </script>
+</body>
 </html>

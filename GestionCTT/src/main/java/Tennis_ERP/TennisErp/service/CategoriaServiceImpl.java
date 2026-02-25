@@ -51,7 +51,15 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional
     public void deleteCategoria(Long id) {
-        categoriaDAO.deleteById(id);
+        Categoria categoria = categoriaDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("División no encontrada"));
+        
+        // 🚨 PASO CLAVE: Desvincular/Eliminar a todos los jugadores de ese equipo primero
+        List<UsuarioCategoria> inscripciones = usuarioCategoriaDAO.findByCategoria_Id(id); 
+        usuarioCategoriaDAO.deleteAll(inscripciones);
+        
+        // Ahora sí, eliminamos la división de forma segura
+        categoriaDAO.delete(categoria);
     }
 
     @Override
@@ -112,4 +120,6 @@ public class CategoriaServiceImpl implements CategoriaService {
         uc.setActivo(!uc.isActivo());
         usuarioCategoriaDAO.save(uc);
     }
+
+    
 }
