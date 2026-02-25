@@ -73,7 +73,9 @@ public class CompeticionController {
         Categoria cat = categoriaService.getCategoriaById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         model.addAttribute("categoria", cat);
-        return "competicion/gestion_categorias/categorias_crear";
+        
+        // CORRECCIÓN CRÍTICA: Apuntaba a "categorias_crear" por error. Ahora apunta a la vista correcta.
+        return "competicion/gestion_categorias/categorias_editar";
     }
 
     // Método guardar mejorado para procesar descripciones en ediciones

@@ -118,12 +118,38 @@
             text-decoration: none;
             margin-bottom: 20px;
         }
+
+        /* --- Estilos para los Checkboxes de Roles --- */
+        .role-card {
+            background: #f8fafc;
+            border: 2px solid var(--ctt-acero-luz);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .role-card:hover {
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .checkbox-tech {
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+            accent-color: var(--ctt-carbono);
+        }
     </style>
 </head>
 
 <body class="theme-admin">
     <div class="max-w-[950px] mx-auto pt-10">
-        <a href="/usuarios" class="nav-link-tech">
+        
+        <a href="javascript:history.back()" class="nav-link-tech">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -137,11 +163,14 @@
 
             <form th:action="@{'/usuarios/actualizar/' + ${usuario.id}}" th:object="${usuario}" method="post"
                 enctype="multipart/form-data">
+                
                 <input type="hidden" th:field="*{id}" />
+                
+                <input type="hidden" name="origen" th:value="${origen}" />
+
                 <div class="section-tag">Gestión Administrativa e Imagen</div>
 
-                <div
-                    class="flex items-center gap-6 bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
+                <div class="flex items-center gap-6 bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
                     <div class="relative group">
                         <img id="preview"
                             th:src="${usuario.avatar != null && !usuario.avatar.isEmpty()} 
@@ -167,7 +196,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-6">
 
                     <div class="section-tag">Credenciales de Acceso</div>
                     <div>
@@ -234,21 +263,18 @@
                         <input type="text" th:field="*{telefono}" class="input-tech">
                     </div>
 
-                    <div class="section-tag">Nivel de Privilegios</div>
-                    <div>
-                        <label class="label-tech">Rol del Usuario *</label>
-                        <select name="rolId" class="select-tech" required>
-                            <option value="">Seleccionar un rol</option>
-                            <option th:each="rol : ${rolesDisponibles}" th:value="${rol.id}"
-                                th:selected="${usuario.roles != null and !usuario.roles.isEmpty() and usuario.roles.iterator().next().id == rol.id}"
-                                th:text="${rol.nombreRol.replace('ROLE_', '')}">
-                            </option>
-                        </select>
+                    <div class="section-tag">Nivel de Privilegios (Múltiples Roles)</div>
+                    <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <label th:each="rol : ${rolesDisponibles}" class="role-card">
+                            <input type="checkbox" th:field="*{roles}" th:value="${rol.id}" class="checkbox-tech">
+                            <span class="text-[11px] font-bold uppercase text-gray-700 tracking-wider" 
+                                  th:text="${#strings.replace(rol.nombreRol, 'ROLE_', '')}">ROL</span>
+                        </label>
                     </div>
                 </div>
 
                 <div class="mt-12 flex justify-between items-center border-t-2 border-slate-50 pt-8">
-                    <a href="/usuarios"
+                    <a href="javascript:history.back()"
                         class="font-900 uppercase text-[10px] tracking-[3px] text-slate-400 hover:text-black transition">Descartar
                         Cambios</a>
                     <button type="submit"
@@ -264,13 +290,12 @@
     document.getElementById('file-input').onchange = function (evt) {
         const [file] = this.files;
         if (file) {
-            // Validar tamaño (ejemplo 2MB)
+            // Validar tamaño (2MB)
             if (file.size > 2 * 1024 * 1024) {
                 alert("La imagen es demasiado grande. Máximo 2MB.");
                 this.value = "";
                 return;
             }
-            // Cambiar la fuente de la imagen de previsualización
             document.getElementById('preview').src = URL.createObjectURL(file);
         }
     }

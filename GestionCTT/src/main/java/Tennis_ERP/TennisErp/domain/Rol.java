@@ -9,7 +9,7 @@ import lombok.Data;
 public class Rol {
     
     @Id
-    @Column(name = "id", nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nombreRol; // <--- El nombre debe coincidir aquí
