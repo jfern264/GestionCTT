@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Partidos - CTT Steel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========================================================
+           1. RESET Y BASE
+           ======================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; margin: 0; display: flex; background-attachment: fixed; min-height: 100vh; overflow-y: scroll; }
+
+        /* ========================================================
+           2. TEMAS
+           ======================================================== */
+        .theme-admin  { --bg-page: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%); --accent: #94a3b8; }
+        .theme-player { --bg-page: linear-gradient(180deg, #0c2b1d 0%, #1a4731 100%);           --accent: #10b981; }
+        body { background: var(--bg-page); }
+
+        /* ========================================================
+           3. SIDEBAR
+           ======================================================== */
+        :root {
+            --color-perfil: #8b5cf6; --color-jugadores: #3b82f6; --color-usuarios: #8b5cf6;
+            --color-roles: #f59e0b; --color-ligas: #06b6d4; --color-equipos: #f43f5e;
+            --color-calendario: #10b981; --ctt-gris-borde: #475569; --ctt-plata: #94a3b8; --ctt-pizarra: #334155;
+        }
+
+        .sidebar { width: 280px; background: rgba(0,0,0,0.85); border-right: 3px solid var(--ctt-gris-borde); padding: 30px 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; backdrop-filter: blur(10px); display: flex; flex-direction: column; box-shadow: 5px 0 25px rgba(0,0,0,0.5); }
+        .sidebar-content { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .user-profile-section { padding: 0 25px 25px 25px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; flex-shrink: 0; }
+        .user-profile-link { display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; text-decoration: none; transition: 0.3s; border: 1px solid transparent; position: relative; overflow: hidden; }
+        .user-profile-link:hover { background: rgba(255,255,255,0.1); border-color: var(--color-perfil); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(139,92,246,0.2); }
+        .user-profile-link:hover::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--color-perfil); }
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-avatar-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-perfil), #6d28d9); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { color: white; font-weight: 700; font-size: 1rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { color: var(--ctt-plata); font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+        .user-role-badge { background: rgba(139,92,246,0.2); color: var(--color-perfil); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+        .profile-arrow { color: var(--ctt-plata); transition: transform 0.3s ease; }
+        .user-profile-link:hover .profile-arrow { color: var(--color-perfil); transform: translateX(3px); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1; }
+        .sidebar-link { display: flex; align-items: center; gap: 15px; padding: 16px 20px; color: var(--ctt-plata); text-decoration: none; border-radius: 12px; transition: 0.3s; font-weight: 600; font-size: 0.95rem; position: relative; overflow: hidden; flex-shrink: 0; }
+        .sidebar-link::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 0; background: rgba(255,255,255,0.05); transition: width 0.3s ease; }
+        .sidebar-link:hover::before { width: 100%; }
+        .sidebar-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; transition: 0.3s; z-index: 1; }
+        .sidebar-link:hover { color: white; transform: translateX(5px); }
+        .sidebar-link:hover .sidebar-icon { transform: scale(1.1); }
+        .sidebar-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 15px 20px; flex-shrink: 0; }
+        .sidebar-jugadores:hover { color: var(--color-jugadores); } .sidebar-usuarios:hover { color: var(--color-usuarios); }
+        .sidebar-roles:hover { color: var(--color-roles); } .sidebar-ligas:hover { color: var(--color-ligas); }
+        .sidebar-equipos:hover { color: var(--color-equipos); } .sidebar-calendario:hover { color: var(--color-calendario); }
+
+        /* ========================================================
+           4. LAYOUT
+           ======================================================== */
+        body.admin-layout .main-content  { margin-left: 280px; width: calc(100% - 280px); }
+        body.player-layout .main-content { margin-left: 0; width: 100%; }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+
+        @media (max-width: 1200px) {
+            .sidebar { width: 240px; }
+            body.admin-layout .main-content { margin-left: 240px; width: calc(100% - 240px); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 20px 0; }
+            .user-profile-section, .sidebar-link span, .sidebar-divider { display: none; }
+            .user-profile-link { justify-content: center; padding: 15px 10px; margin: 0 10px 15px 10px; }
+            .user-avatar { width: 40px; height: 40px; }
+            .sidebar-menu { padding: 0 15px; align-items: center; }
+            .sidebar-link { padding: 15px; justify-content: center; }
+            body.admin-layout .main-content { margin-left: 70px; width: calc(100% - 70px); }
+        }
+
+        /* ========================================================
+           5. CONTENEDOR PRINCIPAL
+           ======================================================== */
+        .list-container {
+            max-width: 1200px; width: 95%; margin: 50px auto;
+            background: rgba(255,255,255,0.98); border-radius: 40px;
+            padding: 50px; border: 6px solid #475569;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+        }
+
+        /* ========================================================
+           6. STATS BAR
+           ======================================================== */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px; }
+
+        .stat-card {
+            background: #1a1a1a; border-radius: 20px; padding: 20px 24px;
+            border: 2px solid #2d2d2d; display: flex; flex-direction: column; gap: 4px;
+        }
+
+        .stat-card .val { font-size: 2rem; font-weight: 900; line-height: 1; }
+        .stat-card .lbl { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #64748b; }
+
+        .stat-total  .val { color: #e2e8f0; }
+        .stat-wins   .val { color: #4ade80; }
+        .stat-losses .val { color: #f87171; }
+        .stat-pend   .val { color: #fbbf24; }
+
+        /* ========================================================
+           7. FILTRES
+           ======================================================== */
+        .filters-section {
+            background: #f8fafc; border-radius: 20px; border: 2px solid #e2e8f0;
+            padding: 20px 24px; margin-bottom: 28px;
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        }
+
+        .filter-lbl { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: #94a3b8; flex-shrink: 0; }
+
+        .filter-select, .filter-input {
+            background: white; border: 2px solid #e2e8f0; color: #1e293b;
+            font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600;
+            padding: 8px 12px; border-radius: 12px; outline: none;
+            transition: border-color .2s; height: 38px; cursor: pointer;
+        }
+
+        .filter-select:focus, .filter-input:focus { border-color: #1a1a1a; }
+        .filter-input { width: 210px; }
+
+        .filter-sep { width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px; }
+
+        .btn-clear {
+            background: white; border: 2px solid #e2e8f0; color: #94a3b8;
+            font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 900;
+            padding: 8px 16px; border-radius: 12px; cursor: pointer; height: 38px;
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
+        }
+        .btn-clear:hover { border-color: #1a1a1a; color: #1a1a1a; }
+
+        /* ========================================================
+           8. TAULA
+           ======================================================== */
+        .table-wrap { overflow-x: auto; border-radius: 20px; border: 2px solid #e2e8f0; }
+
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+
+        thead tr { background: #1a1a1a; }
+
+        thead th {
+            font-size: 9px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 3px; color: #64748b; padding: 14px 16px;
+            text-align: left; white-space: nowrap;
+        }
+
+        thead th.center { text-align: center; }
+        thead th.right  { text-align: right; }
+
+        tbody tr { border-bottom: 2px solid #f1f5f9; transition: background .15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
+
+        td { padding: 14px 16px; vertical-align: middle; }
+
+        /* ── Date ── */
+        .date-main { font-size: 12px; font-weight: 700; color: #1e293b; }
+        .date-sub  { font-size: 10px; font-weight: 600; color: #94a3b8; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ── Match ── */
+        .match-rival { font-size: 13px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .match-venue { font-size: 10px; font-weight: 600; color: #94a3b8; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+
+        .badge-away {
+            display: inline-block; font-size: 8px; font-weight: 900; padding: 2px 7px;
+            border-radius: 6px; background: #f1f5f9; color: #64748b;
+            border: 1px solid #e2e8f0; letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        /* ── Tags ── */
+        .tag {
+            display: inline-block; font-size: 8px; font-weight: 900; padding: 3px 8px;
+            border-radius: 8px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+        }
+
+        .tag-base { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .tag-cat  { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .tag-cdt  { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+        .tag-cev  { background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+        /* ── Capitán ── */
+        .capita-name { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ── Players ── */
+        .player-list { display: flex; flex-direction: column; gap: 2px; }
+        .player-list span { font-size: 10px; font-weight: 600; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .player-more { font-size: 10px; font-weight: 700; color: #06b6d4; }
+
+        /* ── Result ── */
+        td.cell-result { text-align: center; }
+
+        .result-badge { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+        .result-score { font-size: 16px; font-weight: 900; line-height: 1; letter-spacing: 1px; }
+        .result-pill  { font-size: 8px; font-weight: 900; padding: 2px 8px; border-radius: 20px; letter-spacing: 1.5px; text-transform: uppercase; }
+
+        .badge-win  .result-score { color: #16a34a; }
+        .badge-win  .result-pill  { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .badge-lost .result-score { color: #dc2626; }
+        .badge-lost .result-pill  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .badge-post .result-score { color: #94a3b8; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        .badge-post .result-pill  { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .badge-pend .result-score { color: #d97706; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        .badge-pend .result-pill  { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+
+        /* ── Coste ── */
+        td.cell-cost { text-align: right; font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; }
+        .cost-none { color: #cbd5e1; font-weight: 600; }
+
+        /* ── Empty ── */
+        .empty-row td { text-align: center; padding: 60px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* ========================================================
+           9. PAGINACIÓ
+           ======================================================== */
+        .pagination {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 24px; flex-wrap: wrap; gap: 10px;
+        }
+
+        .page-info { font-size: 9px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+        .page-btns { display: flex; gap: 4px; }
+
+        .page-btn {
+            background: white; border: 2px solid #e2e8f0; color: #64748b;
+            padding: 6px 12px; border-radius: 10px; font-size: 11px; cursor: pointer;
+            font-family: 'Montserrat', sans-serif; font-weight: 700;
+            transition: all .15s; min-width: 36px; text-align: center;
+        }
+
+        .page-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
+        .page-btn.active { background: #1a1a1a; border-color: #1a1a1a; color: white; }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .list-container { padding: 24px; border-radius: 24px; }
+        }
+    </style>
+</head>
+<body th:class="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? 'theme-admin admin-layout' : 'theme-player player-layout'">
+
+    <div th:if="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}" th:replace="fragments/sidebar :: sidebar"></div>
+
+    <div class="main-content">
+
+        <!-- PAGE HEADER -->
+        <header class="py-10 text-center w-full relative">
+            <a href="/menu_admin" class="absolute left-10 top-14 text-white font-black uppercase text-xs hover:text-slate-400 transition">
+                <i class="fas fa-arrow-left"></i> Menú Admin
+            </a>
+            <h1 class="inline-block bg-black text-white px-12 py-4 rounded-full border-4 border-slate-400 text-3xl font-black uppercase tracking-widest shadow-2xl">
+                Historial de Partidos
+            </h1>
+        </header>
+
+        <main class="list-container">
+
+            <!-- STATS -->
+            <div class="stats-grid">
+                <div class="stat-card stat-total">
+                    <div class="val" id="stat-total">—</div>
+                    <div class="lbl">Jugados</div>
+                </div>
+                <div class="stat-card stat-wins">
+                    <div class="val" id="stat-wins">—</div>
+                    <div class="lbl">Victorias</div>
+                </div>
+                <div class="stat-card stat-losses">
+                    <div class="val" id="stat-losses">—</div>
+                    <div class="lbl">Derrotas</div>
+                </div>
+                <div class="stat-card stat-pend">
+                    <div class="val" id="stat-postponed">—</div>
+                    <div class="lbl">Aplazados</div>
+                </div>
+            </div>
+
+            <!-- FILTRES -->
+            <div class="filters-section">
+                <span class="filter-lbl">Filtrar</span>
+
+                <select class="filter-select" id="f-cat">
+                    <option value="">Todas las categorías</option>
+                </select>
+
+                <select class="filter-select" id="f-comp">
+                    <option value="">Todas las competiciones</option>
+                </select>
+
+                <select class="filter-select" id="f-res">
+                    <option value="">Todos los resultados</option>
+                    <option value="win">Victoria</option>
+                    <option value="lost">Derrota</option>
+                    <option value="postponed">Aplazado</option>
+                    <option value="pending">Pendiente</option>
+                </select>
+
+                <div class="filter-sep"></div>
+
+                <input type="text" class="filter-input" id="f-search" placeholder="Rival, jugador, capitán…">
+                <button class="btn-clear" id="btn-clear">
+                    <i class="fas fa-times mr-1"></i> Limpiar
+                </button>
+            </div>
+
+            <!-- TABLA -->
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Rival</th>
+                            <th>Categoría / Comp.</th>
+                            <th>Capitán</th>
+                            <th>Jugadores</th>
+                            <th class="center">Resultado</th>
+                            <th class="right">Coste</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+
+            <!-- PAGINACIÓ -->
+            <div class="pagination">
+                <div class="page-info" id="page-info"></div>
+                <div class="page-btns" id="page-btns"></div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================================================
+         DADES
+         Sustituye el array por la respuesta del backend.
+         ================================================ -->
+    <script>
+    /*
+      Estructura de cada objecte:
+      {
+        date:       "DD/MM/YYYY",   // "—" si sense data
+        dow:        "DISSABTE",
+        time:       "12:00",        // "—" si sense hora
+        categoria:  string,
+        competicio: "CATALANA" | "CDT" | "CEV",
+        capita:     string | null,
+        home:       boolean,
+        rival:      string,
+        result:     "win" | "lost" | "postponed" | "pending",
+        score:      string | null,
+        cost:       string | null,
+        players:    string[]
+      }
+    */
+    const matches = [];
+
+    /* ── CONFIG ── */
+    const ROWS_PER_PAGE = 15;
+    let currentPage = 1;
+    let filtered = [];
+
+    /* ── INIT ── */
+    function init() {
+        populateFilters();
+        applyFilters();
+    }
+
+    function populateFilters() {
+        const cats  = [...new Set(matches.map(m => m.categoria).filter(Boolean))].sort();
+        const comps = [...new Set(matches.map(m => m.competicio).filter(Boolean))].sort();
+        cats.forEach(c  => { const o = document.createElement('option'); o.value = c;  o.textContent = c;  document.getElementById('f-cat').appendChild(o); });
+        comps.forEach(c => { const o = document.createElement('option'); o.value = c;  o.textContent = c;  document.getElementById('f-comp').appendChild(o); });
+    }
+
+    /* ── FILTRES ── */
+    function applyFilters() {
+        const cat    = document.getElementById('f-cat').value;
+        const comp   = document.getElementById('f-comp').value;
+        const res    = document.getElementById('f-res').value;
+        const search = document.getElementById('f-search').value.toLowerCase().trim();
+
+        filtered = matches.filter(m => {
+            if (cat    && m.categoria  !== cat)  return false;
+            if (comp   && m.competicio !== comp) return false;
+            if (res    && m.result     !== res)  return false;
+            if (search) {
+                const hay = [m.rival, m.capita, ...(m.players||[])].join(' ').toLowerCase();
+                if (!hay.includes(search)) return false;
+            }
+            return true;
+        });
+        currentPage = 1;
+        render();
+    }
+
+    function clearFilters() {
+        ['f-cat','f-comp','f-res'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('f-search').value = '';
+        applyFilters();
+    }
+
+    /* ── RENDER ── */
+    function render() {
+        updateStats();
+        renderTable();
+        renderPagination();
+    }
+
+    function updateStats() {
+        document.getElementById('stat-total').textContent     = matches.filter(m => m.result==='win'||m.result==='lost').length;
+        document.getElementById('stat-wins').textContent      = matches.filter(m => m.result==='win').length;
+        document.getElementById('stat-losses').textContent    = matches.filter(m => m.result==='lost').length;
+        document.getElementById('stat-postponed').textContent = matches.filter(m => m.result==='postponed').length;
+    }
+
+    function renderTable() {
+        const start = (currentPage - 1) * ROWS_PER_PAGE;
+        const slice = filtered.slice(start, start + ROWS_PER_PAGE);
+        const tbody = document.getElementById('table-body');
+
+        if (slice.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="7">${
+                matches.length === 0
+                    ? 'Aún no hay partidos registrados.'
+                    : 'Ningún resultado coincide con los filtros.'
+            }</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = slice.map(buildRow).join('');
+    }
+
+    function buildRow(m) {
+        /* Date */
+        const dateHtml = `
+            <div class="date-main">${m.date}</div>
+            <div class="date-sub">${m.dow}${m.time && m.time!=='—' ? ' · '+m.time : ''}</div>`;
+
+        /* Match */
+        const venueHtml = m.home
+            ? `CTT vs <strong>${m.rival}</strong>`
+            : `${m.rival} vs <strong>CTT</strong>&nbsp;<span class="badge-away">Fuera</span>`;
+
+        const matchHtml = `
+            <div class="match-rival">${m.rival}</div>
+            <div class="match-venue">${venueHtml}</div>`;
+
+        /* Tags */
+        const compCls = m.competicio==='CATALANA' ? 'tag-cat'
+                      : m.competicio==='CDT'      ? 'tag-cdt'
+                      : m.competicio==='CEV'      ? 'tag-cev' : 'tag-base';
+
+        const tagsHtml = `
+            <span class="tag tag-base">${m.categoria}</span>&nbsp;
+            <span class="tag ${compCls}">${m.competicio}</span>`;
+
+        /* Players */
+        const shown = (m.players||[]).slice(0,3);
+        const extra = (m.players||[]).length - 3;
+        const playersHtml = `<div class="player-list">
+            ${shown.map(p=>`<span>${p}</span>`).join('')}
+            ${extra>0 ? `<span class="player-more">+${extra} más</span>` : ''}
+        </div>`;
+
+        /* Result */
+        let cls, score, pill;
+        if      (m.result==='win')       { cls='badge-win';  score=m.score;    pill='Victoria'; }
+        else if (m.result==='lost')      { cls='badge-lost'; score=m.score;    pill='Derrota';  }
+        else if (m.result==='postponed') { cls='badge-post'; score='Aplazado';  pill='—'; }
+        else                             { cls='badge-pend'; score='Pendiente';  pill='—'; }
+
+        const resultHtml = `<div class="result-badge ${cls}">
+            <div class="result-score">${score}</div>
+            ${m.result!=='pending' ? `<div class="result-pill">${pill}</div>` : ''}
+        </div>`;
+
+        /* Coste */
+        const costHtml = m.cost ? m.cost : `<span class="cost-none">—</span>`;
+
+        return `<tr>
+            <td>${dateHtml}</td>
+            <td>${matchHtml}</td>
+            <td>${tagsHtml}</td>
+            <td class="capita-name">${m.capita||'—'}</td>
+            <td>${playersHtml}</td>
+            <td class="cell-result">${resultHtml}</td>
+            <td class="cell-cost">${costHtml}</td>
+        </tr>`;
+    }
+
+    function renderPagination() {
+        const total = filtered.length;
+        const pages = Math.max(1, Math.ceil(total / ROWS_PER_PAGE));
+        const start = (currentPage - 1) * ROWS_PER_PAGE;
+
+        document.getElementById('page-info').textContent =
+            total === 0 ? '0 resultados'
+            : `Mostrando ${start+1}–${Math.min(start+ROWS_PER_PAGE,total)} de ${total} partidos`;
+
+        const pb = document.getElementById('page-btns');
+        pb.innerHTML = '';
+        for (let i = 1; i <= pages; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'page-btn' + (i===currentPage ? ' active' : '');
+            btn.textContent = i;
+            btn.addEventListener('click', () => { currentPage=i; renderTable(); renderPagination(); window.scrollTo(0,0); });
+            pb.appendChild(btn);
+        }
+    }
+
+    /* ── EVENTS ── */
+    ['f-cat','f-comp','f-res'].forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
+    document.getElementById('f-search').addEventListener('input', applyFilters);
+    document.getElementById('btn-clear').addEventListener('click', clearFilters);
+
+    init();
+    </script>
+
+</body>
+</html>
