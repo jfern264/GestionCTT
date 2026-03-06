@@ -2,7 +2,6 @@ package Tennis_ERP.TennisErp.service;
 
 import Tennis_ERP.TennisErp.domain.Usuario;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -17,16 +16,11 @@ public interface UsuarioService {
     List<Usuario> getUsuariosPorRol(String nombreRol);
     Optional<Usuario> findByDni(String dni);
     List<Usuario> getJugadoresDisponibles(Long categoriaId);
-
-    // ✅ CORREGIDO: Se ha eliminado "Long rolId" para coincidir con tu UsuarioServiceImpl
     void updateUsuario(Long id, Usuario form);
-    
-    // ✅ CORREGIDO: Se ha eliminado "Long rolId" aquí también
     void updateUsuarioWithImage(Long id, Usuario form, MultipartFile imageFile);
-
     void updatePerfil(String username, Usuario datosActualizados, MultipartFile imagen);
     String encodePassword(String rawPassword);
-
-    // ⚠️ NOTA: Si este método no está en tu UsuarioServiceImpl, bórralo de aquí o dará error también:
-     List<Usuario> getJugadoresConGenero(Long categoriaId);
+    List<Usuario> getJugadoresConGenero(Long categoriaId);
+    void eliminarAvatar(Long id);
+    void eliminarAvatarPorUsername(String username);
 }

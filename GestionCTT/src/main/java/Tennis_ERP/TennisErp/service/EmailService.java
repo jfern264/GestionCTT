@@ -14,4 +14,8 @@ public interface EmailService {
     
     // Para enviar a toda la base de datos
     void sendMassiveEmail(String subject, String body);
+
+    void sendMailById(Long userid, String subject, String body) throws MessagingException;
+
+    void sendMailByCategory(Long categoriaId, String subject, String body) throws MessagingException;
 }

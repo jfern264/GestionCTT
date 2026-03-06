@@ -27,10 +27,26 @@ public class EventServiceImpl implements EventService {
         eventDAO.save(evento);
     }
 
+    // ✅ NUEVO MÉTODO IMPLEMENTADO PARA EDITAR
+    @Override
+    public void actualizarEvento(Long id, Event eventoActualizado) {
+        Event eventoDB = eventDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        
+        // Actualizamos todos los campos con los nuevos valores del formulario
+        eventoDB.setTitle(eventoActualizado.getTitle());
+        eventoDB.setDate(eventoActualizado.getDate());
+        eventoDB.setTime(eventoActualizado.getTime());
+        eventoDB.setDescription(eventoActualizado.getDescription());
+        eventoDB.setPista(eventoActualizado.getPista());
+        
+        eventDAO.save(eventoDB); // Guardamos la reserva modificada
+    }
+
     @Override
     public Event obtenerEventoPorFecha(String fecha) {
-        LocalDate localDate = LocalDate.parse(fecha);  // Convierte el String a LocalDate
-        Optional<Event> evento = eventDAO.findByDate(localDate); // Pasa LocalDate, no String
+        LocalDate localDate = LocalDate.parse(fecha);  
+        Optional<Event> evento = eventDAO.findByDate(localDate); 
         return evento.orElse(null);
     }
 
@@ -92,7 +108,7 @@ public class EventServiceImpl implements EventService {
             if (e.getPista() != null) {
                 eventosJson.append(",\"pista\":{\"id\":").append(e.getPista().getId());
                 if (e.getPista().getNombrePista() != null) {
-                    eventosJson.append(",\"nombre\":\"").append(escaparJson(e.getPista().getNombrePista())).append("\"");
+                    eventosJson.append(",\"nombrePista\":\"").append(escaparJson(e.getPista().getNombrePista())).append("\"");
                 }
                 eventosJson.append("}");
             }

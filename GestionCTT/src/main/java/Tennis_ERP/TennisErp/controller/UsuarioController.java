@@ -8,9 +8,16 @@ import Tennis_ERP.TennisErp.service.RolService;
 import Tennis_ERP.TennisErp.service.UsuarioService;
 import jakarta.validation.Valid;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +87,8 @@ public class UsuarioController {
         Usuario user = usuarioService.getUsuarioById(id).orElseThrow();
         model.addAttribute("usuario", user);
         model.addAttribute("rolesDisponibles", rolService.getAllRoles());
+        // Enviamos la variable origen como "usuarios"
+        model.addAttribute("origen", "usuarios");
         return "usuarios/gestion_usuario/usuarios_editar";
     }
 
@@ -88,7 +97,10 @@ public class UsuarioController {
         Usuario user = usuarioService.getUsuarioById(id).orElseThrow();
         model.addAttribute("usuario", user);
         model.addAttribute("rolesDisponibles", rolService.getAllRoles());
-        return "usuarios/gestion_jugadores/jugadores_editar";
+        // Enviamos la variable origen como "jugadores"
+        model.addAttribute("origen", "jugadores");
+        // Reutilizamos la misma vista centralizada
+        return "usuarios/gestion_usuario/usuarios_editar";
     }
 
     // ==========================================
@@ -138,29 +150,37 @@ public class UsuarioController {
         }
     }
 
+    // ✅ MÉTODO ÚNICO PARA ACTUALIZAR (Sirve para Jugadores y Usuarios)
     @PostMapping("/usuarios/actualizar/{id}")
     public String actualizarUsuario(@PathVariable Long id,
             @ModelAttribute("usuario") Usuario form,
-            @RequestParam(value = "rolId", required = false) Long rolId, // Capturamos ID por si acaso, pero no lo usamos
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            @RequestParam(value = "origen", required = false, defaultValue = "usuarios") String origen, // Recibe el origen
             Model model) {
         try {
-            // ✅ CORREGIDO: Ya no pasamos "rolId" al servicio. 
-            // El servicio coge los roles directamente de "form.getRoles()"
             if (imagen != null && !imagen.isEmpty()) {
                 usuarioService.updateUsuarioWithImage(id, form, imagen);
             } else {
                 usuarioService.updateUsuario(id, form);
             }
+
+            // REDIRECCIÓN INTELIGENTE
+            if ("jugadores".equals(origen)) {
+                return "redirect:/jugadores";
+            }
             return "redirect:/usuarios";
+
         } catch (Exception e) {
-            model.addAttribute("error", "Error al actualizar: " + e.getMessage());
-            Usuario original = usuarioService.getUsuarioById(id).orElse(new Usuario());
-            model.addAttribute("usuario", original); // Recargamos para que no se rompa la vista
+            model.addAttribute("errorDni", "Error al actualizar: " + e.getMessage());
             model.addAttribute("rolesDisponibles", rolService.getAllRoles());
+            model.addAttribute("origen", origen); // Mantenemos el origen en caso de error
             return "usuarios/gestion_usuario/usuarios_editar";
         }
     }
+
+    // ==========================================
+    // 5. ELIMINACIÓN Y PERFIL
+    // ==========================================
 
     @GetMapping("/usuarios/eliminar/{id}")
     public String eliminarUsuario(@PathVariable Long id, RedirectAttributes flash) {
@@ -198,20 +218,33 @@ public class UsuarioController {
             @RequestParam(value = "archivoImagen", required = false) MultipartFile imagen,
             Principal principal,
             RedirectAttributes redirectAttributes) {
-
         try {
             usuarioService.updatePerfil(principal.getName(), datosActualizados, imagen);
             redirectAttributes.addFlashAttribute("mensaje", "Perfil actualizado con éxito");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al actualizar el perfil: " + e.getMessage());
         }
-
         return "redirect:/perfil";
     }
 
-    // ==========================================
-    // 5. REST CONTROLLER INTERNO (Dashboard)
-    // ==========================================
+    @GetMapping("/perfil/eliminar-avatar")
+    public String eliminarAvatarPerfil(Principal principal, RedirectAttributes flash) {
+        usuarioService.eliminarAvatarPorUsername(principal.getName());
+        flash.addFlashAttribute("mensaje", "Foto de perfil eliminada correctamente.");
+        return "redirect:/perfil";
+    }
+
+    @GetMapping("/usuarios/eliminar-avatar/{id}")
+    public String eliminarAvatarUsuario(@PathVariable Long id, @RequestParam(value="from", required=false, defaultValue="usuarios") String from, RedirectAttributes flash) {
+        usuarioService.eliminarAvatar(id);
+        flash.addFlashAttribute("success", "Foto eliminada.");
+        // Devuelve a la ruta de edición correcta según el origen
+        if ("jugadores".equals(from)) {
+            return "redirect:/jugadores/editar/" + id;
+        }
+        return "redirect:/usuarios/editar/" + id;
+    }
+
     @RestController
     @RequestMapping("/api/dashboard")
     public class DashboardController {
@@ -224,11 +257,12 @@ public class UsuarioController {
                 @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
             return pistaRepository.findAll().stream().map(pista -> {
-                List<Integer> horasOcupadas = pista.getEventos().stream()
-                        .filter(e -> e.getDate().equals(fecha))
-                        .map(e -> e.getTime().getHour())
+                // ✅ CAMBIADO: Ahora sacamos la hora exacta con formato "HH:mm"
+                List<String> horasOcupadas = pista.getEventos().stream()
+                        .filter(e -> e.getDate().equals(fecha) && e.getTime() != null)
+                        .map(e -> String.format("%02d:%02d", e.getTime().getHour(), e.getTime().getMinute()))
                         .distinct()
-                        .sorted()
+                        .sorted() // Como ahora son Strings con formato HH:mm, se ordenan alfabéticamente de forma perfecta
                         .collect(Collectors.toList());
 
                 return new PistaOcupacionDTO(pista.getNombrePista(), horasOcupadas);

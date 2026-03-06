@@ -801,13 +801,6 @@
             </div>
         </div>
 
-
-        <a href="/menu_principal" class="btn-back w-full max-w-xs flex justify-center items-center gap-3">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Menu de usuarios
-        </a>
         <footer class="text-center opacity-30 py-10">
             <p class="text-[9px] text-white font-black uppercase tracking-[10px]">CTT Steel Edition 2026</p>
         </footer>
@@ -919,11 +912,14 @@
         function abrirModal(nombre, horas) {
             document.getElementById('modalTituloPista').innerText = nombre;
             const lista = document.getElementById('modalListaEventos');
-            lista.innerHTML = horas.sort((a, b) => a - b).map(h => `
+            
+            // ✅ CAMBIADO: .localeCompare para ordenar strings ("14:30" vs "15:00") y quitado el ":00" forzado
+            lista.innerHTML = horas.sort((a, b) => a.localeCompare(b)).map(h => `
                 <div class="flex items-center justify-between p-4 bg-rose-50 border border-rose-100 rounded-2xl text-rose-700 font-bold text-sm shadow-sm">
-                    <span class="flex items-center gap-3"><i class="far fa-clock text-rose-400"></i> ${h}:00 hs</span>
+                    <span class="flex items-center gap-3"><i class="far fa-clock text-rose-400"></i> ${h} hs</span>
                     <span class="text-[9px] bg-rose-500 text-white px-3 py-1 rounded-full uppercase font-black">Reservado</span>
                 </div>`).join('');
+                
             document.getElementById('modalEventos').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }

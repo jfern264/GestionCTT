@@ -13,6 +13,9 @@ public interface EventService {
 
     void agregarEvento(Event evento);
 
+    // ✅ NUEVO MÉTODO DECLARADO PARA EDITAR
+    void actualizarEvento(Long id, Event eventoActualizado);
+
     Event obtenerEventoPorFecha(String fecha);
 
     void eliminarEvento(int id);

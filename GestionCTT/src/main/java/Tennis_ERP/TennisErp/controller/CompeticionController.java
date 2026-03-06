@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class CompeticionController {
@@ -73,7 +74,9 @@ public class CompeticionController {
         Categoria cat = categoriaService.getCategoriaById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         model.addAttribute("categoria", cat);
-        return "competicion/gestion_categorias/categorias_crear";
+        
+        // CORRECCIÓN CRÍTICA: Apuntaba a "categorias_crear" por error. Ahora apunta a la vista correcta.
+        return "competicion/gestion_categorias/categorias_editar";
     }
 
     // Método guardar mejorado para procesar descripciones en ediciones
@@ -129,5 +132,32 @@ public class CompeticionController {
     public String toggleEstatus(@PathVariable Long id) {
         categoriaService.toggleEstatusInscripcion(id);
         return "redirect:/equipos";
+    }
+
+    @PostMapping("/categorias/actualizar/{id}")
+    public String actualizarCategoria(@PathVariable("id") Long id, 
+                                      @ModelAttribute("categoria") Categoria categoriaForm, 
+                                      RedirectAttributes flash) {
+        try {
+            // 1. Buscamos la categoría original en la base de datos
+            Categoria categoriaDB = categoriaService.getCategoriaById(id)
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+            
+            // 2. Actualizamos los campos permitidos
+            categoriaDB.setNombre(categoriaForm.getNombre());
+            categoriaDB.setDescripcion(categoriaForm.getDescripcion());
+            categoriaDB.setGenero(categoriaForm.getGenero());
+            
+            // 3. Guardamos los cambios (se mantiene la relación con su Liga original)
+            categoriaService.saveCategoria(categoriaDB);
+            
+            // 4. Redirigimos a la vista de ligas (donde se ven todas las categorías)
+            flash.addFlashAttribute("success", "División/Categoría actualizada correctamente.");
+            return "redirect:/ligas";
+            
+        } catch (Exception e) {
+            flash.addFlashAttribute("error", "Hubo un error al actualizar: " + e.getMessage());
+            return "redirect:/categorias/editar/" + id;
+        }
     }
 }
