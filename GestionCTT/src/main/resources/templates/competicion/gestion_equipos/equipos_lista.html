@@ -33,7 +33,6 @@
         
         .category-card { background: var(--bg-grad-2); border: 2px solid var(--border-highlight); border-radius: 25px; padding: 25px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: 0.3s; height: auto; }
         
-        /* CORRECCIÓN: QUITAR TABLE-LAYOUT FIXED Y OVERFLOW DE TD GLOBAL */
         .tech-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         .tech-table th { text-transform: uppercase; font-size: 0.65rem; font-weight: 900; color: var(--text-muted); padding: 5px 10px; border-bottom: 1px solid var(--border-color); }
         .tech-table td { background: var(--card-bg); padding: 10px 15px; border-radius: 10px; color: var(--text-main); border: 1px solid transparent; transition: 0.3s; height: 60px; }
@@ -61,7 +60,7 @@
         @media (max-width: 768px) { body.admin-layout .main-content { margin-left: 70px; width: calc(100% - 70px); } }
     </style>
 </head>
-<body class="admin-layout">
+<body th:classappend="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? 'admin-layout' : 'player-layout'">
     
     <div sec:authorize="hasAuthority('ROLE_ADMIN')">
         <div th:replace="fragments/sidebar :: sidebar"></div>
@@ -73,8 +72,17 @@
         </header>
 
         <main class="admin-container">
-            <div class="flex justify-end mb-8 items-center" sec:authorize="hasAuthority('ROLE_ADMIN')">
-                <a href="/ligas" class="theme-btn px-6 py-3 rounded-xl text-[11px] uppercase font-black shadow-lg"><i class="fas fa-cog mr-1"></i> Configurar Ligas</a>
+            <div class="flex justify-between items-center mb-8 border-b pb-4 theme-border">
+                <a th:href="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? '/menu_admin' : '/menu_normal'" 
+                   class="text-xs font-bold uppercase tracking-widest transition inline-flex items-center gap-2 theme-muted hover:text-white">
+                    <i class="fas fa-arrow-left"></i> Volver al Menú
+                </a>
+                
+                <div sec:authorize="hasAuthority('ROLE_ADMIN')">
+                    <a href="/ligas" class="theme-btn px-6 py-3 rounded-xl text-[11px] uppercase font-black shadow-lg">
+                        <i class="fas fa-cog mr-1"></i> Configurar Ligas
+                    </a>
+                </div>
             </div>
 
             <div th:each="liga : ${ligas}" class="mb-10">
@@ -172,26 +180,29 @@
         </div>
     </div>
 
-    <button class="theme-switcher-btn" onclick="toggleThemePanel()"><i class="fas fa-palette"></i></button>
-    <div class="theme-panel" id="themePanel">
-        <h4 class="text-sm font-black uppercase text-center mb-4 theme-text border-b pb-2 theme-border">Elige tu estilo</h4>
-        <div id="themeOptions"></div>
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')">
+        <button class="theme-switcher-btn" onclick="toggleThemePanel()"><i class="fas fa-palette"></i></button>
+        <div class="theme-panel" id="themePanel">
+            <h4 class="text-sm font-black uppercase text-center mb-4 theme-text border-b pb-2 theme-border">Elige tu estilo</h4>
+            <div id="themeOptions"></div>
+        </div>
+        <script>
+            if (typeof globalThemes !== 'undefined') {
+                const themePanelOptions = document.getElementById('themeOptions');
+                for (const [key, data] of Object.entries(globalThemes)) {
+                    const btn = document.createElement('div');
+                    btn.className = 'theme-option';
+                    btn.style.backgroundColor = data.colors.border || data.colors.highlight;
+                    btn.innerHTML = `<span class="w-4 h-4 rounded-full bg-white opacity-50"></span> ${data.name}`;
+                    btn.onclick = () => { applyThemeGlobal(key); localStorage.setItem('ctt_admin_theme', key); toggleThemePanel(); };
+                    themePanelOptions.appendChild(btn);
+                }
+            }
+            function toggleThemePanel() { document.getElementById('themePanel').classList.toggle('active'); }
+        </script>
     </div>
 
     <script>
-        if (typeof globalThemes !== 'undefined') {
-            const themePanelOptions = document.getElementById('themeOptions');
-            for (const [key, data] of Object.entries(globalThemes)) {
-                const btn = document.createElement('div');
-                btn.className = 'theme-option';
-                btn.style.backgroundColor = data.colors.border || data.colors.highlight;
-                btn.innerHTML = `<span class="w-4 h-4 rounded-full bg-white opacity-50"></span> ${data.name}`;
-                btn.onclick = () => { applyThemeGlobal(key); localStorage.setItem('ctt_admin_theme', key); toggleThemePanel(); };
-                themePanelOptions.appendChild(btn);
-            }
-        }
-        function toggleThemePanel() { document.getElementById('themePanel').classList.toggle('active'); }
-
         function toggleLigaCollapse(header) {
             const body = header.nextElementSibling;
             const icon = header.querySelector('.liga-toggle-icon');
