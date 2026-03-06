@@ -31,7 +31,7 @@
         .user-profile-link:hover::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--color-perfil); }
         
         .user-avatar { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); flex-shrink: 0; position: relative; }
-        .user-avatar img { width: 100%; height: 100%; object-fit: cover; } /* <-- ESTO EVITA LA DEFORMACIÓN */
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; } 
         
         .user-info { flex: 1; min-width: 0; }
         .user-name { color: white; font-weight: 700; font-size: 1rem; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -59,7 +59,7 @@
         
         .sidebar-divider { height: 1px; background: rgba(255, 255, 255, 0.1); margin: 15px 20px; flex-shrink: 0; }
         
-        /* 6. LAYOUT INTELIGENTE (ADMIN VS JUGADOR) */
+        /* 6. LAYOUT INTELIGENTE */
         body.admin-layout .main-content { margin-left: 280px; width: calc(100% - 280px); }
         body.player-layout .main-content { margin-left: 0; width: 100%; }
 
@@ -84,13 +84,13 @@
             <div class="user-profile-section">
                 <a href="/perfil" class="user-profile-link">
                     <div class="user-avatar">
-                        <img th:src="${usuarioActual.avatar != null && !usuarioActual.avatar.isEmpty()} 
+                        <img th:src="${usuarioActual != null && usuarioActual.avatar != null && !usuarioActual.avatar.isEmpty()} 
                             ? @{/images/{path}(path=${usuarioActual.avatar})} 
-                            : 'https://ui-avatars.com/api/?name=' + ${usuarioActual.nombre} + '+' + ${usuarioActual.primerApellido} + '&background=1a4731&color=fff&size=150'"
+                            : 'https://ui-avatars.com/api/?name=Admin&background=1a4731&color=fff&size=150'"
                             alt="Avatar">
                     </div>
                     <div class="user-info">
-                        <div class="user-name"><span th:text="${usuarioActual.nombre}"></span></div>
+                        <div class="user-name"><span th:text="${usuarioActual != null ? usuarioActual.nombre : 'Admin'}"></span></div>
                         <div class="user-role">
                             <span class="user-role-badge">Full Access</span>
                         </div>
@@ -118,6 +118,16 @@
                     </div>
                     <span>Usuarios</span>
                 </a>
+                
+                <a href="/convocatorias" class="sidebar-link text-purple-400 hover:text-purple-300">
+                    <div class="sidebar-icon">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </div>
+                    <span>Convocatorias</span>
+                </a>
+
                 <a href="/mail" class="sidebar-link sidebar-roles">
                     <div class="sidebar-icon">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,4 +192,35 @@
             </div>
         </div>
     </aside>
+
+    <script>
+        const globalThemes = {
+            slate: { name: 'Gris Moderno', colors: { bg1:'#1f2937', bg2:'#0f172a', card:'#1e293b', cardHover:'#0f172a', border:'#334155', highlight:'#475569', textMain:'#f1f5f9', textMuted:'#94a3b8' } },
+            coffee: { name: 'Café Tierra', colors: { bg1:'#2d241e', bg2:'#17110e', card:'#241a15', cardHover:'#332620', border:'#3e2723', highlight:'#5d4037', textMain:'#f5f5f4', textMuted:'#a8a29e' } },
+            ocean: { name: 'Azul Océano', colors: { bg1:'#0c4a6e', bg2:'#082f49', card:'#075985', cardHover:'#0369a1', border:'#0284c7', highlight:'#38bdf8', textMain:'#f0f9ff', textMuted:'#bae6fd' } },
+            forest: { name: 'Bosque Oscuro', colors: { bg1:'#14532d', bg2:'#064e3b', card:'#166534', cardHover:'#15803d', border:'#22c55e', highlight:'#4ade80', textMain:'#f0fdf4', textMuted:'#bbf7d0' } },
+            midnight: { name: 'Medianoche', colors: { bg1:'#2e1065', bg2:'#1e1b4b', card:'#312e81', cardHover:'#3730a3', border:'#4338ca', highlight:'#6366f1', textMain:'#eef2ff', textMuted:'#c7d2fe' } },
+            crimson: { name: 'Rojo Carmesí', colors: { bg1:'#7f1d1d', bg2:'#450a0a', card:'#991b1b', cardHover:'#b91c1c', border:'#dc2626', highlight:'#ef4444', textMain:'#fef2f2', textMuted:'#fecaca' } },
+            obsidian: { name: 'Obsidiana', colors: { bg1:'#171717', bg2:'#0a0a0a', card:'#262626', cardHover:'#404040', border:'#525252', highlight:'#737373', textMain:'#fafafa', textMuted:'#d4d4d4' } }
+        };
+
+        function applyThemeGlobal(themeKey) {
+            const t = globalThemes[themeKey]?.colors;
+            if(!t) return;
+            const root = document.documentElement;
+            root.style.setProperty('--bg-grad-1', t.bg1);
+            root.style.setProperty('--bg-grad-2', t.bg2);
+            root.style.setProperty('--card-bg', t.card);
+            root.style.setProperty('--card-bg-hover', t.cardHover);
+            root.style.setProperty('--border-color', t.border);
+            root.style.setProperty('--border-highlight', t.highlight);
+            root.style.setProperty('--btn-bg', t.border);
+            root.style.setProperty('--btn-hover', t.highlight);
+            root.style.setProperty('--text-main', t.textMain);
+            root.style.setProperty('--text-muted', t.textMuted);
+        }
+        
+        const currentTheme = localStorage.getItem('ctt_admin_theme') || 'slate';
+        applyThemeGlobal(currentTheme);
+    </script>
 </div>

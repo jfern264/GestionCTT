@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Convocatoria - CTT Steel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-grad-1: #1f2937; --bg-grad-2: #0f172a; --card-bg: #1e293b; --card-bg-hover: #0f172a; --border-color: #334155; --border-highlight: #475569; --text-main: #f1f5f9; --text-muted: #94a3b8; --btn-bg: #334155; --btn-hover: #475569; }
+        body { font-family: 'Montserrat', sans-serif; background: radial-gradient(circle at center, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%); color: var(--text-main); min-height: 100vh; overflow-y: scroll; margin: 0; display: flex; transition: background 0.5s ease;}
+        body.admin-layout .main-content { margin-left: 280px; width: calc(100% - 280px); }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        
+        .form-container { max-width: 1300px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .theme-card { background: var(--card-bg); border-radius: 30px; padding: 35px; border: 4px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.6); transition: 0.3s; }
+        
+        .theme-input { width: 100%; background: var(--card-bg-hover); border: 2px solid var(--border-color); color: var(--text-main); padding: 15px 20px; border-radius: 15px; font-weight: 500; transition: 0.3s; outline: none; }
+        .theme-input:focus { border-color: var(--border-highlight); }
+        .theme-input::placeholder { color: var(--text-muted); opacity: 0.7; }
+        
+        select option { background: var(--card-bg-hover); color: var(--text-main); font-weight: bold; }
+
+        .email-preview { background: #ffffff; border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; height: 100%; min-height: 450px; border: 1px solid #e5e7eb; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);}
+        .email-header { background: #f9fafb; padding: 20px 25px; border-bottom: 1px solid #e5e7eb; }
+        .email-body { padding: 30px 25px; flex: 1; font-family: Arial, sans-serif; white-space: pre-wrap; line-height: 1.6; color: #374151; background: #ffffff; font-size: 1.05rem; }
+        
+        .empty-preview { display: flex; align-items: center; justify-content: center; text-align: center; color: #9ca3af; font-style: italic; }
+
+        .theme-switcher-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--card-bg); border: 3px solid var(--border-highlight); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 999; transition: 0.3s; }
+        .theme-switcher-btn:hover { transform: rotate(45deg) scale(1.1); }
+        .theme-panel { position: fixed; bottom: 100px; right: 30px; background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 20px; padding: 20px; width: 250px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); z-index: 998; display: none; opacity: 0; transition: 0.3s; }
+        .theme-panel.active { display: block; opacity: 1; }
+        .theme-option { width: 100%; padding: 10px; margin-bottom: 8px; border-radius: 10px; border: 2px solid transparent; cursor: pointer; font-weight: bold; text-align: left; display: flex; align-items: center; gap: 10px; transition: 0.2s; color: white; }
+        .theme-option:hover { transform: translateX(5px); border-color: rgba(255,255,255,0.3); }
+
+        @media (max-width: 1024px) { .form-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="admin-layout">
+    
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <div class="main-content">
+        <header class="text-center w-full mb-10">
+            <h1 class="theme-card theme-text px-12 py-3 rounded-full font-black text-2xl uppercase inline-block border-4 shadow-xl tracking-wider" style="padding: 15px 40px; border-radius: 50px;">
+                <i class="fas fa-paper-plane mr-2" style="color: var(--border-highlight);"></i> Redactar Convocatoria
+            </h1>
+        </header>
+
+        <div class="form-container">
+            <div class="theme-card">
+                <h3 class="text-xl font-bold mb-6 theme-text border-b theme-border pb-3 uppercase tracking-wide">Configuración del Envío</h3>
+                
+                <form th:action="@{/convocatorias/guardar}" th:object="${convocatoria}" method="post" class="space-y-6">
+                    
+                    <div>
+                        <label class="block text-xs font-black uppercase theme-muted mb-2 tracking-widest">Asunto del Correo</label>
+                        <input type="text" th:field="*{asunto}" name="asunto" class="theme-input" placeholder="Ej: Nueva temporada 2026..." required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black uppercase theme-muted mb-2 tracking-widest">Destinatarios <i class="fas fa-users ml-1"></i></label>
+                        <div class="relative">
+                            <select name="idCategoriaSel" class="theme-input cursor-pointer appearance-none">
+                                <option value="" class="font-black">📢 Enviar a Todos los Usuarios (Masivo)</option>
+                                <option disabled>----------------------</option>
+                                <option th:if="${categorias != null}" th:each="cat : ${categorias}" th:value="${cat.id}" th:text="'🎯 Categoría: ' + ${cat.nombre}"></option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-4 top-4 theme-muted pointer-events-none"></i>
+                        </div>
+                        <p class="text-[10px] mt-2 font-bold uppercase" style="color: var(--border-highlight);"><i class="fas fa-info-circle"></i> Selecciona "Masivo" para notificar a toda la BD.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black uppercase theme-muted mb-2 tracking-widest">Cuerpo del Mensaje</label>
+                        <textarea th:field="*{mensaje}" name="mensaje" class="theme-input" rows="8" placeholder="Escribe aquí las instrucciones de la convocatoria..." required></textarea>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t theme-border mt-6">
+                        <a th:href="@{/convocatorias}" class="text-sm font-bold theme-muted hover:text-white transition"><i class="fas fa-arrow-left"></i> Volver</a>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase px-8 py-3 rounded-xl transition shadow-lg hover:scale-105 border-none cursor-pointer">
+                            Enviar Ahora <i class="fas fa-paper-plane ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="theme-card flex flex-col" style="background: var(--bg-grad-1);">
+                <h3 class="text-xl font-bold mb-6 theme-text border-b theme-border pb-3 uppercase tracking-wide">
+                    <i class="fas fa-eye" style="color: var(--border-highlight);"></i> Vista Previa del Cliente
+                </h3>
+                
+                <div class="email-preview">
+                    <div class="email-header">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs font-bold text-gray-500 w-16">De:</span>
+                            <span class="text-sm font-semibold text-gray-800">CTT Steel Admin &lt;<span th:text="${@environment.getProperty('spring.mail.username')}">admin@correo.com</span>&gt;</span>
+                        </div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xs font-bold text-gray-500 w-16">Para:</span>
+                            <span class="text-xs font-black uppercase tracking-widest bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-lg" id="previewDestino">Todos los Usuarios</span>
+                        </div>
+                        <div class="flex items-start gap-2 pt-3 border-t border-gray-200">
+                            <span class="text-xs font-bold text-gray-500 w-16 mt-1">Asunto:</span>
+                            <span class="text-lg font-black text-gray-900" id="previewAsunto">Sin Asunto</span>
+                        </div>
+                    </div>
+                    <div class="email-body empty-preview" id="previewMensaje">
+                        El contenido de tu correo aparecerá aquí en tiempo real...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="theme-switcher-btn" onclick="toggleThemePanel()"><i class="fas fa-palette"></i></button>
+    <div class="theme-panel" id="themePanel">
+        <h4 class="text-sm font-black uppercase text-center mb-4 theme-text border-b pb-2 theme-border">Elige tu estilo</h4>
+        <div id="themeOptions"></div>
+    </div>
+
+    <script>
+        if (typeof globalThemes !== 'undefined') {
+            const themePanelOptions = document.getElementById('themeOptions');
+            for (const [key, data] of Object.entries(globalThemes)) {
+                const btn = document.createElement('div');
+                btn.className = 'theme-option';
+                btn.style.backgroundColor = data.colors.border || data.colors.highlight;
+                btn.innerHTML = `<span class="w-4 h-4 rounded-full bg-white opacity-50"></span> ${data.name}`;
+                btn.onclick = () => { applyThemeGlobal(key); localStorage.setItem('ctt_admin_theme', key); toggleThemePanel(); };
+                themePanelOptions.appendChild(btn);
+            }
+        }
+        function toggleThemePanel() { document.getElementById('themePanel').classList.toggle('active'); }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputAsunto = document.querySelector('[name="asunto"]');
+            const inputMensaje = document.querySelector('[name="mensaje"]');
+            const inputCategoria = document.querySelector('[name="idCategoriaSel"]');
+            
+            const previewAsunto = document.getElementById('previewAsunto');
+            const previewMensaje = document.getElementById('previewMensaje');
+            const previewDestino = document.getElementById('previewDestino');
+
+            function actualizarAsunto() {
+                previewAsunto.innerText = inputAsunto.value || 'Sin Asunto';
+            }
+
+            function actualizarMensaje() {
+                if(!inputMensaje.value.trim()) {
+                    previewMensaje.classList.add('empty-preview');
+                    previewMensaje.innerHTML = 'El contenido de tu correo aparecerá aquí en tiempo real...';
+                } else {
+                    previewMensaje.classList.remove('empty-preview');
+                    previewMensaje.innerText = inputMensaje.value;
+                }
+            }
+
+            function actualizarCategoria() {
+                if(inputCategoria.value === "") {
+                    previewDestino.innerText = "Todos los Usuarios";
+                    previewDestino.className = "text-xs font-black uppercase tracking-widest bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-lg";
+                } else {
+                    const text = inputCategoria.options[inputCategoria.selectedIndex].text.replace('🎯 Categoría: ', '');
+                    previewDestino.innerText = text;
+                    previewDestino.className = "text-xs font-black uppercase tracking-widest bg-purple-100 text-purple-800 border border-purple-200 px-2 py-0.5 rounded-lg";
+                }
+            }
+
+            if(inputAsunto) inputAsunto.addEventListener('input', actualizarAsunto);
+            if(inputMensaje) inputMensaje.addEventListener('input', actualizarMensaje);
+            if(inputCategoria) inputCategoria.addEventListener('change', actualizarCategoria);
+
+            actualizarAsunto();
+            actualizarMensaje();
+            actualizarCategoria();
+        });
+    </script>
+</body>
+</html>
