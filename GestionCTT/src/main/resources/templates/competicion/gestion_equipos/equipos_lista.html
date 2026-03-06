@@ -73,7 +73,7 @@
 
         <main class="admin-container">
             <div class="flex justify-between items-center mb-8 border-b pb-4 theme-border">
-                <a th:href="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? '/menu_admin' : '/menu_normal'" 
+                <a th:href="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')} ? '/menu_admin' : '/menu_principal'" 
                    class="text-xs font-bold uppercase tracking-widest transition inline-flex items-center gap-2 theme-muted hover:text-white">
                     <i class="fas fa-arrow-left"></i> Volver al Menú
                 </a>
