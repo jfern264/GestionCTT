@@ -32,10 +32,10 @@
         .theme-option { width: 100%; padding: 10px; margin-bottom: 8px; border-radius: 10px; border: 2px solid transparent; cursor: pointer; font-weight: bold; text-align: left; display: flex; align-items: center; gap: 10px; transition: 0.2s; color: white; }
         .theme-option:hover { transform: translateX(5px); border-color: rgba(255,255,255,0.3); }
 
-        /* Estructura Modal Correo Real (Sin paleta de colores global) */
-        .email-modal-wrapper { padding: 0; display: flex; flex-direction: column; max-height: 85vh; background: #ffffff; border: none; overflow: hidden;}
+        /* Estructura Modal Correo Real */
+        .email-modal-wrapper { padding: 0; display: flex; flex-direction: column; max-height: 90vh; background: #ffffff; border: none; overflow: hidden; border-radius: 20px;}
         .email-modal-header { background: #f8fafc; padding: 25px 35px; border-bottom: 1px solid #e2e8f0; }
-        .email-modal-body { padding: 35px; background: #ffffff; color: #334155; font-family: Arial, sans-serif; white-space: pre-wrap; line-height: 1.7; overflow-y: auto; font-size: 1.15rem; }
+        .email-modal-body { padding: 35px; background: #ffffff; color: #334155; font-family: Arial, sans-serif; white-space: pre-wrap; line-height: 1.6; overflow-y: auto; font-size: 1.05rem; }
         .email-modal-footer { background: #f8fafc; padding: 15px 35px; border-top: 1px solid #e2e8f0; text-align: right; }
     </style>
 </head>
@@ -96,7 +96,7 @@
     </div>
 
     <div id="emailModal" class="fixed inset-0 z-[500] hidden flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity p-4">
-        <div class="transform scale-95 transition-transform w-full max-w-4xl email-modal-wrapper shadow-2xl rounded-2xl" id="emailModalContent">
+        <div class="transform scale-95 transition-transform w-full max-w-5xl email-modal-wrapper shadow-2xl" id="emailModalContent">
             
             <div class="email-modal-header flex justify-between items-start">
                 <div class="w-full">
@@ -118,7 +118,7 @@
                 </div>
             
             <div class="email-modal-footer">
-                <button onclick="closeEmailModal()" class="bg-slate-800 hover:bg-black text-white px-8 py-3 rounded-xl font-black uppercase text-xs shadow-md transition hover:scale-105 cursor-pointer">Cerrar Mensaje</button>
+                <button onclick="closeEmailModal()" class="bg-slate-800 hover:bg-black text-white px-8 py-3 rounded-xl font-black uppercase text-xs shadow-md transition hover:scale-105 cursor-pointer">Cerrar Visor</button>
             </div>
         </div>
     </div>
@@ -145,9 +145,11 @@
 
         function openEmailModal(btn) {
             document.getElementById('emailSubject').innerText = btn.getAttribute('data-asunto');
-            document.getElementById('emailBody').innerText = btn.getAttribute('data-mensaje');
             document.getElementById('emailDate').innerText = btn.getAttribute('data-fecha');
             document.getElementById('emailTo').innerText = btn.getAttribute('data-dest');
+            
+            // LA CLAVE: RENDERIZAMOS CON innerHTML Y REEMPLAZAMOS LOS \n DEL TEXTO GUARDADO EN BD A <br>
+            document.getElementById('emailBody').innerHTML = btn.getAttribute('data-mensaje').replace(/\n/g, '<br>');
             
             const modal = document.getElementById('emailModal');
             modal.classList.remove('hidden');

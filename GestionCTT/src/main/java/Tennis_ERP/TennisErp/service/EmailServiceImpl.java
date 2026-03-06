@@ -6,6 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import Tennis_ERP.TennisErp.dao.UsuarioDAO;
 import Tennis_ERP.TennisErp.domain.Usuario;
@@ -21,58 +22,57 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private UsuarioDAO userRepository;
 
-    /**
-     * Envía un correo individual envolviéndolo en una plantilla profesional.
-     */
     @Override
     public void sendMailById(Long userid, String subject, String body) throws MessagingException {
-
         Usuario user = userRepository.getReferenceById(userid);
         String to = user.getEmail();
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         
-        // Llamamos a la nueva función que da formato
         String formattedBody = wrapHtmlContent(body);
         
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setText(formattedBody, true); // true indica que es HTML
+        helper.setText(formattedBody, true); 
         
         mailSender.send(message);
     }
-
 
     @Override
     public void sendSingleEmail(String to, String subject, String body) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         
-        // Llamamos a la nueva función que da formato
         String formattedBody = wrapHtmlContent(body);
         
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setText(formattedBody, true); // true indica que es HTML
+        helper.setText(formattedBody, true);
         
         mailSender.send(message);
     }
 
     @Override 
+    @Transactional // Requerido para leer las categorías del usuario perezosamente
     public void sendMailByCategory(Long categoriaId, String subject, String body) throws MessagingException {
         List<Usuario> users = userRepository.findByUsuarioCategorias_Categoria_Id(categoriaId);
+        
         for (Usuario user : users) {
-            try {
-                this.sendSingleEmail(user.getEmail(), subject, body);
-            } catch (MessagingException e) {
-                System.err.println("Error enviando a " + user.getEmail() + ": " + e.getMessage());
+            // FIX: Como isActivo() es un 'boolean' primitivo, nunca es null. 
+            // Evaluamos directamente si es true.
+            boolean isActive = user.getUsuarioCategorias().stream()
+                .anyMatch(uc -> uc.getCategoria().getId().equals(categoriaId) && uc.isActivo());
+                
+            if (isActive) {
+                try {
+                    this.sendSingleEmail(user.getEmail(), subject, body);
+                } catch (MessagingException e) {
+                    System.err.println("Error enviando a " + user.getEmail() + ": " + e.getMessage());
+                }
             }
         }
     }
 
-    /**
-     * Función privada para dar formato "Steel Edition" al mensaje.
-     */
     private String wrapHtmlContent(String content) {
         return """
         <html>
@@ -119,7 +119,6 @@ public class EmailServiceImpl implements EmailService {
         List<Usuario> users = userRepository.findAll();
         for (Usuario user : users) {
             try {
-                // Reutiliza la lógica de envío con formato
                 this.sendSingleEmail(user.getEmail(), subject, body);
             } catch (MessagingException e) {
                 System.err.println("Error enviando a " + user.getEmail() + ": " + e.getMessage());
